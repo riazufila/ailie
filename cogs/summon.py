@@ -63,21 +63,20 @@ class Summon(commands.Cog):
             "★★★ Noble Succubus Bianca",
             "★★★ Grand Admiral Marina"
         ]
-        self.weights_pickup = []
+        self.weights_banner = []
 
-    @commands.command(name="banner info", help="Lists the current banner.")
+    @commands.command(name="banner.info", help="Lists the current pickup banner.")
     async def bannerInfo(self, ctx):
-        msg = await ctx.send(f"One sec, <@{ctx.author.id}>. Getting those Pick \
-Up Banner info.")
+        msg = await ctx.send(f"One sec, <@{ctx.author.id}>. Getting those Pick Up Banner info.")
+        time.sleep(1.5)
 
         i = 1
         for hero_banner in self.heroes_banner:
             await msg.edit(content=msg.content + f"\n{i}. {hero_banner}")
             i += 1
 
-    @commands.command(name="summon", help="Summons single or ten units on the \
-non-banner ")
-    async def summon(self, ctx, one_or_ten):
+    @commands.command(name="summon.normal", help="Summons single or ten units on the normal banner.")
+    async def summonNormal(self, ctx, one_or_ten):
         if one_or_ten == "10" or one_or_ten == "ten":
             results = random.choices(self.heroes, self.weights, k=10)
         elif one_or_ten == "1" or one_or_ten == "one":
@@ -108,6 +107,7 @@ non-banner ")
                     ailie = True
 
                 await msg.edit(content=msg.content + f"\n{i}. {result}")
+                time.sleep(0.7)
                 i += 1
 
             if three_star:
@@ -122,6 +122,10 @@ non-banner ")
                 else:
                     await ctx.send(
                         f"You just suck at gachas, <@{ctx.author.id}>..")
+
+    @commands.command(name="summon.banner", help="Summons single or ten units on the pick up banner.")
+    async def summonBanner(self, ctx):
+        return "data"
 
 
 def setup(bot):
