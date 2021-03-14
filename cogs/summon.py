@@ -9,53 +9,48 @@ class Summon(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.heroes = [
-            "★★★ Goddess of War Plitvice", "★★★ Knight Lady Lapice",
-            "★★★ Grand Admiral Marina", "★★★ Executive Red Hood Arabelle",
-            "★★★ Idol Captain Eva", "★★★ Flower Girl Bari",
-            "★★★ Ice Witch Lupina", "★★★ Scrivener Lahn",
-            "★★★ Movie Star Eugene", "★★★ Dancing Archer Tinia",
-            "★★★ Dragon Avatar Vishuvac", "★★★ Eight-tailed Fox Nari",
-            "★★★ Noble Succubus Bianca", "★★★ Mecha Warrior Oghma",
-            "★★★ Golem Rider Alef", "★★★ Exorcist Miya", "★★★ Future Princess",
-            "★★★ Nine-tailed Fox Garam", "★★★ Dark Magician Beth",
-            "★★★ Santa's Little Helper Rue", "★★★ Archangel Gabriel",
-            "★★★ Drunken Swordmaster Lynn", "★★★ Future Knight",
-            "★★★ Chosen One's Archpriestess Veronica", "★★ Fe/Male Knight",
-            "★★ Knight Captain Eva", "★★ Red Hood Elvira", "★★ White Beast",
-            "★★ Vampire Girl Karina", "★★ Innkeeper Loraine",
-            "★★ Twin Fighter Lavi", "★★ Twin Healer Favi",
-            "★★ Leaf Fairy Aoba", "★★ Mad Scientist Gremory",
-            "★★ Pirate Rachel", "★★ Sniper Hekate", "★★ Innuit Girl Coco",
-            "★★ Engineer Marianne", "★★ Scientist Sohee",
-            "★★ Kung Fu Master Mei/Fei", "★★ Desert Mercenary Marvin",
-            "★★ Aspiring Warrior Craig", "★★ Swordsman Akayuki",
-            "★★ Dragon Talon Clan Ranpang", "★★ Succubus Adventurer Yuze",
-            "★★ Princess Aisha", "★★ Dragon Knight Shapira",
-            "★★ Swindler Magician Dolf", "★★ Dual-personality Maid Amy",
-            "★★ Fire Dragon Girgas", "★★ Dimension Traveler Catherine",
-            "★★ Battleball Girl Rie", "★★ Dragon Seeking Girl Neva",
-            "★ Linda the Senior Guardian", "★ Guardian Member Bob",
-            "★ Byrule's Hero Hyper", "★ Peddler Maria", "★ Caravan Lisa",
-            "★ Elf Archer Leah", "★ Teaten Ninja Jay",
-            "★ Ultra Rationale Dragon", "★ Super Teaten 2 Blade",
-            "★ Homecoming Queen Mina", "★ Dragon Talon Clan Hoshida",
-            "★ Succubus Researcher Peggy", "★ Relic Collector Ailie",
-            "★ Ghost Guard Oralie", "★ Baby White Tiger Kang",
-            "★ Merchant Agatha", "★ Doctor DaVinci", "★ Class President Kate",
-            "★ Town Guide Zoe", "★ Monk Disciple Rio", "★ Private Nyan",
-            "★ Junior Engineer Marty Junior"
-        ]
-        self.weights = [
-            2.750, 2.750, 2.750, 2.750, 2.750, 2.750, 2.750, 2.750, 2.750,
-            2.750, 2.750, 2.750, 2.750, 2.750, 2.750, 2.750, 2.750, 2.750,
-            2.750, 2.750, 2.750, 2.750, 2.750, 2.750,
-            19.000, 19.000, 19.000, 19.000, 19.000, 19.000, 19.000, 19.000,
-            19.000, 19.000, 19.000, 19.000, 19.000, 19.000, 19.000, 19.000,
-            19.000, 19.000, 19.000, 19.000, 19.000, 19.000, 19.000, 19.000,
-            19.000, 19.000, 19.000, 19.000, 19.000,
-            78.250, 78.250, 78.250, 78.250, 78.250, 78.250, 78.250, 78.250,
-            78.250, 78.250, 78.250, 78.250, 78.250, 78.250, 78.250, 78.250,
-            78.250, 78.250, 78.250, 78.250, 78.250, 78.250
+            [
+                "★ Linda the Senior Guardian", "★ Guardian Member Bob",
+                "★ Byrule's Hero Hyper", "★ Peddler Maria", "★ Caravan Lisa",
+                "★ Elf Archer Leah", "★ Teaten Ninja Jay",
+                "★ Ultra Rationale Dragon", "★ Super Teaten 2 Blade",
+                "★ Homecoming Queen Mina", "★ Dragon Talon Clan Hoshida",
+                "★ Succubus Researcher Peggy", "★ Relic Collector Ailie",
+                "★ Ghost Guard Oralie", "★ Baby White Tiger Kang",
+                "★ Merchant Agatha", "★ Doctor DaVinci", "★ Class President Kate",
+                "★ Town Guide Zoe", "★ Monk Disciple Rio", "★ Private Nyan",
+                "★ Junior Engineer Marty Junior"
+            ],
+            [
+                "★★ Fe/Male Knight", "★★ Knight Captain Eva",
+                "★★ Red Hood Elvira", "★★ White Beast",
+                "★★ Vampire Girl Karina", "★★ Innkeeper Loraine",
+                "★★ Twin Fighter Lavi", "★★ Twin Healer Favi",
+                "★★ Leaf Fairy Aoba", "★★ Mad Scientist Gremory",
+                "★★ Pirate Rachel", "★★ Sniper Hekate", "★★ Innuit Girl Coco",
+                "★★ Engineer Marianne", "★★ Scientist Sohee",
+                "★★ Kung Fu Master Mei/Fei", "★★ Desert Mercenary Marvin",
+                "★★ Aspiring Warrior Craig", "★★ Swordsman Akayuki",
+                "★★ Dragon Talon Clan Ranpang", "★★ Succubus Adventurer Yuze",
+                "★★ Princess Aisha", "★★ Dragon Knight Shapira",
+                "★★ Swindler Magician Dolf", "★★ Dual-personality Maid Amy",
+                "★★ Fire Dragon Girgas", "★★ Dimension Traveler Catherine",
+                "★★ Battleball Girl Rie", "★★ Dragon Seeking Girl Neva"
+            ],
+            [
+                "★★★ Goddess of War Plitvice", "★★★ Knight Lady Lapice",
+                "★★★ Grand Admiral Marina", "★★★ Executive Red Hood Arabelle",
+                "★★★ Idol Captain Eva", "★★★ Flower Girl Bari",
+                "★★★ Ice Witch Lupina", "★★★ Scrivener Lahn",
+                "★★★ Movie Star Eugene", "★★★ Dancing Archer Tinia",
+                "★★★ Dragon Avatar Vishuvac", "★★★ Eight-tailed Fox Nari",
+                "★★★ Noble Succubus Bianca", "★★★ Mecha Warrior Oghma",
+                "★★★ Golem Rider Alef", "★★★ Exorcist Miya", "★★★ Future Princess",
+                "★★★ Nine-tailed Fox Garam", "★★★ Dark Magician Beth",
+                "★★★ Santa's Little Helper Rue", "★★★ Archangel Gabriel",
+                "★★★ Drunken Swordmaster Lynn", "★★★ Future Knight",
+                "★★★ Chosen One's Archpriestess Veronica"
+            ]
         ]
         self.heroes_banner = [
             "★★★ Chosen One's Archpriestess Veronica",
@@ -63,18 +58,8 @@ class Summon(commands.Cog):
             "★★★ Noble Succubus Bianca",
             "★★★ Grand Admiral Marina"
         ]
-        self.weights_banner = [
-            1.375, 1.375, 1.375, 1.375, 1.375, 1.375, 1.375, 1.375, 1.375,
-            1.375, 1.375, 1.375, 1.375, 1.375, 1.375, 1.375, 1.375, 1.375,
-            1.375, 1.375, 1.375, 1.375, 1.375, 1.375,
-            19.000, 19.000, 19.000, 19.000, 19.000, 19.000, 19.000, 19.000,
-            19.000, 19.000, 19.000, 19.000, 19.000, 19.000, 19.000, 19.000,
-            19.000, 19.000, 19.000, 19.000, 19.000, 19.000, 19.000, 19.000,
-            19.000, 19.000, 19.000, 19.000, 19.000,
-            78.250, 78.250, 78.250, 78.250, 78.250, 78.250, 78.250, 78.250,
-            78.250, 78.250, 78.250, 78.250, 78.250, 78.250, 78.250, 78.250,
-            78.250, 78.250, 78.250, 78.250, 78.250, 78.250
-        ]
+        self.weights = [78.250, 19.000, 2.750]
+        self.weights_banner = [78.250, 19.000, 1.375, 1.375]
 
     # Calculate the chances for those 3 stars
     async def calcResults(self, ctx, one_or_ten, w, hero=None):
