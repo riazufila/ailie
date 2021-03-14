@@ -13,6 +13,14 @@ if __name__ == "__main__":
     bot = commands.Bot(command_prefix="ailie;",
                        description="Guardian's companion.")
 
+    bot.remove_command("help")
+
+    # Load extensions
+    extensions = ["cogs.help"]
+
+    for extension in extensions:
+        bot.load_extension(extension)
+
     # Bot event on_ready
     @bot.event
     async def on_ready():
