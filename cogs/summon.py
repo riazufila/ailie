@@ -77,7 +77,7 @@ class Summon(commands.Cog):
         ]
 
     # Calculate the chances for those 3 stars
-    async def calcResults(self, ctx, one_or_ten, w):
+    async def calcResults(self, ctx, one_or_ten, w, hero=None):
         if one_or_ten == "10" or one_or_ten == "ten":
             results = random.choices(self.heroes, w, k=10)
         elif one_or_ten == "1" or one_or_ten == "one":
@@ -111,26 +111,24 @@ class Summon(commands.Cog):
                     ailie = True
 
                 await msg.edit(content=msg.content + f"\n{i}. {result}")
-                time.sleep(0.7)
                 i += 1
 
-            if three_star:
-                if not obtainedPickup:
-                    await ctx.send(
-                        f"WOW! W-w-waaaiittt a second, <@{ctx.author.id}>..  Is that a freaking 3 star hero?!"
-                    )
-                elif obtainedPickup:
-                    await ctx.send(f"WOHOOOOOOOOOOOOOOOOOO, <@{ctx.author.id}>! You got the pick up hero!")
-                else:
-                    await ctx.send(f"I see 3 star hero. But no {hero}.. Sad life, <@{ctx.author.id}>")
-            else:
-                if ailie:
-                    await ctx.send(
-                        f"Think positive, <@{ctx.author.id}>! At least you got me :D"
-                    )
-                else:
-                    await ctx.send(
-                        f"You just suck at gachas, <@{ctx.author.id}>..")
+            if three_star and not obtainedPickup and hero:
+                await ctx.send(f"I see 3 star hero. But no {hero}.. Sad life, <@{ctx.author.id}>")
+            if three_star and obtainedPickup and hero:
+                await ctx.send(f"WOHOOOOOOOOOOOOOOOOOO, <@{ctx.author.id}>! You got the pick up hero!")
+            if three_star and not hero:
+                await ctx.send(
+                    f"WOW! W-w-waaaiittt a second, <@{ctx.author.id}>..  Is that a freaking 3 star hero?!"
+                )
+
+            if not three_star and ailie:
+                await ctx.send(
+                    f"Think positive, <@{ctx.author.id}>! At least you got me :D"
+                )
+            elif not three_star and not ailie:
+                await ctx.send(
+                    f"You just suck at gachas, <@{ctx.author.id}>..")
 
     # Lists the current pickup banner
     @commands.command(name="banner.info", help="Lists the current pickup banner.")
@@ -158,7 +156,7 @@ class Summon(commands.Cog):
             if hero_banner.lower().__contains__(hero.lower()):
                 present = True
                 index = self.heroes.index(hero_banner)
-                await self.calcResults(ctx, one_or_ten, self.weights_banner)
+                await self.calcResults(ctx, one_or_ten, self.weights_banner, self.heroes[index])
 
         if not present:
             await ctx.send(f"Ermmm, <@{ctx.author.id}>. The hero you mentioned is not in the current pick up banner. Do ailie;banner.info to check the current pick up banner.")
