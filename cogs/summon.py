@@ -99,7 +99,7 @@ class Summon(commands.Cog):
             msg = await ctx.send(
                 f"Wait up, <@{ctx.author.id}>. Summoning {one_or_ten} now..")
 
-            asyncio.sleep(3)
+            await asyncio.sleep(3)
 
             i = 1
             for result in results:
@@ -134,7 +134,7 @@ class Summon(commands.Cog):
     @commands.command(name="banner.info", help="Lists the current pickup banner.")
     async def bannerInfo(self, ctx):
         msg = await ctx.send(f"One sec, <@{ctx.author.id}>. Getting those Pick Up Banner info.")
-        asyncio.sleep(1.5)
+        await asyncio.sleep(1.5)
 
         i = 1
         for hero_banner in self.heroes_banner:
