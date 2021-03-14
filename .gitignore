@@ -1,0 +1,5 @@
+# dotenv
+.env
+
+# Pycache
+**/__pycache__/
