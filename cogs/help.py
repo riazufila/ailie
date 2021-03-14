@@ -6,7 +6,7 @@ from discord.ext import commands
 
 prefix = "ailie;"
 bot_title = "Ailie"
-bot_description = "Guardian's companion."
+bot_description = "Guardian's collector."
 bottom_info = "https://github.com/riazufila/ailie"
 
 

@@ -11,7 +11,7 @@ if __name__ == "__main__":
 
     # Bot setup
     bot = commands.Bot(command_prefix="ailie;",
-                       description="Guardian's companion.")
+                       description="Guardian's collector.")
 
     bot.remove_command("help")
 
