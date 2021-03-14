@@ -77,7 +77,7 @@ class Summon(commands.Cog):
         ]
 
     # Calculate the chances for those 3 stars
-    async def calcResults(self, ctx, one_or_ten, w, hero=None):
+    async def calcResults(self, ctx, one_or_ten, w):
         if one_or_ten == "10" or one_or_ten == "ten":
             results = random.choices(self.heroes, w, k=10)
         elif one_or_ten == "1" or one_or_ten == "one":
@@ -105,7 +105,7 @@ class Summon(commands.Cog):
             for result in results:
                 if "★★★" in result:
                     three_star = True
-                if hero == result:
+                if result in self.heroes_banner:
                     obtainedPickup = True
                 if "Ailie" in result:
                     ailie = True
@@ -158,8 +158,7 @@ class Summon(commands.Cog):
             if hero_banner.lower().__contains__(hero.lower()):
                 present = True
                 index = self.heroes.index(hero_banner)
-                # self.weights_banner[index] = 1.375
-                await self.calcResults(ctx, one_or_ten, self.weights_banner, self.heroes[index])
+                await self.calcResults(ctx, one_or_ten, self.weights_banner)
 
         if not present:
             await ctx.send(f"Ermmm, <@{ctx.author.id}>. The hero you mentioned is not in the current pick up banner. Do ailie;banner.info to check the current pick up banner.")
