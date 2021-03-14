@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import time
+import asyncio
 import random
 from discord.ext import commands
 
@@ -99,7 +99,7 @@ class Summon(commands.Cog):
             msg = await ctx.send(
                 f"Wait up, <@{ctx.author.id}>. Summoning {one_or_ten} now..")
 
-            time.sleep(3)
+            asyncio.sleep(3)
 
             i = 1
             for result in results:
@@ -134,7 +134,7 @@ class Summon(commands.Cog):
     @commands.command(name="banner.info", help="Lists the current pickup banner.")
     async def bannerInfo(self, ctx):
         msg = await ctx.send(f"One sec, <@{ctx.author.id}>. Getting those Pick Up Banner info.")
-        time.sleep(1.5)
+        asyncio.sleep(1.5)
 
         i = 1
         for hero_banner in self.heroes_banner:
