@@ -140,6 +140,7 @@ class Summon(commands.Cog):
 
         if one_or_ten == "10" or one_or_ten == "ten" or one_or_ten == "1" or one_or_ten == "one":
             three_star = False
+            ailie = False
 
             await ctx.send(
                 f"Wait up, <@{ctx.author.id}>. Summoning {one_or_ten} now..")
@@ -149,6 +150,8 @@ class Summon(commands.Cog):
             for result in results:
                 if "★★★" in result:
                     three_star = True
+                if "Ailie" in result:
+                    ailie = True
 
                 await ctx.send(f"{i}. {result}")
                 i += 1
@@ -157,6 +160,14 @@ class Summon(commands.Cog):
                 await ctx.send(
                     f"WOW! W-w-waaaiittt a second, <@{ctx.author.id}>.. Is that a freaking 3 star hero?!"
                 )
+            else:
+                if ailie:
+                    await ctx.send(
+                        f"Think positive, <@{ctx.author.id}>! At least you got me :D"
+                    )
+                else:
+                    await ctx.send(
+                        f"You just suck at gachas, <@{ctx.author.id}>..")
 
 
 def setup(bot):
