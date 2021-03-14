@@ -46,16 +46,16 @@ class Summon(commands.Cog):
             "★ Junior Engineer Marty Junior"
         ]
         self.weights = [
-            1.375, 1.375, 1.375, 1.375, 1.375, 1.375, 1.375, 1.375, 1.375,
-            1.375, 1.375, 1.375, 1.375, 1.375, 1.375, 1.375, 1.375, 1.375,
-            1.375, 1.375, 1.375, 1.375, 1.375, 1.375,
-            0.655, 0.655, 0.655, 0.655, 0.655, 0.655, 0.655, 0.655,
-            0.655, 0.655, 0.655, 0.655, 0.655, 0.655, 0.655, 0.655,
-            0.655, 0.655, 0.655, 0.655, 0.655, 0.655, 0.655, 0.655,
-            0.655, 0.655, 0.655, 0.655, 0.655,
-            3.557, 3.557, 3.557, 3.557, 3.557, 3.557, 3.557, 3.557,
-            3.557, 3.557, 3.557, 3.557, 3.557, 3.557, 3.557, 3.557,
-            3.557, 3.557, 3.557, 3.557, 3.557, 3.557
+            2.750, 2.750, 2.750, 2.750, 2.750, 2.750, 2.750, 2.750, 2.750,
+            2.750, 2.750, 2.750, 2.750, 2.750, 2.750, 2.750, 2.750, 2.750,
+            2.750, 2.750, 2.750, 2.750, 2.750, 2.750,
+            19.000, 19.000, 19.000, 19.000, 19.000, 19.000, 19.000, 19.000,
+            19.000, 19.000, 19.000, 19.000, 19.000, 19.000, 19.000, 19.000,
+            19.000, 19.000, 19.000, 19.000, 19.000, 19.000, 19.000, 19.000,
+            19.000, 19.000, 19.000, 19.000, 19.000,
+            78.250, 78.250, 78.250, 78.250, 78.250, 78.250, 78.250, 78.250,
+            78.250, 78.250, 78.250, 78.250, 78.250, 78.250, 78.250, 78.250,
+            78.250, 78.250, 78.250, 78.250, 78.250, 78.250
         ]
         self.heroes_banner = [
             "★★★ Chosen One's Archpriestess Veronica",
@@ -63,10 +63,21 @@ class Summon(commands.Cog):
             "★★★ Noble Succubus Bianca",
             "★★★ Grand Admiral Marina"
         ]
-        self.weights_banner = []
+        self.weights_banner = [
+            1.375, 1.375, 1.375, 1.375, 1.375, 1.375, 1.375, 1.375, 1.375,
+            1.375, 1.375, 1.375, 1.375, 1.375, 1.375, 1.375, 1.375, 1.375,
+            1.375, 1.375, 1.375, 1.375, 1.375, 1.375,
+            19.000, 19.000, 19.000, 19.000, 19.000, 19.000, 19.000, 19.000,
+            19.000, 19.000, 19.000, 19.000, 19.000, 19.000, 19.000, 19.000,
+            19.000, 19.000, 19.000, 19.000, 19.000, 19.000, 19.000, 19.000,
+            19.000, 19.000, 19.000, 19.000, 19.000,
+            78.250, 78.250, 78.250, 78.250, 78.250, 78.250, 78.250, 78.250,
+            78.250, 78.250, 78.250, 78.250, 78.250, 78.250, 78.250, 78.250,
+            78.250, 78.250, 78.250, 78.250, 78.250, 78.250
+        ]
 
     # Calculate the chances for those 3 stars
-    async def calcResults(self, ctx, one_or_ten, w):
+    async def calcResults(self, ctx, one_or_ten, w, hero=None):
         if one_or_ten == "10" or one_or_ten == "ten":
             results = random.choices(self.heroes, w, k=10)
         elif one_or_ten == "1" or one_or_ten == "one":
@@ -82,6 +93,7 @@ class Summon(commands.Cog):
 
         if one_or_ten == "10" or one_or_ten == "ten" or one_or_ten == "1" or one_or_ten == "one":
             three_star = False
+            obtainedPickup = False
             ailie = False
 
             msg = await ctx.send(
@@ -93,6 +105,8 @@ class Summon(commands.Cog):
             for result in results:
                 if "★★★" in result:
                     three_star = True
+                if hero == result:
+                    obtainedPickup = True
                 if "Ailie" in result:
                     ailie = True
 
@@ -101,9 +115,14 @@ class Summon(commands.Cog):
                 i += 1
 
             if three_star:
-                await ctx.send(
-                    f"WOW! W-w-waaaiittt a second, <@{ctx.author.id}>..  Is that a freaking 3 star hero?!"
-                )
+                if not obtainedPickup:
+                    await ctx.send(
+                        f"WOW! W-w-waaaiittt a second, <@{ctx.author.id}>..  Is that a freaking 3 star hero?!"
+                    )
+                elif obtainedPickup:
+                    await ctx.send(f"WOHOOOOOOOOOOOOOOOOOO, <@{ctx.author.id}>! You got the pick up hero!")
+                else:
+                    await ctx.send(f"I see 3 star hero. But no {hero}.. Sad life, <@{ctx.author.id}>")
             else:
                 if ailie:
                     await ctx.send(
@@ -139,8 +158,8 @@ class Summon(commands.Cog):
             if hero_banner.lower().__contains__(hero.lower()):
                 present = True
                 index = self.heroes.index(hero_banner)
-                self.weights_banner[index] = 0.060
-                await self.calcResults(ctx, one_or_ten, self.weights_banner)
+                # self.weights_banner[index] = 1.375
+                await self.calcResults(ctx, one_or_ten, self.weights_banner, self.heroes[index])
 
         if not present:
             await ctx.send(f"Ermmm, <@{ctx.author.id}>. The hero you mentioned is not in the current pick up banner. Do ailie;banner.info to check the current pick up banner.")
