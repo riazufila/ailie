@@ -46,16 +46,16 @@ class Summon(commands.Cog):
             "★ Junior Engineer Marty Junior"
         ]
         self.weights = [
-            2.750, 2.750, 2.750, 2.750, 2.750, 2.750, 2.750, 2.750, 2.750,
-            2.750, 2.750, 2.750, 2.750, 2.750, 2.750, 2.750, 2.750, 2.750,
-            2.750, 2.750, 2.750, 2.750, 2.750, 2.750,
-            19.000, 19.000, 19.000, 19.000, 19.000, 19.000, 19.000, 19.000,
-            19.000, 19.000, 19.000, 19.000, 19.000, 19.000, 19.000, 19.000,
-            19.000, 19.000, 19.000, 19.000, 19.000, 19.000, 19.000, 19.000,
-            19.000, 19.000, 19.000, 19.000, 19.000,
-            78.250, 78.250, 78.250, 78.250, 78.250, 78.250, 78.250, 78.250,
-            78.250, 78.250, 78.250, 78.250, 78.250, 78.250, 78.250, 78.250,
-            78.250, 78.250, 78.250, 78.250, 78.250, 78.250
+            1.375, 1.375, 1.375, 1.375, 1.375, 1.375, 1.375, 1.375, 1.375,
+            1.375, 1.375, 1.375, 1.375, 1.375, 1.375, 1.375, 1.375, 1.375,
+            1.375, 1.375, 1.375, 1.375, 1.375, 1.375,
+            0.655, 0.655, 0.655, 0.655, 0.655, 0.655, 0.655, 0.655,
+            0.655, 0.655, 0.655, 0.655, 0.655, 0.655, 0.655, 0.655,
+            0.655, 0.655, 0.655, 0.655, 0.655, 0.655, 0.655, 0.655,
+            0.655, 0.655, 0.655, 0.655, 0.655,
+            3.557, 3.557, 3.557, 3.557, 3.557, 3.557, 3.557, 3.557,
+            3.557, 3.557, 3.557, 3.557, 3.557, 3.557, 3.557, 3.557,
+            3.557, 3.557, 3.557, 3.557, 3.557, 3.557
         ]
         self.heroes_banner = [
             "★★★ Chosen One's Archpriestess Veronica",
@@ -65,22 +65,12 @@ class Summon(commands.Cog):
         ]
         self.weights_banner = []
 
-    @commands.command(name="banner.info", help="Lists the current pickup banner.")
-    async def bannerInfo(self, ctx):
-        msg = await ctx.send(f"One sec, <@{ctx.author.id}>. Getting those Pick Up Banner info.")
-        time.sleep(1.5)
-
-        i = 1
-        for hero_banner in self.heroes_banner:
-            await msg.edit(content=msg.content + f"\n{i}. {hero_banner}")
-            i += 1
-
-    @commands.command(name="summon.normal", help="Summons single or ten units on the normal banner.")
-    async def summonNormal(self, ctx, one_or_ten):
+    # Calculate the chances for those 3 stars
+    async def calcResults(self, ctx, one_or_ten, w):
         if one_or_ten == "10" or one_or_ten == "ten":
-            results = random.choices(self.heroes, self.weights, k=10)
+            results = random.choices(self.heroes, w, k=10)
         elif one_or_ten == "1" or one_or_ten == "one":
-            results = random.choices(self.heroes, self.weights, k=1)
+            results = random.choices(self.heroes, w, k=1)
         else:
             results = [
                 f"Hey, <@{ctx.author.id}>. I don't think thats a valid summon value. LOL!",
@@ -123,9 +113,37 @@ class Summon(commands.Cog):
                     await ctx.send(
                         f"You just suck at gachas, <@{ctx.author.id}>..")
 
+    # Lists the current pickup banner
+    @commands.command(name="banner.info", help="Lists the current pickup banner.")
+    async def bannerInfo(self, ctx):
+        msg = await ctx.send(f"One sec, <@{ctx.author.id}>. Getting those Pick Up Banner info.")
+        time.sleep(1.5)
+
+        i = 1
+        for hero_banner in self.heroes_banner:
+            await msg.edit(content=msg.content + f"\n{i}. {hero_banner}")
+            i += 1
+
+    # Summons on the normal banner
+    @commands.command(name="summon.normal", help="Summons single or ten units on the normal banner.")
+    async def summonNormal(self, ctx, one_or_ten):
+        await self.calcResults(ctx, one_or_ten, self.weights)
+
+    # Summons on the pick up banner
     @commands.command(name="summon.banner", help="Summons single or ten units on the pick up banner.")
-    async def summonBanner(self, ctx):
-        return "data"
+    async def summonBanner(self, ctx, hero, one_or_ten):
+        self.weights_banner = self.weights
+        present = False
+
+        for hero_banner in self.heroes_banner:
+            if hero_banner.lower().__contains__(hero.lower()):
+                present = True
+                index = self.heroes.index(hero_banner)
+                self.weights_banner[index] = 0.060
+                await self.calcResults(ctx, one_or_ten, self.weights_banner)
+
+        if not present:
+            await ctx.send(f"Ermmm, <@{ctx.author.id}>. The hero you mentioned is not in the current pick up banner. Do ailie;banner.info to check the current pick up banner.")
 
 
 def setup(bot):
