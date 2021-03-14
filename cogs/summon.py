@@ -57,8 +57,24 @@ class Summon(commands.Cog):
             78.250, 78.250, 78.250, 78.250, 78.250, 78.250, 78.250, 78.250,
             78.250, 78.250, 78.250, 78.250, 78.250, 78.250
         ]
+        self.heroes_banner = ["★★★ Chosen One's Archpriestess Veronica",
+                              "★★★ Nine-tailed Fox Garam",
+                              "★★★ Noble Succubus Bianca",
+                              "★★★ Grand Admiral Marina"]
+        self.weights_pickup = []
 
-    @commands.command()
+    @commands.command(name="banner-info", help="Lists the current banner.")
+    async def bannerInfo(self, ctx):
+        msg = await ctx.send(f"One sec, <@{ctx.author.id}>. Getting those Pick \
+Up Banner info.")
+
+        i = 1
+        for hero_banner in self.heroes_banner:
+            await msg.edit(content=msg.content + f"\n{i}. {hero_banner}")
+            i += 1
+
+    @commands.command(name="summon", help="Summons single or ten units on the \
+non-banner ")
     async def summon(self, ctx, one_or_ten):
         if one_or_ten == "10" or one_or_ten == "ten":
             results = random.choices(self.heroes, self.weights, k=10)
@@ -67,11 +83,11 @@ class Summon(commands.Cog):
         else:
             results = [
                 f"Hey, <@{ctx.author.id}>. I don't think thats a valid summon \
-                        value. LOL!",
+value. LOL!",
                 f"Ermm.. its either 10 or 1! Get yourself corrected, \
-                        <@{ctx.author.id}>!",
+<@{ctx.author.id}>!",
                 f"You sure there's a {one_or_ten} summon, <@{ctx.author.id}>? \
-                        There's only 1 and 10 summon!"
+There's only 1 and 10 summon!"
             ]
 
             await ctx.send(random.choice(results))
@@ -98,14 +114,14 @@ class Summon(commands.Cog):
 
             if three_star:
                 await ctx.send(
-                    f"WOW! W-w-waaaiittt a second, <@{ctx.author.id}>.. \
-                            Is that a freaking 3 star hero?!"
+                    f"WOW! W-w-waaaiittt a second, <@{ctx.author.id}>..  Is \
+that a freaking 3 star hero?!"
                 )
             else:
                 if ailie:
                     await ctx.send(
-                        f"Think positive, <@{ctx.author.id}>! \
-                                At least you got me :D"
+                        f"Think positive, <@{ctx.author.id}>! At least you got \
+me :D"
                     )
                 else:
                     await ctx.send(
