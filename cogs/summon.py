@@ -105,7 +105,7 @@ class Summon(commands.Cog):
             for result in results:
                 if "★★★" in result:
                     three_star = True
-                if result in self.heroes_banner:
+                if result == hero:
                     obtainedPickup = True
                 if "Ailie" in result:
                     ailie = True
