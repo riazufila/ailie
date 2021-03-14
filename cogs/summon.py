@@ -2,6 +2,7 @@
 
 import time
 import random
+import discord
 from discord.ext import commands
 
 
@@ -142,8 +143,9 @@ class Summon(commands.Cog):
             three_star = False
             ailie = False
 
-            await ctx.send(
+            msg = await ctx.send(
                 f"Wait up, <@{ctx.author.id}>. Summoning {one_or_ten} now..")
+
             time.sleep(3)
 
             i = 1
@@ -153,7 +155,7 @@ class Summon(commands.Cog):
                 if "Ailie" in result:
                     ailie = True
 
-                await ctx.send(f"{i}. {result}")
+                await msg.edit(content=msg.content + f"\n{i}. {result}")
                 i += 1
 
             if three_star:
