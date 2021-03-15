@@ -6,6 +6,3 @@
 
 # Python virtual environment
 venv/
-
-# Procfile
-Procfile
