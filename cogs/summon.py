@@ -9,53 +9,48 @@ class Summon(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.heroes = [
-            "★★★ Goddess of War Plitvice", "★★★ Knight Lady Lapice",
-            "★★★ Grand Admiral Marina", "★★★ Executive Red Hood Arabelle",
-            "★★★ Idol Captain Eva", "★★★ Flower Girl Bari",
-            "★★★ Ice Witch Lupina", "★★★ Scrivener Lahn",
-            "★★★ Movie Star Eugene", "★★★ Dancing Archer Tinia",
-            "★★★ Dragon Avatar Vishuvac", "★★★ Eight-tailed Fox Nari",
-            "★★★ Noble Succubus Bianca", "★★★ Mecha Warrior Oghma",
-            "★★★ Golem Rider Alef", "★★★ Exorcist Miya", "★★★ Future Princess",
-            "★★★ Nine-tailed Fox Garam", "★★★ Dark Magician Beth",
-            "★★★ Santa's Little Helper Rue", "★★★ Archangel Gabriel",
-            "★★★ Drunken Swordmaster Lynn", "★★★ Future Knight",
-            "★★★ Chosen One's Archpriestess Veronica", "★★ Fe/Male Knight",
-            "★★ Knight Captain Eva", "★★ Red Hood Elvira", "★★ White Beast",
-            "★★ Vampire Girl Karina", "★★ Innkeeper Loraine",
-            "★★ Twin Fighter Lavi", "★★ Twin Healer Favi",
-            "★★ Leaf Fairy Aoba", "★★ Mad Scientist Gremory",
-            "★★ Pirate Rachel", "★★ Sniper Hekate", "★★ Innuit Girl Coco",
-            "★★ Engineer Marianne", "★★ Scientist Sohee",
-            "★★ Kung Fu Master Mei/Fei", "★★ Desert Mercenary Marvin",
-            "★★ Aspiring Warrior Craig", "★★ Swordsman Akayuki",
-            "★★ Dragon Talon Clan Ranpang", "★★ Succubus Adventurer Yuze",
-            "★★ Princess Aisha", "★★ Dragon Knight Shapira",
-            "★★ Swindler Magician Dolf", "★★ Dual-personality Maid Amy",
-            "★★ Fire Dragon Girgas", "★★ Dimension Traveler Catherine",
-            "★★ Battleball Girl Rie", "★★ Dragon Seeking Girl Neva",
-            "★ Linda the Senior Guardian", "★ Guardian Member Bob",
-            "★ Byrule's Hero Hyper", "★ Peddler Maria", "★ Caravan Lisa",
-            "★ Elf Archer Leah", "★ Teaten Ninja Jay",
-            "★ Ultra Rationale Dragon", "★ Super Teaten 2 Blade",
-            "★ Homecoming Queen Mina", "★ Dragon Talon Clan Hoshida",
-            "★ Succubus Researcher Peggy", "★ Relic Collector Ailie",
-            "★ Ghost Guard Oralie", "★ Baby White Tiger Kang",
-            "★ Merchant Agatha", "★ Doctor DaVinci", "★ Class President Kate",
-            "★ Town Guide Zoe", "★ Monk Disciple Rio", "★ Private Nyan",
-            "★ Junior Engineer Marty Junior"
-        ]
-        self.weights = [
-            2.750, 2.750, 2.750, 2.750, 2.750, 2.750, 2.750, 2.750, 2.750,
-            2.750, 2.750, 2.750, 2.750, 2.750, 2.750, 2.750, 2.750, 2.750,
-            2.750, 2.750, 2.750, 2.750, 2.750, 2.750,
-            19.000, 19.000, 19.000, 19.000, 19.000, 19.000, 19.000, 19.000,
-            19.000, 19.000, 19.000, 19.000, 19.000, 19.000, 19.000, 19.000,
-            19.000, 19.000, 19.000, 19.000, 19.000, 19.000, 19.000, 19.000,
-            19.000, 19.000, 19.000, 19.000, 19.000,
-            78.250, 78.250, 78.250, 78.250, 78.250, 78.250, 78.250, 78.250,
-            78.250, 78.250, 78.250, 78.250, 78.250, 78.250, 78.250, 78.250,
-            78.250, 78.250, 78.250, 78.250, 78.250, 78.250
+            [
+                "★ Linda the Senior Guardian", "★ Guardian Member Bob",
+                "★ Byrule's Hero Hyper", "★ Peddler Maria", "★ Caravan Lisa",
+                "★ Elf Archer Leah", "★ Teaten Ninja Jay",
+                "★ Ultra Rationale Dragon", "★ Super Teaten 2 Blade",
+                "★ Homecoming Queen Mina", "★ Dragon Talon Clan Hoshida",
+                "★ Succubus Researcher Peggy", "★ Relic Collector Ailie",
+                "★ Ghost Guard Oralie", "★ Baby White Tiger Kang",
+                "★ Merchant Agatha", "★ Doctor DaVinci", "★ Class President Kate",
+                "★ Town Guide Zoe", "★ Monk Disciple Rio", "★ Private Nyan",
+                "★ Junior Engineer Marty Junior"
+            ],
+            [
+                "★★ Fe/Male Knight", "★★ Knight Captain Eva",
+                "★★ Red Hood Elvira", "★★ White Beast",
+                "★★ Vampire Girl Karina", "★★ Innkeeper Loraine",
+                "★★ Twin Fighter Lavi", "★★ Twin Healer Favi",
+                "★★ Leaf Fairy Aoba", "★★ Mad Scientist Gremory",
+                "★★ Pirate Rachel", "★★ Sniper Hekate", "★★ Innuit Girl Coco",
+                "★★ Engineer Marianne", "★★ Scientist Sohee",
+                "★★ Kung Fu Master Mei/Fei", "★★ Desert Mercenary Marvin",
+                "★★ Aspiring Warrior Craig", "★★ Swordsman Akayuki",
+                "★★ Dragon Talon Clan Ranpang", "★★ Succubus Adventurer Yuze",
+                "★★ Princess Aisha", "★★ Dragon Knight Shapira",
+                "★★ Swindler Magician Dolf", "★★ Dual-personality Maid Amy",
+                "★★ Fire Dragon Girgas", "★★ Dimension Traveler Catherine",
+                "★★ Battleball Girl Rie", "★★ Dragon Seeking Girl Neva"
+            ],
+            [
+                "★★★ Goddess of War Plitvice", "★★★ Knight Lady Lapice",
+                "★★★ Grand Admiral Marina", "★★★ Executive Red Hood Arabelle",
+                "★★★ Idol Captain Eva", "★★★ Flower Girl Bari",
+                "★★★ Ice Witch Lupina", "★★★ Scrivener Lahn",
+                "★★★ Movie Star Eugene", "★★★ Dancing Archer Tinia",
+                "★★★ Dragon Avatar Vishuvac", "★★★ Eight-tailed Fox Nari",
+                "★★★ Noble Succubus Bianca", "★★★ Mecha Warrior Oghma",
+                "★★★ Golem Rider Alef", "★★★ Exorcist Miya", "★★★ Future Princess",
+                "★★★ Nine-tailed Fox Garam", "★★★ Dark Magician Beth",
+                "★★★ Santa's Little Helper Rue", "★★★ Archangel Gabriel",
+                "★★★ Drunken Swordmaster Lynn", "★★★ Future Knight",
+                "★★★ Chosen One's Archpriestess Veronica"
+            ]
         ]
         self.heroes_banner = [
             "★★★ Chosen One's Archpriestess Veronica",
@@ -63,25 +58,16 @@ class Summon(commands.Cog):
             "★★★ Noble Succubus Bianca",
             "★★★ Grand Admiral Marina"
         ]
-        self.weights_banner = [
-            1.375, 1.375, 1.375, 1.375, 1.375, 1.375, 1.375, 1.375, 1.375,
-            1.375, 1.375, 1.375, 1.375, 1.375, 1.375, 1.375, 1.375, 1.375,
-            1.375, 1.375, 1.375, 1.375, 1.375, 1.375,
-            19.000, 19.000, 19.000, 19.000, 19.000, 19.000, 19.000, 19.000,
-            19.000, 19.000, 19.000, 19.000, 19.000, 19.000, 19.000, 19.000,
-            19.000, 19.000, 19.000, 19.000, 19.000, 19.000, 19.000, 19.000,
-            19.000, 19.000, 19.000, 19.000, 19.000,
-            78.250, 78.250, 78.250, 78.250, 78.250, 78.250, 78.250, 78.250,
-            78.250, 78.250, 78.250, 78.250, 78.250, 78.250, 78.250, 78.250,
-            78.250, 78.250, 78.250, 78.250, 78.250, 78.250
-        ]
+        self.heroes_with_banner = []
+        self.weights = [78.250, 19.000, 2.750]
+        self.weights_banner = [78.250, 19.000, 1.375, 1.375]
 
     # Calculate the chances for those 3 stars
-    async def calcResults(self, ctx, one_or_ten, w, hero=None):
+    async def calcResults(self, ctx, one_or_ten, h, w, hero=None):
         if one_or_ten == "10" or one_or_ten == "ten":
-            results = random.choices(self.heroes, w, k=10)
+            results = random.choices(h, w, k=10)
         elif one_or_ten == "1" or one_or_ten == "one":
-            results = random.choices(self.heroes, w, k=1)
+            results = random.choices(h, w, k=1)
         else:
             results = [
                 f"Hey, <@{ctx.author.id}>. I don't think thats a valid summon value. LOL!",
@@ -103,18 +89,20 @@ class Summon(commands.Cog):
 
             i = 1
             for result in results:
-                if "★★★" in result:
-                    three_star = True
-                if result == hero:
-                    obtainedPickup = True
-                if "Ailie" in result:
-                    ailie = True
+                result = random.choices(result, k=1)
+                for r in result:
+                    if "★★★" in r:
+                        three_star = True
+                    if r == hero:
+                        obtainedPickup = True
+                    if "Ailie" in r:
+                        ailie = True
 
-                await msg.edit(content=msg.content + f"\n{i}. {result}")
-                i += 1
+                    await msg.edit(content=msg.content + f"\n{i}. {r}")
+                    i += 1
 
             if three_star and not obtainedPickup and hero:
-                await ctx.send(f"I see 3 star hero. But no {hero}.. Sad life, <@{ctx.author.id}>")
+                await ctx.send(f"I see 3 star hero. But no {hero}.. Sad life, <@{ctx.author.id}>.")
             if three_star and obtainedPickup and hero:
                 await ctx.send(f"WOHOOOOOOOOOOOOOOOOOO, <@{ctx.author.id}>! You got the pick up hero!")
             if three_star and not hero:
@@ -144,22 +132,37 @@ class Summon(commands.Cog):
     # Summons on the normal banner
     @commands.command(name="summon.normal", help="Summons single or ten units on the normal banner.")
     async def summonNormal(self, ctx, one_or_ten):
-        await self.calcResults(ctx, one_or_ten, self.weights)
+        await self.calcResults(ctx, one_or_ten, self.heroes, self.weights)
 
     # Summons on the pick up banner
     @commands.command(name="summon.banner", help="Summons single or ten units on the pick up banner.")
     async def summonBanner(self, ctx, hero, one_or_ten):
-        self.weights_banner = self.weights
+        self.heroes_with_banner = self.heroes[:]
         present = False
+        hero_banner = ""
 
         for hero_banner in self.heroes_banner:
             if hero_banner.lower().__contains__(hero.lower()):
                 present = True
-                index = self.heroes.index(hero_banner)
-                await self.calcResults(ctx, one_or_ten, self.weights_banner, self.heroes[index])
+                break
+
+        if present:
+            for heroes_list in self.heroes:
+                if hero_banner in heroes_list:
+                    for hero_list in heroes_list:
+                        if hero_banner == hero_list:
+                            buffer = self.heroes[2][:]
+                            buffer.remove(hero_banner)
+                            self.heroes_with_banner.pop(2)
+                            self.heroes_with_banner.append(buffer)
+                            self.heroes_with_banner.append([hero_banner, ])
+
+                            await self.calcResults(ctx, one_or_ten, self.heroes_with_banner, self.weights_banner, self.heroes_with_banner[3][0])
+                            break
+                    break
 
         if not present:
-            await ctx.send(f"Ermmm, <@{ctx.author.id}>. The hero you mentioned is not in the current pick up banner. Do ailie;banner.info to check the current pick up banner.")
+            await ctx.send(f"Ermmm, <@{ctx.author.id}>. The hero you mentioned is not in the current pick up banner.")
 
 
 def setup(bot):
