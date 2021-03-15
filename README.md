@@ -4,7 +4,7 @@ Discord bot for simulating Guardian Tales hero summons (and more to come).
 
 ## Wiki
 
-Check how to use the bot at the [wiki](https://github.com/riazufila/ailie/wiki).
+Check how to use the bot at the [wiki](https://github.com/riazufila/ailie/wiki/Ailie's-Wiki).
 
 ## Bot's Statistics
 
