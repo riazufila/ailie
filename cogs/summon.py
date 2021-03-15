@@ -150,17 +150,23 @@ class Summon(commands.Cog):
                 await ctx.send(
                     f"You just suck at gachas, <@{ctx.author.id}>..")
 
+    # On cooldown
+    @commands.Cog.listener()
+    async def on_command_error(self, ctx, error):
+        if isinstance(error, commands.CommandOnCooldown):
+            await ctx.send(f"Hey, <@{ctx.author.id}>.. {error}!")
+
     # Lists the current pickup banner
+
     @commands.command(name="banner.info", help="Lists the current pickup banner.")
     @commands.cooldown(1, 10, commands.BucketType.default)
     async def bannerInfo(self, ctx):
         msg = await ctx.send(f"One sec, <@{ctx.author.id}>. Getting those Pick Up Banner info.")
-        await asyncio.sleep(0.5)
+        await asyncio.sleep(1.5)
 
         i = 1
         for hero_banner in self.heroes_banner:
             await msg.edit(content=msg.content + f"\n{i}. {hero_banner}")
-            await asyncio.sleep(1)
             i += 1
 
     # Summons on the normal banner
