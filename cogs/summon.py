@@ -122,6 +122,13 @@ class Summon(commands.Cog):
                 for pity_result in results:
                     p_r = random.choices(pity_result, k=1)
                     for pr in p_r:
+                        if "★★★" in pr:
+                            three_star = True
+                        if pr == hero:
+                            obtainedPickup = True
+                        if "Ailie" in pr:
+                            ailie = True
+
                         await msg.edit(content=msg.content + f"\n10. {pr}")
                         await asyncio.sleep(1)
 
@@ -130,6 +137,13 @@ class Summon(commands.Cog):
                 for not_pity_result in results:
                     n_p_r = random.choices(not_pity_result, k=1)
                     for npr in n_p_r:
+                        if "★★★" in npr:
+                            three_star = True
+                        if npr == hero:
+                            obtainedPickup = True
+                        if "Ailie" in npr:
+                            ailie = True
+
                         await msg.edit(content=msg.content + f"\n10. {npr}")
                         await asyncio.sleep(1)
 
