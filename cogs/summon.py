@@ -64,7 +64,10 @@ class Summon(commands.Cog):
         self.weights_last = [97.25, 2.75]
 
     # Calculate the chances for those 3 stars
-    async def calcResults(self, ctx, one_or_ten, h, w, hero=None):
+    def calcResults(self, ctx, one_or_ten, h, w, hero=None):
+        boxes = []
+        reply = ""
+
         if one_or_ten == "10" or one_or_ten == "ten":
             results = random.choices(h, w, k=9)
         elif one_or_ten == "1" or one_or_ten == "one":
@@ -76,18 +79,13 @@ class Summon(commands.Cog):
                 f"You sure there's a {one_or_ten} summon, <@{ctx.author.id}>? There's only 1 and 10 summon!"
             ]
 
-            await ctx.send(random.choice(results))
+            reply = random.choice(results)
 
         if one_or_ten == "10" or one_or_ten == "ten" or one_or_ten == "1" or one_or_ten == "one":
+            reply = ""
             three_star = False
             obtainedPickup = False
             ailie = False
-
-            msg = await ctx.send(
-                f"Wait up, <@{ctx.author.id}>. Summoning {one_or_ten} now..")
-
-            await asyncio.sleep(3)
-
             pity = False
             check = False
             i = 1
@@ -111,7 +109,7 @@ class Summon(commands.Cog):
                     if "Ailie" in r:
                         ailie = True
 
-                    await msg.edit(content=msg.content + f"\n{i}. {r}")
+                    boxes.append(r)
                     i += 1
 
             if pity:
@@ -121,34 +119,31 @@ class Summon(commands.Cog):
                 for pity_result in results:
                     p_r = random.choices(pity_result, k=1)
                     for pr in p_r:
-                        await msg.edit(content=msg.content + f"\n10. {pr}")
+                        boxes.append(pr)
 
             if not pity:
                 results = random.choices(h, w, k=1)
                 for not_pity_result in results:
                     n_p_r = random.choices(not_pity_result, k=1)
                     for npr in n_p_r:
-                        await msg.edit(content=msg.content + f"\n10. {npr}")
+                        boxes.append(npr)
 
             if three_star and not obtainedPickup and hero:
-                await ctx.send(f"I see 3 star hero. But no {hero}.. Sad life, <@{ctx.author.id}>.")
+                reply = f"I see 3 star hero. But no {hero}.. Sad life, <@{ctx.author.id}>."
             if three_star and obtainedPickup and hero:
-                await ctx.send(f"WOHOOOOOOOOOOOOOOOOOO, <@{ctx.author.id}>! You got the pick up hero!")
+                reply = f"WOHOOOOOOOOOOOOOOOOOO, <@{ctx.author.id}>! You got the pick up hero!"
             if three_star and not hero:
-                await ctx.send(
-                    f"WOW! W-w-waaaiittt a second, <@{ctx.author.id}>..  Is that a freaking 3 star hero?!"
-                )
+                reply = f"WOW! W-w-waaaiittt a second, <@{ctx.author.id}>..  Is that a freaking 3 star hero?!"
 
             if not three_star and ailie:
-                await ctx.send(
-                    f"Think positive, <@{ctx.author.id}>! At least you got me :D"
-                )
+                reply = f"Think positive, <@{ctx.author.id}>! At least you got me :D"
             elif not three_star and not ailie:
-                await ctx.send(
-                    f"You just suck at gachas, <@{ctx.author.id}>..")
+                reply = f"You just suck at gachas, <@{ctx.author.id}>.."
+
+        return boxes, reply
 
     # Lists the current pickup banner
-    @commands.command(name="banner.info", help="Lists the current pickup banner.")
+    @ commands.command(name="banner.info", help="Lists the current pickup banner.")
     async def bannerInfo(self, ctx):
         msg = await ctx.send(f"One sec, <@{ctx.author.id}>. Getting those Pick Up Banner info.")
         await asyncio.sleep(1.5)
@@ -159,16 +154,38 @@ class Summon(commands.Cog):
             i += 1
 
     # Summons on the normal banner
-    @commands.command(name="summon.normal", help="Summons single or ten units on the normal banner.")
+    @ commands.command(name="summon.normal", help="Summons single or ten units on the normal banner.")
     async def summonNormal(self, ctx, one_or_ten):
-        await self.calcResults(ctx, one_or_ten, self.heroes, self.weights)
+        msg = await ctx.send(
+            f"Wait up, <@{ctx.author.id}>. Summoning {one_or_ten} now..")
+
+        await asyncio.sleep(3)
+
+        boxes, reply = self.calcResults(
+            ctx, one_or_ten, self.heroes, self.weights)
+
+        if boxes:
+            i = 1
+            for b in boxes:
+                await msg.edit(content=msg.content + f"\n{i}. {b}")
+                await asyncio.sleep(0.7)
+                i += 1
+
+            await ctx.send(reply)
+        else:
+            await ctx.send(reply)
 
     # Summons on the pick up banner
-    @commands.command(name="summon.banner", help="Summons single or ten units on the pick up banner.")
+    @ commands.command(name="summon.banner", help="Summons single or ten units on the pick up banner.")
     async def summonBanner(self, ctx, hero, one_or_ten):
         self.heroes_with_banner = self.heroes[:]
         present = False
         hero_banner = ""
+
+        msg = await ctx.send(
+            f"Wait up, <@{ctx.author.id}>. Summoning {one_or_ten} now..")
+
+        await asyncio.sleep(3)
 
         for hero_banner in self.heroes_banner:
             if hero_banner.lower().__contains__(hero.lower()):
@@ -186,7 +203,18 @@ class Summon(commands.Cog):
                             self.heroes_with_banner.append(buffer)
                             self.heroes_with_banner.append([hero_banner, ])
 
-                            await self.calcResults(ctx, one_or_ten, self.heroes_with_banner, self.weights_banner, self.heroes_with_banner[3][0])
+                            boxes, reply = self.calcResults(
+                                ctx, one_or_ten, self.heroes_with_banner, self.weights_banner, self.heroes_with_banner[3][0])
+                            if boxes:
+                                i = 1
+                                for b in boxes:
+                                    await msg.edit(content=msg.content + f"\n{i}. {b}")
+                                    await asyncio.sleep(0.7)
+                                    i += 1
+
+                                await ctx.send(reply)
+                            else:
+                                await ctx.send(reply)
                             break
                     break
 
