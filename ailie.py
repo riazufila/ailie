@@ -31,7 +31,7 @@ if __name__ == "__main__":
     @bot.command(name="version", help="Shows Ailie's current version.")
     @commands.cooldown(1, 15, commands.BucketType.user)
     async def version(ctx):
-        version = 1.0
+        version = "1.0.1"
         msg = await ctx.send(f"Hello, <@{ctx.author.id}>! Ailie reporting to duty!")
         await asyncio.sleep(1.5)
         await msg.edit(content=msg.content + "\nMy current version is")
