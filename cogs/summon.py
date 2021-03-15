@@ -136,17 +136,22 @@ class Summon(commands.Cog):
     async def summonBanner(self, ctx, hero, one_or_ten):
         self.weights_banner = self.weights
         present = False
+        hero_banner = ""
 
         for hero_banner in self.heroes_banner:
             if hero_banner.lower().__contains__(hero.lower()):
                 present = True
+                break
 
         if present:
             for heroes_list in self.heroes:
-                index_outer = self.heroes.index(heroes_list)
-                for hero_list in heroes_list:
-                    index_inner = heroes_list.index(hero_list)
-                    await self.calcResults(ctx, one_or_ten, self.weights_banner, self.heroes[index_outer][index_inner])
+                if hero_banner in heroes_list:
+                    index_outer = self.heroes.index(heroes_list)
+                    for hero_list in heroes_list:
+                        if hero_banner == hero_list:
+                            index_inner = heroes_list.index(hero_list)
+                            await ctx.send(self.heroes[index_outer][index_inner])
+                            await self.calcResults(ctx, one_or_ten, self.weights_banner, self.heroes[index_outer][index_inner])
 
         if not present:
             await ctx.send(f"Ermmm, <@{ctx.author.id}>. The hero you mentioned is not in the current pick up banner. Do ailie;banner.info to check the current pick up banner.")
