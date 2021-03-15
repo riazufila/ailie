@@ -123,6 +123,7 @@ class Summon(commands.Cog):
                     p_r = random.choices(pity_result, k=1)
                     for pr in p_r:
                         await msg.edit(content=msg.content + f"\n10. {pr}")
+                        await asyncio.sleep(1)
 
             if not pity:
                 results = random.choices(h, w, k=1)
@@ -130,6 +131,7 @@ class Summon(commands.Cog):
                     n_p_r = random.choices(not_pity_result, k=1)
                     for npr in n_p_r:
                         await msg.edit(content=msg.content + f"\n10. {npr}")
+                        await asyncio.sleep(1)
 
             if three_star and not obtainedPickup and hero:
                 await ctx.send(f"I see 3 star hero. But no {hero}.. Sad life, <@{ctx.author.id}>.")
