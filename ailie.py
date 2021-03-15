@@ -27,5 +27,19 @@ if __name__ == "__main__":
         print(f"{bot.user} is collecting!")
         await bot.change_presence(activity=discord.Game("Guardian Tales"))
 
+    @bot.command()
+    async def version(ctx):
+        version = 1.0
+        msg = await ctx.send(f"Hello, <@{ctx.author.id}>! Ailie, reporting to duty!")
+        await asyncio.sleep(1.5)
+        await msg.edit(content=msg.content + "\nMy current version is")
+        await asyncio.sleep(0.5)
+        await msg.edit(content=msg.content + ".")
+        await asyncio.sleep(0.5)
+        await msg.edit(content=msg.content + ".")
+        await asyncio.sleep(0.5)
+        await msg.edit(content=msg.content + f" {version}!")
+        await asyncio.sleep(0.5)
+
     # Run bot
     bot.run(TOKEN)
