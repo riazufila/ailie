@@ -88,15 +88,17 @@ class Summon(commands.Cog):
 
             i = 1
             for result in results:
-                if "★★★" in result:
-                    three_star = True
-                if result == hero:
-                    obtainedPickup = True
-                if "Ailie" in result:
-                    ailie = True
+                result = random.choices(result, k=1)
+                for r in result:
+                    if "★★★" in r:
+                        three_star = True
+                    if r == hero:
+                        obtainedPickup = True
+                    if "Ailie" in r:
+                        ailie = True
 
-                await msg.edit(content=msg.content + f"\n{i}. {result}")
-                i += 1
+                    await msg.edit(content=msg.content + f"\n{i}. {r}")
+                    i += 1
 
             if three_star and not obtainedPickup and hero:
                 await ctx.send(f"I see 3 star hero. But no {hero}.. Sad life, <@{ctx.author.id}>")
@@ -150,7 +152,6 @@ class Summon(commands.Cog):
                     for hero_list in heroes_list:
                         if hero_banner == hero_list:
                             index_inner = heroes_list.index(hero_list)
-                            await ctx.send(self.heroes[index_outer][index_inner])
                             await self.calcResults(ctx, one_or_ten, self.weights_banner, self.heroes[index_outer][index_inner])
 
         if not present:
