@@ -58,15 +58,16 @@ class Summon(commands.Cog):
             "★★★ Noble Succubus Bianca",
             "★★★ Grand Admiral Marina"
         ]
+        self.heroes_with_banner = []
         self.weights = [78.250, 19.000, 2.750]
         self.weights_banner = [78.250, 19.000, 1.375, 1.375]
 
     # Calculate the chances for those 3 stars
-    async def calcResults(self, ctx, one_or_ten, w, hero=None):
+    async def calcResults(self, ctx, one_or_ten, h, w, hero=None):
         if one_or_ten == "10" or one_or_ten == "ten":
-            results = random.choices(self.heroes, w, k=10)
+            results = random.choices(h, w, k=10)
         elif one_or_ten == "1" or one_or_ten == "one":
-            results = random.choices(self.heroes, w, k=1)
+            results = random.choices(h, w, k=1)
         else:
             results = [
                 f"Hey, <@{ctx.author.id}>. I don't think thats a valid summon value. LOL!",
@@ -101,7 +102,7 @@ class Summon(commands.Cog):
                     i += 1
 
             if three_star and not obtainedPickup and hero:
-                await ctx.send(f"I see 3 star hero. But no {hero}.. Sad life, <@{ctx.author.id}>")
+                await ctx.send(f"I see 3 star hero. But no {hero}.. Sad life, <@{ctx.author.id}>.")
             if three_star and obtainedPickup and hero:
                 await ctx.send(f"WOHOOOOOOOOOOOOOOOOOO, <@{ctx.author.id}>! You got the pick up hero!")
             if three_star and not hero:
@@ -131,12 +132,12 @@ class Summon(commands.Cog):
     # Summons on the normal banner
     @commands.command(name="summon.normal", help="Summons single or ten units on the normal banner.")
     async def summonNormal(self, ctx, one_or_ten):
-        await self.calcResults(ctx, one_or_ten, self.weights)
+        await self.calcResults(ctx, one_or_ten, self.heroes, self.weights)
 
     # Summons on the pick up banner
     @commands.command(name="summon.banner", help="Summons single or ten units on the pick up banner.")
     async def summonBanner(self, ctx, hero, one_or_ten):
-        self.weights_banner = self.weights
+        self.heroes_with_banner = self.heroes[:]
         present = False
         hero_banner = ""
 
@@ -148,14 +149,20 @@ class Summon(commands.Cog):
         if present:
             for heroes_list in self.heroes:
                 if hero_banner in heroes_list:
-                    index_outer = self.heroes.index(heroes_list)
                     for hero_list in heroes_list:
                         if hero_banner == hero_list:
-                            index_inner = heroes_list.index(hero_list)
-                            await self.calcResults(ctx, one_or_ten, self.weights_banner, self.heroes[index_outer][index_inner])
+                            buffer = self.heroes[2][:]
+                            buffer.remove(hero_banner)
+                            self.heroes_with_banner.pop(2)
+                            self.heroes_with_banner.append(buffer)
+                            self.heroes_with_banner.append([hero_banner, ])
+
+                            await self.calcResults(ctx, one_or_ten, self.heroes_with_banner, self.weights_banner, self.heroes_with_banner[3][0])
+                            break
+                    break
 
         if not present:
-            await ctx.send(f"Ermmm, <@{ctx.author.id}>. The hero you mentioned is not in the current pick up banner. Do ailie;banner.info to check the current pick up banner.")
+            await ctx.send(f"Ermmm, <@{ctx.author.id}>. The hero you mentioned is not in the current pick up banner.")
 
 
 def setup(bot):
