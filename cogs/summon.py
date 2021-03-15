@@ -112,6 +112,7 @@ class Summon(commands.Cog):
                         ailie = True
 
                     await msg.edit(content=msg.content + f"\n{i}. {r}")
+                    await asyncio.sleep(1)
                     i += 1
 
             if pity:
@@ -156,6 +157,7 @@ class Summon(commands.Cog):
         i = 1
         for hero_banner in self.heroes_banner:
             await msg.edit(content=msg.content + f"\n{i}. {hero_banner}")
+            await asyncio.sleep(1)
             i += 1
 
     # Summons on the normal banner
