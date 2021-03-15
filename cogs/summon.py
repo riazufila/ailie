@@ -164,6 +164,17 @@ class Summon(commands.Cog):
         boxes, reply = self.calcResults(
             ctx, one_or_ten, self.heroes, self.weights)
 
+        if boxes:
+            i = 1
+            for b in boxes:
+                await msg.edit(content=msg.content + f"\n{i}. {b}")
+                await asyncio.sleep(0.7)
+                i += 1
+
+            await ctx.send(reply)
+        else:
+            await ctx.send(reply)
+
     # Summons on the pick up banner
     @ commands.command(name="summon.banner", help="Summons single or ten units on the pick up banner.")
     async def summonBanner(self, ctx, hero, one_or_ten):
@@ -192,8 +203,18 @@ class Summon(commands.Cog):
                             self.heroes_with_banner.append(buffer)
                             self.heroes_with_banner.append([hero_banner, ])
 
-                            response = self.calcResults(
+                            boxes, reply = self.calcResults(
                                 ctx, one_or_ten, self.heroes_with_banner, self.weights_banner, self.heroes_with_banner[3][0])
+                            if boxes:
+                                i = 1
+                                for b in boxes:
+                                    await msg.edit(content=msg.content + f"\n{i}. {b}")
+                                    await asyncio.sleep(0.7)
+                                    i += 1
+
+                                await ctx.send(reply)
+                            else:
+                                await ctx.send(reply)
                             break
                     break
 
