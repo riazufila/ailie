@@ -61,11 +61,12 @@ class Summon(commands.Cog):
         self.heroes_with_banner = []
         self.weights = [78.250, 19.000, 2.750]
         self.weights_banner = [78.250, 19.000, 1.375, 1.375]
+        self.weights_last = [97.25, 2.75]
 
     # Calculate the chances for those 3 stars
     async def calcResults(self, ctx, one_or_ten, h, w, hero=None):
         if one_or_ten == "10" or one_or_ten == "ten":
-            results = random.choices(h, w, k=10)
+            results = random.choices(h, w, k=9)
         elif one_or_ten == "1" or one_or_ten == "one":
             results = random.choices(h, w, k=1)
         else:
@@ -87,10 +88,22 @@ class Summon(commands.Cog):
 
             await asyncio.sleep(3)
 
+            pity = False
+            check = False
             i = 1
+
             for result in results:
                 result = random.choices(result, k=1)
                 for r in result:
+                    if one_or_ten == "10" or one_or_ten == "ten":
+                        if not "★★★ " in r and not check:
+                            pity = True
+                        if not "★★ " in r and not check:
+                            pity = True
+                        else:
+                            pity = False
+                            check = True
+
                     if "★★★" in r:
                         three_star = True
                     if r == hero:
@@ -100,6 +113,22 @@ class Summon(commands.Cog):
 
                     await msg.edit(content=msg.content + f"\n{i}. {r}")
                     i += 1
+
+            if pity:
+                heroes_pity = self.heroes[:]
+                heroes_pity.pop(0)
+                results = random.choices(heroes_pity, self.weights_last, k=1)
+                for pity_result in results:
+                    p_r = random.choices(pity_result, k=1)
+                    for pr in p_r:
+                        await msg.edit(content=msg.content + f"\n10. {pr}")
+
+            if not pity:
+                results = random.choices(h, w, k=1)
+                for not_pity_result in results:
+                    n_p_r = random.choices(not_pity_result, k=1)
+                    for npr in n_p_r:
+                        await msg.edit(content=msg.content + f"\n10. {npr}")
 
             if three_star and not obtainedPickup and hero:
                 await ctx.send(f"I see 3 star hero. But no {hero}.. Sad life, <@{ctx.author.id}>.")
