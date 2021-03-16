@@ -112,7 +112,7 @@ class Hero(commands.Cog):
                         ailie = True
 
                     await msg.edit(content=msg.content + f"\n{i}. {r}")
-                    await asyncio.sleep(2)
+                    await asyncio.sleep(1.5)
                     i += 1
 
             if pity:
@@ -130,7 +130,7 @@ class Hero(commands.Cog):
                             ailie = True
 
                         await msg.edit(content=msg.content + f"\n10. {pr}")
-                        await asyncio.sleep(2)
+                        await asyncio.sleep(1.5)
 
             if not pity:
                 results = random.choices(h, w, k=1)
@@ -145,7 +145,7 @@ class Hero(commands.Cog):
                             ailie = True
 
                         await msg.edit(content=msg.content + f"\n10. {npr}")
-                        await asyncio.sleep(2)
+                        await asyncio.sleep(1.5)
 
             if three_star and not obtainedPickup and hero:
                 await ctx.send(f"I see 3 star hero. But no {hero}.. Sad life, <@{ctx.author.id}>.")
