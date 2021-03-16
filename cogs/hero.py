@@ -112,7 +112,7 @@ class Summon(commands.Cog):
                         ailie = True
 
                     await msg.edit(content=msg.content + f"\n{i}. {r}")
-                    await asyncio.sleep(1)
+                    await asyncio.sleep(2)
                     i += 1
 
             if pity:
@@ -130,7 +130,7 @@ class Summon(commands.Cog):
                             ailie = True
 
                         await msg.edit(content=msg.content + f"\n10. {pr}")
-                        await asyncio.sleep(1)
+                        await asyncio.sleep(2)
 
             if not pity:
                 results = random.choices(h, w, k=1)
@@ -145,7 +145,7 @@ class Summon(commands.Cog):
                             ailie = True
 
                         await msg.edit(content=msg.content + f"\n10. {npr}")
-                        await asyncio.sleep(1)
+                        await asyncio.sleep(2)
 
             if three_star and not obtainedPickup and hero:
                 await ctx.send(f"I see 3 star hero. But no {hero}.. Sad life, <@{ctx.author.id}>.")
@@ -173,7 +173,7 @@ class Summon(commands.Cog):
     # Lists the current pickup banner
 
     @commands.command(name="banner.info", help="Lists the current pickup banner.")
-    @commands.cooldown(1, 10, commands.BucketType.user)
+    @commands.cooldown(1, 15, commands.BucketType.user)
     async def bannerInfo(self, ctx):
         msg = await ctx.send(f"One sec, <@{ctx.author.id}>. Getting those Pick Up Banner info.")
         await asyncio.sleep(1.5)
@@ -185,13 +185,13 @@ class Summon(commands.Cog):
 
     # Summons on the normal banner
     @commands.command(name="summon.normal", help="Summons single or ten units on the normal banner.")
-    @commands.cooldown(1, 30, commands.BucketType.user)
+    @commands.cooldown(1, 45, commands.BucketType.user)
     async def summonNormal(self, ctx, one_or_ten):
         await self.calcResults(ctx, one_or_ten, self.heroes, self.weights)
 
     # Summons on the pick up banner
     @commands.command(name="summon.banner", help="Summons single or ten units on the pick up banner.")
-    @commands.cooldown(1, 30, commands.BucketType.user)
+    @commands.cooldown(1, 45, commands.BucketType.user)
     async def summonBanner(self, ctx, hero, one_or_ten):
         self.heroes_with_banner = self.heroes[:]
         present = False
