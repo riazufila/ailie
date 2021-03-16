@@ -44,8 +44,8 @@ if __name__ == "__main__":
         await asyncio.sleep(0.5)
 
     # On cooldown
-    @commands.Cog.listener()
-    async def on_command_error(self, ctx, error):
+    @bot.event
+    async def on_command_error(ctx, error):
         if isinstance(error, commands.CommandOnCooldown):
             await ctx.send(f"Hey, <@{ctx.author.id}>.. {error}!")
 
