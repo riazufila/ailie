@@ -173,7 +173,7 @@ class Hero(commands.Cog):
     # Lists the current pickup banner
     @commands.command(name="hero.pickup.info", help="Lists the current pickup banner.")
     @commands.cooldown(1, 15, commands.BucketType.user)
-    async def bannerInfo(self, ctx):
+    async def heroPickUpInfo(self, ctx):
         msg = await ctx.send(f"One sec, <@{ctx.author.id}>. Getting those Pick Up Banner info.")
         await asyncio.sleep(1.5)
 
