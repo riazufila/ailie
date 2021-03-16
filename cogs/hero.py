@@ -5,7 +5,7 @@ import random
 from discord.ext import commands
 
 
-class Summon(commands.Cog):
+class Hero(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.heroes = [
@@ -222,4 +222,4 @@ class Summon(commands.Cog):
 
 
 def setup(bot):
-    bot.add_cog(Summon(bot))
+    bot.add_cog(Hero(bot))
