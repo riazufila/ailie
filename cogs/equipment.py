@@ -346,26 +346,30 @@ class Equipment(commands.Cog):
     # Summons on the pick up banner
     @commands.command(name="summon.equipment.pickup", help="Summons single or ten equipments on the normal banner.")
     @commands.cooldown(1, 45, commands.BucketType.user)
-    async def summonEquipmentPickUp(self, ctx, hero, one_or_ten):
+    async def summonEquipmentPickUp(self, ctx, ex, one_or_ten):
         self.equipments_with_banner = self.equipments[:]
         present = False
-        hero_banner = ""
+        equipment_banner = ""
 
-        for hero_banner in self.equipments_banner:
-            if hero_banner.lower().__contains__(hero.lower()):
+        if len(ex) < 5:
+            await ctx.send(f"Yo, <@{ctx.author.id}>. At least put 4 characters please?")
+            return
+
+        for equipment_banner in self.equipments_banner:
+            if equipment_banner.lower().__contains__(ex.lower()):
                 present = True
                 break
 
         if present:
-            for heroes_list in self.equipments:
-                if hero_banner in heroes_list:
-                    for hero_list in heroes_list:
-                        if hero_banner == hero_list:
+            for equips_list in self.equipments:
+                if equipment_banner in equips_list:
+                    for equip_list in equips_list:
+                        if equipment_banner == equip_list:
                             buffer = self.equipments[4][:]
-                            buffer.remove(hero_banner)
+                            buffer.remove(equipment_banner)
                             self.equipments_with_banner.pop(4)
                             self.equipments_with_banner.append(buffer)
-                            self.equipments_with_banner.append([hero_banner, ])
+                            self.equipments_with_banner.append([equipment_banner, ])
 
                             await self.calcResults(ctx, one_or_ten, self.equipments_with_banner, self.weights_banner, self.equipments_with_banner[5][0])
                             break

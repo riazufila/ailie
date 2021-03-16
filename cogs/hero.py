@@ -190,6 +190,10 @@ class Hero(commands.Cog):
         present = False
         hero_banner = ""
 
+        if len(hero) < 5:
+            await ctx.send(f"Yo, <@{ctx.author.id}>. At least put 4 characters please?")
+            return
+
         for hero_banner in self.heroes_banner:
             if hero_banner.lower().__contains__(hero.lower()):
                 present = True
