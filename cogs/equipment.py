@@ -8,7 +8,7 @@ from discord.ext import commands
 class Equipment(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.equipment = [
+        self.equipments = [
             [
                 "★★ Tutorial Sword", "★★ Storm Sword", "★★ Crude Sword",
                 "★★ Molten Sword", "★★ Bronze Sword", "★★ Knight Sword",
@@ -213,9 +213,7 @@ class Equipment(commands.Cog):
                 "★★★★ [Ex] Marauder", "★★★★ [Ex] Oberon", "★★★★ [Ex] Curiosity Solver",
                 "★★★★ [Ex] Witch Heart", "★★★★ [Ex] Crescent Moon", "★★★★ [Ex] Justice",
                 "★★★★ [Ex] Helios", "★★★★ [Ex] Vulkan", "★★★★ [Ex] Pride of Fighter",
-                "★★★★ [Ex] Firm Determination"
-            ],
-            [
+                "★★★★ [Ex] Firm Determination",
                 "★★★★★ [Ex] Innocent", "★★★★★ [Ex] Armada", "★★★★★ [Ex] Eckesachs",
                 "★★★★★ [Ex] Red Lotus", "★★★★★ [Ex] Astarte", "★★★★★ [Ex] Prominence",
                 "★★★★★ [Ex] Brave Heart", "★★★★★ [Ex] Predator", "★★★★★ [Ex] Genocide",
@@ -226,9 +224,155 @@ class Equipment(commands.Cog):
                 "★★★★★ [Ex] Pure Mind", "★★★★★ [Ex] Uros", "★★★★★ [Ex] Volcanic Horn"
             ]
         ]
+        self.equipments_banner = [
+                "★★★★★ [Ex] Messiah",
+                "★★★★★ [Ex] Thousand Thunder",
+                "★★★★★ [Ex] Astarte",
+                "★★★★★ [Ex] Armada"
+            ]
+        self.equipments_with_banner = []
         self.weights = [58.000, 27.000, 9.000, 3.000, 3.000]
         self.weights_banner = [58.000, 27.000, 9.000, 3.000, 1.000, 2.000]
         self.weights_last = [94, 3, 3]
+
+    # Calculate the chances for those exclusive weapons
+    async def calcResults(self, ctx, one_or_ten, e, w, ex=None):
+        if one_or_ten == "10" or one_or_ten == "ten":
+            results = random.choices(e, w, k=9)
+        elif one_or_ten == "1" or one_or_ten == "one":
+            results = random.choices(e, w, k=1)
+        else:
+            results = [
+                f"Hey, <@{ctx.author.id}>. I don't think thats a valid summon value. LOL!",
+                f"Ermm.. its either 10 or 1! Get yourself corrected, <@{ctx.author.id}>!",
+                f"You sure there's a {one_or_ten} summon, <@{ctx.author.id}>? There's only 1 and 10 summon!"
+            ]
+
+            await ctx.send(random.choice(results))
+
+        if one_or_ten == "10" or one_or_ten == "ten" or one_or_ten == "1" or one_or_ten == "one":
+            ex_weap = False
+            obtainedPickup = False
+
+            msg = await ctx.send(
+                f"Wait up, <@{ctx.author.id}>. Summoning {one_or_ten} now..")
+
+            await asyncio.sleep(3)
+
+            pity = False
+            check = False
+            i = 1
+
+            for result in results:
+                result = random.choices(result, k=1)
+                for r in result:
+                    if one_or_ten == "10" or one_or_ten == "ten":
+                        if not "★★★★★ " in r and not check:
+                            pity = True
+                        if not "★★★★ " in r and not check:
+                            pity = True
+                        else:
+                            pity = False
+                            check = True
+
+                    if "★★★★★ [Ex]" in r:
+                        ex_weap = True
+                    if r == ex:
+                        obtainedPickup = True
+
+                    await msg.edit(content=msg.content + f"\n{i}. {r}")
+                    await asyncio.sleep(1.5)
+                    i += 1
+
+            if pity:
+                equips_pity = self.equipments[:]
+                equips_pity.pop(0)
+                results = random.choices(equips_pity, self.weights_last, k=1)
+                for pity_result in results:
+                    p_r = random.choices(pity_result, k=1)
+                    for pr in p_r:
+                        if "★★★★★ [Ex]" in pr:
+                            ex_weap = True
+                        if pr == ex:
+                            obtainedPickup = True
+
+                        await msg.edit(content=msg.content + f"\n10. {pr}")
+                        await asyncio.sleep(1.5)
+
+            if not pity:
+                results = random.choices(e, w, k=1)
+                for not_pity_result in results:
+                    n_p_r = random.choices(not_pity_result, k=1)
+                    for npr in n_p_r:
+                        if "★★★★★ [Ex]" in npr:
+                            ex_weap = True
+                        if npr == ex:
+                            obtainedPickup = True
+
+                        await msg.edit(content=msg.content + f"\n10. {npr}")
+                        await asyncio.sleep(1.5)
+
+            if ex_weap and not obtainedPickup and ex:
+                await ctx.send(f"I see 5 star exclusive weapon. But no {ex}.. Sad life, <@{ctx.author.id}>.")
+            if ex_weap and obtainedPickup and ex:
+                await ctx.send(f"WOHOOOOOOOOOOOOOOOOOO, <@{ctx.author.id}>! You got the pick up equipment!")
+            if ex_weap and not ex:
+                await ctx.send(
+                    f"WOW! W-w-waaaiittt a second, <@{ctx.author.id}>..  Is that a freaking exclusive weapon?!"
+                )
+
+            if not ex_weap:
+                await ctx.send(
+                    f"You just suck at gachas, <@{ctx.author.id}>..")
+
+    # Lists the current pickup banner
+    @commands.command(name="equipment.pickup.info", help="Lists the current pickup banner.")
+    @commands.cooldown(1, 15, commands.BucketType.user)
+    async def equipmentPickUpInfo(self, ctx):
+        msg = await ctx.send(f"One sec, <@{ctx.author.id}>. Getting those Pick Up Banner info.")
+        await asyncio.sleep(1.5)
+
+        i = 1
+        for hero_banner in self.equipments_banner:
+            await msg.edit(content=msg.content + f"\n{i}. {hero_banner}")
+            i += 1
+
+    # Summons on the normal banner
+    @commands.command(name="summon.equipment", help="Summons single or ten equipments on the normal banner.")
+    @commands.cooldown(1, 45, commands.BucketType.user)
+    async def summonEquipment(self, ctx, one_or_ten):
+        await self.calcResults(ctx, one_or_ten, self.equipments, self.weights)
+
+    # Summons on the pick up banner
+    @commands.command(name="summon.equipment.pickup", help="Summons single or ten equipments on the normal banner.")
+    @commands.cooldown(1, 45, commands.BucketType.user)
+    async def summonEquipmentPickUp(self, ctx, hero, one_or_ten):
+        self.equipments_with_banner = self.equipments[:]
+        present = False
+        hero_banner = ""
+
+        for hero_banner in self.equipments_banner:
+            if hero_banner.lower().__contains__(hero.lower()):
+                present = True
+                break
+
+        if present:
+            for heroes_list in self.equipments:
+                if hero_banner in heroes_list:
+                    for hero_list in heroes_list:
+                        if hero_banner == hero_list:
+                            buffer = self.equipments[4][:]
+                            buffer.remove(hero_banner)
+                            self.equipments_with_banner.pop(4)
+                            self.equipments_with_banner.append(buffer)
+                            self.equipments_with_banner.append([hero_banner, ])
+
+                            await self.calcResults(ctx, one_or_ten, self.equipments_with_banner, self.weights_banner, self.equipments_with_banner[5][0])
+                            break
+                    break
+
+        if not present:
+            await ctx.send(f"Ermmm, <@{ctx.author.id}>. The hero you mentioned is not in the current pick up banner.")
 
 
 def setup(bot):

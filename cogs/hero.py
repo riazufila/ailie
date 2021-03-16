@@ -164,12 +164,6 @@ class Hero(commands.Cog):
                 await ctx.send(
                     f"You just suck at gachas, <@{ctx.author.id}>..")
 
-    # On cooldown
-    @commands.Cog.listener()
-    async def on_command_error(self, ctx, error):
-        if isinstance(error, commands.CommandOnCooldown):
-            await ctx.send(f"Hey, <@{ctx.author.id}>.. {error}!")
-
     # Lists the current pickup banner
     @commands.command(name="hero.pickup.info", help="Lists the current pickup banner.")
     @commands.cooldown(1, 15, commands.BucketType.user)

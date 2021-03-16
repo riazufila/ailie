@@ -43,5 +43,11 @@ if __name__ == "__main__":
         await msg.edit(content=msg.content + f" {version}!")
         await asyncio.sleep(0.5)
 
+    # On cooldown
+    @commands.Cog.listener()
+    async def on_command_error(self, ctx, error):
+        if isinstance(error, commands.CommandOnCooldown):
+            await ctx.send(f"Hey, <@{ctx.author.id}>.. {error}!")
+
     # Run bot
     bot.run(TOKEN)
