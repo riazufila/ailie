@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import random
 import asyncio
 import discord
 from discord.ext import commands
@@ -9,14 +10,25 @@ class Extra(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    # Retrieve Ailie's version
+    # Pours salt to those lucky people
     @commands.command(name="salt", help="Pour salt on someone")
     @commands.cooldown(1, 10, commands.BucketType.user)
     async def pourSalt(self, ctx, mention: discord.Member):
         try:
-            await ctx.send(f"*Pours salt on <@{mention.id}>*")
+            reply = [
+                f"*Pours salt on {mention.mention}.. POURING INTENSIFIED!*",
+                f"{mention.mention}, get wrecked in mountains of salt!",
+                f"THIS IS FOR GETTING LUCKY, {mention.mention}! TAKE ALL THE SALT",
+                f"No one is allowed to get this lucky! Especially you, {mention.mention}!",
+                f"*Pours multiple bottles of salt at {mention.mention}.*"
+            ]
+            msg = await ctx.send(random.choice(reply))
+
+            # Bot reacts with salt emoji
+            await msg.add_reaction("🧂")
         except:
-            await ctx.send(f"<@{ctx.author.id}, please mention someone you wanna pour salt to.>")
+            # Send message on error
+            await ctx.send(f"<@{ctx.author.id}>, please mention someone you wanna pour salt to.>")
 
 
 def setup(bot):
