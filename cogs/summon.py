@@ -401,7 +401,7 @@ class Summon(commands.Cog):
             # await asyncio.sleep(1.5)
             counter += 2
 
-        await msg.reply(reply, mention_author=False)
+        await msg.reply(reply, mention_author=True)
 
     # Lists the current pickup banner
     @commands.command(
