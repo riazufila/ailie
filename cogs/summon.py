@@ -74,7 +74,7 @@ class Summon(commands.Cog):
             if r == target:
                 obtainedPickup = True
 
-        return white_box, obtainedPickup, ailie
+        return white_box, obtainedPickup, ailie, alef, plitvice, lapice, nari
 
     # Replies are sent back according to the summons obtained
     def getRepliesForSpecificSummons(self, ctx, target, heroes_check, white_box, obtainedPickup,
@@ -119,7 +119,7 @@ class Summon(commands.Cog):
 
                 reply = random.choice(reply)
             if white_box and not target:
-                if alef or plitvice or lapice:
+                if alef or plitvice or lapice or nari:
                     if alef:
                         reply = [
                             f"LOL. You've got Alef instead, <@{ctx.author.id}>. Congratulations?"
@@ -140,7 +140,7 @@ class Summon(commands.Cog):
                     reply = [
                         f"WOW! W-w-waaaiittt a second, <@{ctx.author.id}>..  Is that a freaking 3 star hero?!",
                         f"3 star heroes are attracted to you, <@{ctx.author.id}>. Yeah I said it.",
-                        f"Yeah you got 3 star hero. I can see that. But how many gems has it been?"
+                        f"Yeah. You got 3 star hero, <@{ctx.author.id}>. I can see that. But how many gems has it been?"
                     ]
 
                 reply = random.choice(reply)
@@ -175,7 +175,7 @@ class Summon(commands.Cog):
                 reply = [
                     f"WOW! W-w-waaaiittt a second, <@{ctx.author.id}>..  Is that a freaking 5 star exclusive weapon?!",
                     f"5 star exclusive weapons are attracted to you, <@{ctx.author.id}>. Yeah I said it.",
-                    f"Yeah you got 5 star exclusive weapon. I can see that. But how many gems has it been?"
+                    f"Yeah. You got 5 star exclusive weapon, <@{ctx.author.id}>. I can see that. But how many gems has it been?"
                 ]
 
                 reply = random.choice(reply)
@@ -325,11 +325,11 @@ class Summon(commands.Cog):
 
                     # Check what is being summoned for specific replies
                     if heroes_check:
-                        white_box, obtainedPickup, ailie = self.checkWhatIsSummoned(
+                        white_box, obtainedPickup, ailie, alef, plitvice, lapice, nari = self.checkWhatIsSummoned(
                             r, target, heroes_check, white_box, obtainedPickup,
                             ailie, alef, plitvice, lapice, nari)
                     else:
-                        white_box, obtainedPickup, ailie = self.checkWhatIsSummoned(
+                        white_box, obtainedPickup, ailie, alef, plitvice, lapice, nari = self.checkWhatIsSummoned(
                             r, target, heroes_check, white_box, obtainedPickup)
 
                     # Append the summons to boxes to be returned
@@ -348,11 +348,11 @@ class Summon(commands.Cog):
                     for pr in p_r:
                         # Check what is being summoned for specific replies
                         if heroes_check:
-                            white_box, obtainedPickup, ailie = self.checkWhatIsSummoned(
+                            white_box, obtainedPickup, ailie, alef, plitvice, lapice, nari = self.checkWhatIsSummoned(
                                 pr, target, heroes_check, white_box, obtainedPickup,
                                 ailie, alef, plitvice, lapice, nari)
                         else:
-                            white_box, obtainedPickup, ailie = self.checkWhatIsSummoned(
+                            white_box, obtainedPickup, ailie, alef, plitvice, lapice, nari = self.checkWhatIsSummoned(
                                 pr, target, heroes_check, white_box, obtainedPickup)
 
                         # Append the summons to boxes to be returned
@@ -366,11 +366,11 @@ class Summon(commands.Cog):
                     for npr in n_p_r:
                         # Check what is being summoned for specific replies
                         if heroes_check:
-                            white_box, obtainedPickup, ailie = self.checkWhatIsSummoned(
+                            white_box, obtainedPickup, ailie, alef, plitvice, lapice, nari = self.checkWhatIsSummoned(
                                 npr, target, heroes_check, white_box, obtainedPickup,
                                 ailie, alef, plitvice, lapice, nari)
                         else:
-                            white_box, obtainedPickup, ailie = self.checkWhatIsSummoned(
+                            white_box, obtainedPickup, ailie, alef, plitvice, lapice, nari = self.checkWhatIsSummoned(
                                 npr, target, heroes_check, white_box, obtainedPickup)
 
                         # Append the summons to boxes to be returned
@@ -379,10 +379,10 @@ class Summon(commands.Cog):
             # Get specific replies corresponding to the summons
             if heroes_check:
                 reply = self.getRepliesForSpecificSummons(
-                    ctx, target, heroes_check, white_box, obtainedPickup, ailie)
+                    ctx, target, heroes_check, white_box, obtainedPickup, ailie, alef, plitvice, lapice, nari)
             else:
                 reply = self.getRepliesForSpecificSummons(
-                    ctx, target, heroes_check, white_box, obtainedPickup, ailie)
+                    ctx, target, heroes_check, white_box, obtainedPickup, ailie, alef, plitvice, lapice, nari)
 
         return boxes, reply
 
