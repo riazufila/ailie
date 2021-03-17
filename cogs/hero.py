@@ -78,6 +78,7 @@ class Hero(commands.Cog):
         # Initialize variable to check invalid input
         invalid = False
         present = False
+        hero_banner = ""
 
         # Check if the parameter send is lesser than 5 characters
         # If its lesser, then return error message
@@ -90,13 +91,12 @@ class Hero(commands.Cog):
                 present = True
                 break
 
-        return present, invalid
+        return present, invalid, hero_banner
 
     # Create new list with pick up included in a separate list in main list
-    def pickUpPresent(self, ctx, hero, one_or_ten):
+    def pickUpPresent(self, ctx, one_or_ten, hero_banner):
         # Initialize counters
         pick_up_hero_pool = self.heroes[:]
-        hero_banner = ""
         boxes = []
         reply = ""
 
@@ -210,9 +210,10 @@ class Hero(commands.Cog):
         # Declare counter
         counter = 1
         # Iterate through box and edit messages to update the results
+        boxes = iter(boxes)
         for box in boxes:
             # Add two entry per request to lower occurance of rate limits
-            await msg.edit(content=msg.content + f"\n{counter}. {box}\n{counter + 1}. {box}")
+            await msg.edit(content=msg.content + f"\n{counter}. {box}\n{counter + 1}. {next(boxes)}")
             await asyncio.sleep(1.5)
             counter += 2
 
@@ -259,7 +260,7 @@ class Hero(commands.Cog):
     @commands.cooldown(1, 30, commands.BucketType.user)
     async def summonHeroPickUp(self, ctx, hero, one_or_ten):
         # Check if pick up is available
-        present, invalid = self.checkPickUpAvailability(ctx, hero)
+        present, invalid, hero_banner = self.checkPickUpAvailability(ctx, hero)
 
         # If the parameter entered is too short
         if invalid:
@@ -268,7 +269,7 @@ class Hero(commands.Cog):
 
         # If hero is indeed present in current pick up banner
         if present:
-            boxes, reply = self.pickUpPresent(ctx, hero, one_or_ten)
+            boxes, reply = self.pickUpPresent(ctx, one_or_ten, hero_banner)
             await self.summonDisplay(ctx, one_or_ten, boxes, reply)
         # If not, then send error message
         else:
