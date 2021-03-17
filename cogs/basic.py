@@ -26,7 +26,7 @@ class Basic(commands.Cog):
     @commands.cooldown(1, 10, commands.BucketType.user)
     async def version(self, ctx):
         # Change upon version update
-        version = "1.0.1"
+        version = "1.1.0"
 
         # Mimic loading animation
         msg = await ctx.send(f"Hello, <@{ctx.author.id}>! Ailie reporting to duty!")
