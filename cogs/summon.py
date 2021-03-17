@@ -289,7 +289,7 @@ class Summon(commands.Cog):
     # Summon is displayed accordingly
     async def summonDisplay(self, ctx, one_or_ten, boxes, reply):
         msg = await ctx.send(f"Wait up, <@{ctx.author.id}>. Summoning {one_or_ten} now..")
-        await asyncio.sleep(3)
+        # await asyncio.sleep(3)
 
         # Declare counter
         counter = 1
@@ -298,7 +298,7 @@ class Summon(commands.Cog):
         for box in boxes:
             # Add two entry per request to lower occurance of rate limits
             await msg.edit(content=msg.content + f"\n{counter}. {box}\n{counter + 1}. {next(boxes)}")
-            await asyncio.sleep(1.5)
+            # await asyncio.sleep(1.5)
             counter += 2
 
         await ctx.send(reply)
@@ -335,7 +335,7 @@ class Summon(commands.Cog):
         help="Summons single or ten heroes on the normal banner.",
         aliases=["summonhero", "s.h", "sh"]
     )
-    @commands.cooldown(1, 30, commands.BucketType.user)
+    # @commands.cooldown(1, 30, commands.BucketType.user)
     async def summonHero(self, ctx, one_or_ten):
         boxes, reply = self.calcResults(
             ctx, one_or_ten, self.heroes, self.heroes_weights, self.heroes_last_slot_weights)
@@ -347,7 +347,7 @@ class Summon(commands.Cog):
         help="Summons single or ten heroes on the pick up banner.",
         aliases=["summonheropickup", "s.h.p", "shp"]
     )
-    @commands.cooldown(1, 30, commands.BucketType.user)
+    # @commands.cooldown(1, 30, commands.BucketType.user)
     async def summonHeroPickUp(self, ctx, hero, one_or_ten):
         # Check if pick up is available
         present, invalid, hero_banner = self.checkPickUpAvailability(
@@ -381,7 +381,7 @@ class Summon(commands.Cog):
         help="Summons single or ten equipments on the normal banner.",
         aliases=["summon.equip", "summonequipment", "summonequip", "s.e", "se"]
     )
-    @commands.cooldown(1, 30, commands.BucketType.user)
+    # @commands.cooldown(1, 30, commands.BucketType.user)
     async def summonEquipment(self, ctx, one_or_ten):
         boxes, reply = self.calcResults(
             ctx, one_or_ten, self.equipments, self.equipments_weights, self.equipments_last_slot_weights)
@@ -394,7 +394,7 @@ class Summon(commands.Cog):
         aliases=["summon.equip.pickup", "summonequipmentpickup",
                  "summonequippickup", "s.e.p", "sep"]
     )
-    @commands.cooldown(1, 30, commands.BucketType.user)
+    # @commands.cooldown(1, 30, commands.BucketType.user)
     async def summonEquipmentPickUp(self, ctx, equipment, one_or_ten):
         # Check if pick up is available
         present, invalid, equipment_banner = self.checkPickUpAvailability(
