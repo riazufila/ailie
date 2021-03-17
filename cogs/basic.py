@@ -23,6 +23,7 @@ class Basic(commands.Cog):
 
     # Retrieve Ailie's version
     @commands.command(name="version", help="Shows Ailie's current version.")
+    @commands.cooldown(1, 10, commands.BucketType.user)
     async def version(self, ctx):
         # Change upon version update
         version = "1.0.1"
