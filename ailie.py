@@ -11,8 +11,9 @@ if __name__ == "__main__":
     TOKEN = os.getenv("DISCORD_TOKEN")
 
     # Bot setup
-    bot = commands.Bot(command_prefix="ailie;",
-                       description="Guardian's collector.")
+    bot = commands.Bot(
+        command_prefix=["ailie;", "a;"],
+        description="Guardian's collector.")
     bot.remove_command("help")
 
     # Load extensions
