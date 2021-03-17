@@ -18,9 +18,12 @@ class Extra(commands.Cog):
             reply = [
                 f"*Pours salt on {mention.mention}.. POURING INTENSIFIED!*",
                 f"{mention.mention}, get wrecked in mountains of salt!",
-                f"THIS IS FOR GETTING LUCKY, {mention.mention}! TAKE ALL THE SALT",
+                f"THIS IS FOR GETTING LUCKY, {mention.mention}! TAKE ALL THE SALT.",
                 f"No one is allowed to get this lucky! Especially you, {mention.mention}!",
-                f"*Pours multiple bottles of salt at {mention.mention}.*"
+                f"*Pours multiple bottles of salt at {mention.mention}.*",
+                f"Sending boxes of salt to {mention.mention}. From yours truly, <@{ctx.author.id}>.",
+                f"<@{ctx.author.id}> wishes there's no cooldown to this command just to keep spamming salt to you, {mention.mention}. HAHA.",
+                f"EVERYONE! Come spam salt to, {mention.mention}!"
             ]
             msg = await ctx.send(random.choice(reply))
 
