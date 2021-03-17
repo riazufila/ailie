@@ -16,13 +16,13 @@ class Basic(commands.Cog):
         await self.bot.change_presence(activity=discord.Game("Guardian Tales"))
 
     # Check bot's latency
-    @commands.command(name="ping", help="Check bot's latency.", aliases=["p"])
+    @commands.command(name="ping", help="Check latency.", aliases=["p"])
     @commands.cooldown(1, 45, commands.BucketType.user)
     async def ping(self, ctx):
         await ctx.send(f"Pong, <@{ctx.author.id}>! Sending back this message with {round(self.bot.latency * 1000)}ms latency.")
 
     # Retrieve Ailie's version
-    @commands.command(name="version", help="Shows Ailie's current version.", aliases=["v"])
+    @commands.command(name="version", help="Shows version.", aliases=["v"])
     @commands.cooldown(1, 10, commands.BucketType.user)
     async def version(self, ctx):
         # Change upon version update

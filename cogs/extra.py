@@ -10,7 +10,7 @@ class Extra(commands.Cog):
         self.bot = bot
 
     # Pours salt to those lucky people
-    @commands.command(name="salt", help="Pour salt on someone", aliases=["s"])
+    @commands.command(name="salt", help="Pour salt.", aliases=["s"])
     @commands.cooldown(1, 10, commands.BucketType.user)
     async def pourSalt(self, ctx, mention: discord.Member):
         try:
@@ -33,7 +33,7 @@ class Extra(commands.Cog):
             await ctx.send(f"<@{ctx.author.id}>, please mention someone you wanna pour salt to.")
 
     # Press F
-    @commands.command(name="f", help="'Press F' to pay respect to others.")
+    @commands.command(name="f", help="Pay respect.")
     @commands.cooldown(1, 10, commands.BucketType.user)
     async def pressF(self, ctx, mention: discord.Member):
         try:

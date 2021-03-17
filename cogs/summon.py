@@ -406,7 +406,7 @@ class Summon(commands.Cog):
     # Lists the current pickup banner
     @commands.command(
         name="pickup.info",
-        help="Lists the current pickup banner.",
+        help="List current pickup banner.",
         aliases=["pickupinfo", "p.i", "pi"]
     )
     @commands.cooldown(1, 15, commands.BucketType.user)
@@ -432,7 +432,7 @@ class Summon(commands.Cog):
     # Summon heroes on the normal banner
     @commands.command(
         name="summon.hero",
-        help="Summons single or ten heroes on the normal banner.",
+        help="Summon heroes on normal banner.",
         aliases=["summonhero", "s.h", "sh"]
     )
     # @commands.cooldown(1, 30, commands.BucketType.user)
@@ -444,7 +444,7 @@ class Summon(commands.Cog):
     # Summon heroes on the pick up banner
     @commands.command(
         name="summon.hero.pickup",
-        help="Summons single or ten heroes on the pick up banner.",
+        help="Summon heroes on pick up banner.",
         aliases=["summonheropickup", "s.h.p", "shp"]
     )
     # @commands.cooldown(1, 30, commands.BucketType.user)
@@ -478,7 +478,7 @@ class Summon(commands.Cog):
     # Summon heroes on the normal banner
     @commands.command(
         name="summon.equipment",
-        help="Summons single or ten equipments on the normal banner.",
+        help="Summon equipments on normal banner.",
         aliases=["summon.equip", "summonequipment", "summonequip", "s.e", "se"]
     )
     # @commands.cooldown(1, 30, commands.BucketType.user)
@@ -490,7 +490,7 @@ class Summon(commands.Cog):
     # Summon heroes on the pick up banner
     @commands.command(
         name="summon.equipment.pickup",
-        help="Summons single or ten equipments on the pick up banner.",
+        help="Summon equipments on pick up banner.",
         aliases=["summon.equip.pickup", "summonequipmentpickup",
                  "summonequippickup", "s.e.p", "sep"]
     )
