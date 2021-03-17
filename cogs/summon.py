@@ -435,7 +435,7 @@ class Summon(commands.Cog):
         help="Summon heroes on normal banner.",
         aliases=["summonhero", "s.h", "sh"]
     )
-    # @commands.cooldown(1, 30, commands.BucketType.user)
+    @commands.cooldown(1, 30, commands.BucketType.user)
     async def summonHero(self, ctx, one_or_ten):
         boxes, reply = self.calcResults(
             ctx, one_or_ten, self.heroes, self.heroes_weights, self.heroes_last_slot_weights)
@@ -447,7 +447,7 @@ class Summon(commands.Cog):
         help="Summon heroes on pick up banner.",
         aliases=["summonheropickup", "s.h.p", "shp"]
     )
-    # @commands.cooldown(1, 30, commands.BucketType.user)
+    @commands.cooldown(1, 30, commands.BucketType.user)
     async def summonHeroPickUp(self, ctx, hero, one_or_ten):
         # Check if pick up is available
         present, invalid, hero_banner = self.checkPickUpAvailability(
@@ -481,7 +481,7 @@ class Summon(commands.Cog):
         help="Summon equipments on normal banner.",
         aliases=["summon.equip", "summonequipment", "summonequip", "s.e", "se"]
     )
-    # @commands.cooldown(1, 30, commands.BucketType.user)
+    @commands.cooldown(1, 30, commands.BucketType.user)
     async def summonEquipment(self, ctx, one_or_ten):
         boxes, reply = self.calcResults(
             ctx, one_or_ten, self.equipments, self.equipments_weights, self.equipments_last_slot_weights)
@@ -494,7 +494,7 @@ class Summon(commands.Cog):
         aliases=["summon.equip.pickup", "summonequipmentpickup",
                  "summonequippickup", "s.e.p", "sep"]
     )
-    # @commands.cooldown(1, 30, commands.BucketType.user)
+    @commands.cooldown(1, 30, commands.BucketType.user)
     async def summonEquipmentPickUp(self, ctx, equipment, one_or_ten):
         # Check if pick up is available
         present, invalid, equipment_banner = self.checkPickUpAvailability(
