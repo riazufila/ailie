@@ -38,12 +38,7 @@ class Hero(commands.Cog):
         return buffer
 
     # Summons are determined to check for certain requirements
-    def checkWhatIsSummoned(self, r, hero):
-        # Initialize counters
-        three_star = False
-        obtainedPickup = False
-        ailie = False
-
+    def checkWhatIsSummoned(self, r, hero, three_star, obtainedPickup, ailie):
         if "★★★" in r:
             three_star = True
         if r == hero:
@@ -163,7 +158,7 @@ class Hero(commands.Cog):
 
                     # Check what is being summoned for specific replies
                     three_star, obtainedPickup, ailie = self.checkWhatIsSummoned(
-                        r, hero)
+                        r, hero, three_star, obtainedPickup, ailie)
                     # Append the summons to boxes to be returned
                     boxes.append(r)
 
@@ -180,7 +175,7 @@ class Hero(commands.Cog):
                     for pr in p_r:
                         # Check what is being summoned for specific replies
                         three_star, obtainedPickup, ailie = self.checkWhatIsSummoned(
-                            pr, hero)
+                            pr, hero, three_star, obtainedPickup, ailie)
                         # Append the summons to boxes to be returned
                         boxes.append(pr)
 
@@ -192,7 +187,7 @@ class Hero(commands.Cog):
                     for npr in n_p_r:
                         # Check what is being summoned for specific replies
                         three_star, obtainedPickup, ailie = self.checkWhatIsSummoned(
-                            npr, hero)
+                            npr, hero, three_star, obtainedPickup, ailie)
                         # Append the summons to boxes to be returned
                         boxes.append(npr)
 
