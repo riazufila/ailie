@@ -86,7 +86,7 @@ class Summon(commands.Cog):
                 reply = [
                     f"WOHOOOOOOOOOOOOOOOOOO, <@{ctx.author.id}>! You got the pick up hero!",
                     f"This calls for a treat, <@{ctx.author.id}>! Easy-peasy.",
-                    f"<@{ctx.author.id}, what kind of luck do you have? Are you somekind of luck beast or something?!>"
+                    f"<@{ctx.author.id}>, what kind of luck do you have? Are you somekind of luck beast or something?!"
                 ]
 
                 reply = random.choice(reply)
@@ -103,7 +103,7 @@ class Summon(commands.Cog):
             elif not white_box and not ailie:
                 reply = [
                     f"You just suck at gachas, <@{ctx.author.id}>..",
-                    f"Try harder, <@{ctx.author.id}>",
+                    f"Try harder, <@{ctx.author.id}>.",
                     f"Ermmm.. <@{ctx.author.id}>. Oh well. You've tried."
                 ]
 
@@ -121,7 +121,7 @@ class Summon(commands.Cog):
                 reply = [
                     f"WOHOOOOOOOOOOOOOOOOOO, <@{ctx.author.id}>! You got the pick up equipment!",
                     f"This calls for a treat, <@{ctx.author.id}>! Easy-peasy.",
-                    f"<@{ctx.author.id}, what kind of luck do you have? Are you somekind of luck beast or something?!>"
+                    f"<@{ctx.author.id}>, what kind of luck do you have? Are you somekind of luck beast or something?!"
                 ]
 
                 reply = random.choice(reply)
@@ -137,7 +137,7 @@ class Summon(commands.Cog):
             if not white_box:
                 reply = [
                     f"You just suck at gachas, <@{ctx.author.id}>..",
-                    f"Try harder, <@{ctx.author.id}>",
+                    f"Try harder, <@{ctx.author.id}>.",
                     f"Ermmm.. <@{ctx.author.id}>. Oh well. You've tried."
                 ]
 
