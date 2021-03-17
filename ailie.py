@@ -17,7 +17,7 @@ if __name__ == "__main__":
     bot.remove_command("help")
 
     # Load extensions
-    extensions = ["cogs.basic", "cogs.help", "cogs.hero", "cogs.equipment"]
+    extensions = ["cogs.help", "cogs.basic", "cogs.summon"]
 
     for extension in extensions:
         bot.load_extension(extension)

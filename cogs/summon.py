@@ -6,7 +6,7 @@ import csv
 from discord.ext import commands
 
 
-class Hero(commands.Cog):
+class Summon(commands.Cog):
     def __init__(self, bot):
         # Bot assigned to class
         self.bot = bot
@@ -274,4 +274,4 @@ class Hero(commands.Cog):
 
 
 def setup(bot):
-    bot.add_cog(Hero(bot))
+    bot.add_cog(Summon(bot))
