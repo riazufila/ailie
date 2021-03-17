@@ -389,7 +389,7 @@ class Summon(commands.Cog):
     # Summon is displayed accordingly
     async def summonDisplay(self, ctx, one_or_ten, boxes, reply):
         msg = await ctx.send(f"Wait up, <@{ctx.author.id}>. Summoning {one_or_ten} now..")
-        # await asyncio.sleep(3)
+        await asyncio.sleep(3)
 
         # Declare counter
         counter = 1
@@ -398,7 +398,7 @@ class Summon(commands.Cog):
         for box in boxes:
             # Add two entry per request to lower occurance of rate limits
             await msg.edit(content=msg.content + f"\n{counter}. {box}\n{counter + 1}. {next(boxes)}")
-            # await asyncio.sleep(1.5)
+            await asyncio.sleep(1.5)
             counter += 2
 
         await msg.reply(reply, mention_author=True)
