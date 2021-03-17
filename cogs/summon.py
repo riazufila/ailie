@@ -51,7 +51,8 @@ class Summon(commands.Cog):
         return buffer
 
     # Summons are determined to check for certain requirements
-    def checkWhatIsSummoned(self, r, target, heroes_check, white_box, obtainedPickup, ailie=None):
+    def checkWhatIsSummoned(self, r, target, heroes_check, white_box, obtainedPickup,
+                            ailie=None, alef=None, plitvice=None, lapice=None, nari=None):
         if heroes_check:
             if "★★★" in r:
                 white_box = True
@@ -59,6 +60,14 @@ class Summon(commands.Cog):
                 obtainedPickup = True
             if "Ailie" in r:
                 ailie = True
+            if "Alef" in r:
+                alef = True
+            if "Plitvice" in r:
+                plitvice = True
+            if "Lapice" in r:
+                lapice = True
+            if "Nari" in r:
+                nari = True
         else:
             if "★★★★★ [Ex]" in r:
                 white_box = True
@@ -68,18 +77,37 @@ class Summon(commands.Cog):
         return white_box, obtainedPickup, ailie
 
     # Replies are sent back according to the summons obtained
-    def getRepliesForSpecificSummons(self, ctx, target, heroes_check, white_box, obtainedPickup, ailie):
+    def getRepliesForSpecificSummons(self, ctx, target, heroes_check, white_box, obtainedPickup,
+                                     ailie, alef, plitvice, lapice, nari):
         # Initialize reply variable
         reply = ""
 
         # Get funky replies
         if heroes_check:
             if white_box and not obtainedPickup and target:
-                reply = [
-                    f"I see 3 star hero. But no {target}.. Sad life, <@{ctx.author.id}>.",
-                    f"Well.. Not too shabby I guess. Right, <@{ctx.author.id}>? Although there's no {target}. Hahaha.",
-                    f"At least there's 3 star hero. It could've been worse, <@{ctx.author.id}>."
-                ]
+                if not alef or not plitvice or not lapice or not nari:
+                    reply = [
+                        f"I see 3 star hero. But no {target}.. Sad life, <@{ctx.author.id}>.",
+                        f"Well.. Not too shabby I guess. Right, <@{ctx.author.id}>? Although there's no {target}. Hahaha.",
+                        f"At least there's 3 star hero. It could've been worse, <@{ctx.author.id}>."
+                    ]
+                else:
+                    if alef:
+                        reply = [
+                            f"LOL. You've got Alef instead, <@{ctx.author.id}>. Congratulations?"
+                        ]
+                    if plitvice:
+                        reply = [
+                            f"3 STAR WOW! Wait.. Oh. Its Plitvice. Good for you, <@{ctx.author.id}>."
+                        ]
+                    if lapice:
+                        reply = [
+                            f"Huh? Lapice? Whats that, <@{ctx.author.id}>?"
+                        ]
+                    if nari:
+                        reply = [
+                            f"YES, <@{ctx.author.id}>! NARI! But shhhhhh! Keep it quiet. Some YouTuber doesn't seem too fond of Nari. *smirks*"
+                        ]
 
                 reply = random.choice(reply)
             if white_box and obtainedPickup and target:
@@ -91,11 +119,29 @@ class Summon(commands.Cog):
 
                 reply = random.choice(reply)
             if white_box and not target:
-                reply = [
-                    f"WOW! W-w-waaaiittt a second, <@{ctx.author.id}>..  Is that a freaking 3 star hero?!",
-                    f"3 star heroes are attracted to you, <@{ctx.author.id}>. Yeah I said it.",
-                    f"Yeah you got 3 star hero. I can see that. But how many gems has it been?"
-                ]
+                if alef or plitvice or lapice:
+                    if alef:
+                        reply = [
+                            f"LOL. You've got Alef instead, <@{ctx.author.id}>. Congratulations?"
+                        ]
+                    if plitvice:
+                        reply = [
+                            f"3 STAR WOW! Wait.. Oh. Its Plitvice. Good for you, <@{ctx.author.id}>."
+                        ]
+                    if lapice:
+                        reply = [
+                            f"Huh? Lapice? Whats that, <@{ctx.author.id}>?"
+                        ]
+                    if nari:
+                        reply = [
+                            f"YES, <@{ctx.author.id}>! NARI! But shhhhhh! Keep it quiet. Some YouTuber doesn't seem too fond of Nari. *smirks*"
+                        ]
+                else:
+                    reply = [
+                        f"WOW! W-w-waaaiittt a second, <@{ctx.author.id}>..  Is that a freaking 3 star hero?!",
+                        f"3 star heroes are attracted to you, <@{ctx.author.id}>. Yeah I said it.",
+                        f"Yeah you got 3 star hero. I can see that. But how many gems has it been?"
+                    ]
 
                 reply = random.choice(reply)
             if not white_box and ailie:
@@ -242,10 +288,14 @@ class Summon(commands.Cog):
             # Variables used as a counter to check what is being summoned
             heroes_check = False
             white_box = False
+            pity_check = False
             obtainedPickup = False
             pity = False
             ailie = False
-            pity_check = False
+            alef = False
+            plitvice = False
+            lapice = False
+            nari = False
 
             if w == self.heroes_weights or w == self.heroes_pick_up_weights:
                 heroes_check = True
@@ -276,7 +326,8 @@ class Summon(commands.Cog):
                     # Check what is being summoned for specific replies
                     if heroes_check:
                         white_box, obtainedPickup, ailie = self.checkWhatIsSummoned(
-                            r, target, heroes_check, white_box, obtainedPickup, ailie)
+                            r, target, heroes_check, white_box, obtainedPickup,
+                            ailie, alef, plitvice, lapice, nari)
                     else:
                         white_box, obtainedPickup, ailie = self.checkWhatIsSummoned(
                             r, target, heroes_check, white_box, obtainedPickup)
@@ -298,7 +349,8 @@ class Summon(commands.Cog):
                         # Check what is being summoned for specific replies
                         if heroes_check:
                             white_box, obtainedPickup, ailie = self.checkWhatIsSummoned(
-                                pr, target, heroes_check, white_box, obtainedPickup, ailie)
+                                pr, target, heroes_check, white_box, obtainedPickup,
+                                ailie, alef, plitvice, lapice, nari)
                         else:
                             white_box, obtainedPickup, ailie = self.checkWhatIsSummoned(
                                 pr, target, heroes_check, white_box, obtainedPickup)
@@ -315,7 +367,8 @@ class Summon(commands.Cog):
                         # Check what is being summoned for specific replies
                         if heroes_check:
                             white_box, obtainedPickup, ailie = self.checkWhatIsSummoned(
-                                npr, target, heroes_check, white_box, obtainedPickup, ailie)
+                                npr, target, heroes_check, white_box, obtainedPickup,
+                                ailie, alef, plitvice, lapice, nari)
                         else:
                             white_box, obtainedPickup, ailie = self.checkWhatIsSummoned(
                                 npr, target, heroes_check, white_box, obtainedPickup)
