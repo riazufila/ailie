@@ -10,7 +10,7 @@ class Extra(commands.Cog):
         self.bot = bot
 
     # Pours salt to those lucky people
-    @commands.command(name="salt", help="Pour salt.", aliases=["s"])
+    @commands.command(name="salt", help="Pour salt.")
     @commands.cooldown(1, 10, commands.BucketType.user)
     async def pourSalt(self, ctx, mention: discord.Member):
         try:
