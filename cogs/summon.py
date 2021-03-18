@@ -339,8 +339,17 @@ class Summon(commands.Cog):
             # (No 2 star and above for heroes and no 4 star and above for equipments),
             # then, the user deserves higher rates
             if pity:
-                target_pity = t[:]
-                target_pity.pop(0)
+                if last_slot_weights == self.heroes_last_slot_weights:
+                    target_pity = self.heroes[:]
+                else:
+                    target_pity = self.equipments[:]
+
+                if heroes_check:
+                    target_pity.pop(0)
+                else:
+                    target_pity.pop(0)
+                    target_pity.pop(0)
+
                 results = random.choices(
                     target_pity, last_slot_weights, k=1)
                 for pity_result in results:

@@ -45,6 +45,8 @@ class Basic(commands.Cog):
     async def on_command_error(self, ctx, error):
         if isinstance(error, commands.CommandOnCooldown):
             await ctx.send(f"Hey, <@{ctx.author.id}>.. {error}!")
+        else:
+            await ctx.send(f"**Oops! An error occured.**\n\n*Error: {error}.*\n\nThis is expected as this bot is still under heavy development.\nPlease post an issue at https://github.com/riazufila/ailie.\n\nSorry, <@{ctx.author.id}>.. And thank you.")
 
 
 def setup(bot):
