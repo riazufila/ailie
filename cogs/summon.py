@@ -456,7 +456,7 @@ class Summon(commands.Cog):
         help="Summon heroes on pick up banner.",
         aliases=["summonheropickup", "s.h.p", "shp"]
     )
-    # @commands.cooldown(1, 30, commands.BucketType.user)
+    @commands.cooldown(1, 30, commands.BucketType.user)
     async def summonHeroPickUp(self, ctx, hero, one_or_ten):
         # Check if pick up is available
         present, invalid, hero_banner = self.checkPickUpAvailability(
