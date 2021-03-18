@@ -223,11 +223,9 @@ class Summon(commands.Cog):
         return present, invalid, target_banner
 
     # Create new list with pick up included in a separate list in main list
-    def pickUpPresent(self, ctx, one_or_ten, target_banner, pool, weights, last_slot_weights):
+    def pickUpPresent(self, target_banner, pool):
         # Initialize counters
         pick_up_pool = pool[:]
-        boxes = []
-        reply = ""
         heroes_check = False
 
         # Check which summon is running
@@ -249,19 +247,10 @@ class Summon(commands.Cog):
                         pick_up_pool.append(buffer)
                         pick_up_pool.append([target_banner, ])
 
-                        boxes, reply = self.calcResults(
-                            ctx,
-                            one_or_ten,
-                            pick_up_pool,
-                            weights,
-                            last_slot_weights,
-                            pick_up_pool[index + 1][0],
-                        )
-
                         break
                 break
 
-        return boxes, reply
+        return pick_up_pool, pick_up_pool[index+1][0]
 
     # Calculate the chances in summons
     def calcResults(self, ctx, one_or_ten, t, w, last_slot_weights, target=None):
@@ -414,7 +403,7 @@ class Summon(commands.Cog):
 
     # Lists the current pickup banner
     @commands.command(
-        name="pickup.info",
+        name="banner",
         help="List current pickup banner.",
         aliases=["pickupinfo", "p.i", "pi"]
     )
@@ -445,6 +434,7 @@ class Summon(commands.Cog):
         # Initialize variables to return for display
         boxes = []
         reply = ""
+        present = False
 
         # Determine what banner is chosen
         if type in ["h", "hero", "heroes"] and not target:
@@ -455,7 +445,6 @@ class Summon(commands.Cog):
             present, invalid, hero_banner = self.checkPickUpAvailability(
                 target, self.heroes_pick_up_weights)
 
-            print(present, invalid)
             # If the parameter entered is too short
             if invalid:
                 await ctx.send(f"Yo, <@{ctx.author.id}>. At least put 4 characters please?")
@@ -463,20 +452,14 @@ class Summon(commands.Cog):
 
             # If hero is indeed present in current pick up banner
             if present:
-                boxes, reply = self.pickUpPresent(
-                    ctx,
-                    count,
-                    hero_banner,
-                    self.heroes,
-                    self.heroes_pick_up_weights,
-                    self.heroes_last_slot_weights
-                )
-                await self.summonDisplay(ctx, count, boxes, reply)
-            # If not, then send error message
-            else:
-                await ctx.send(
-                    f"Ermmm, <@{ctx.author.id}>. The hero you mentioned is not in the current pick up banner."
-                )
+                pick_up_pool, target = self.pickUpPresent(
+                    hero_banner, self.heroes)
+
+                # Once the pick up is determined, then calculate the summons
+                boxes, reply = self.calcResults(ctx, count, pick_up_pool,
+                                                self.heroes_pick_up_weights, self.heroes_last_slot_weights,
+                                                target
+                                                )
         elif type in ["e", "eq", "equip", "equipment", "equipments"] and not target:
             boxes, reply = self.calcResults(
                 ctx, count, self.equipments, self.equipments_weights, self.equipments_last_slot_weights)
@@ -487,27 +470,29 @@ class Summon(commands.Cog):
 
             # If the parameter entered is too short
             if invalid:
-                await ctx.send(invalid)
+                await ctx.send(f"Yo, <@{ctx.author.id}>. At least put 4 characters please?")
                 return
 
             # If equipment is indeed present in current pick up banner
             if present:
-                boxes, reply = self.pickUpPresent(
-                    ctx,
-                    count,
-                    equipment_banner,
-                    self.equipments,
-                    self.equipments_pick_up_weights,
-                    self.equipments_last_slot_weights
-                )
-                await self.summonDisplay(ctx, count, boxes, reply)
-            # If not, then send error message
-            else:
-                await ctx.send(
-                    f"Ermmm, <@{ctx.author.id}>. The equipment you mentioned is not in the current pick up banner."
-                )
+                pick_up_pool, target = self.pickUpPresent(
+                    equipment_banner, self.equipments)
+
+                # Once the pick up is determined, then calculate the summons
+                boxes, reply = self.calcResults(ctx, count, pick_up_pool,
+                                                self.equipments_pick_up_weights,
+                                                self.equipments_last_slot_weights,
+                                                target
+                                                )
         else:
             await ctx.send(f"Hey.. <@{ctx.author.id}>. Are you.. trying to break me or something?")
+            return
+
+        if not present and target:
+            await ctx.send(
+                f"Ermmm, <@{ctx.author.id}>. The hero you mentioned is not in the current pick up banner."
+            )
+            return
 
         await self.summonDisplay(ctx, count, boxes, reply)
 
