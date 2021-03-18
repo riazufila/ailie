@@ -2,7 +2,7 @@
 
 import os
 from dotenv import load_dotenv
-import discord.ext.commands as commands
+from discord.ext import commands
 
 if __name__ == "__main__":
     # Get secrets
