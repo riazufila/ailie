@@ -202,7 +202,7 @@ class Summon(commands.Cog):
         # Check if the parameter send is lesser than 5 characters
         # If its lesser, then return error message
         if len(target) < 5:
-            return f"Yo, <@{ctx.author.id}>. At least put 4 characters please?"
+            invalid = True
 
         # Check if the summon is for heroes or equipments
         if w == self.heroes_pick_up_weights:
@@ -456,15 +456,16 @@ class Summon(commands.Cog):
         help="Summon heroes on pick up banner.",
         aliases=["summonheropickup", "s.h.p", "shp"]
     )
-    @commands.cooldown(1, 30, commands.BucketType.user)
+    # @commands.cooldown(1, 30, commands.BucketType.user)
     async def summonHeroPickUp(self, ctx, hero, one_or_ten):
         # Check if pick up is available
         present, invalid, hero_banner = self.checkPickUpAvailability(
             ctx, hero, self.heroes_pick_up_weights)
 
+        print(present, invalid)
         # If the parameter entered is too short
         if invalid:
-            await ctx.send(invalid)
+            await ctx.send(f"Yo, <@{ctx.author.id}>. At least put 4 characters please?")
             return
 
         # If hero is indeed present in current pick up banner
