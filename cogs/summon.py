@@ -235,9 +235,9 @@ class Summon(commands.Cog):
         boxes = []
 
         # Check for summon values be it 10, 1 or invalid
-        if one_or_ten == "10" or one_or_ten == "ten":
+        if one_or_ten == "10" or one_or_ten.lower() == "ten":
             results = random.choices(t, w, k=9)
-        elif one_or_ten == "1" or one_or_ten == "one":
+        elif one_or_ten == "1" or one_or_ten.lower() == "one":
             results = random.choices(t, w, k=1)
         else:
             results = [
@@ -249,7 +249,7 @@ class Summon(commands.Cog):
             reply = random.choice(results)
 
         # If the value is valid, then the statements here is executed
-        if one_or_ten == "10" or one_or_ten == "ten" or one_or_ten == "1" or one_or_ten == "one":
+        if one_or_ten == "10" or one_or_ten.lower() == "ten" or one_or_ten == "1" or one_or_ten.lower() == "one":
             # Variables used as a counter to check what is being summoned
             heroes_check = False
             white_box = False
@@ -271,7 +271,7 @@ class Summon(commands.Cog):
             for result in results:
                 result = random.choices(result, k=1)
                 for r in result:
-                    if one_or_ten == "10" or one_or_ten == "ten":
+                    if one_or_ten == "10" or one_or_ten.lower() == "ten":
                         # To determine if pity is deserved for last slot summon
                         if heroes_check:
                             if not "★★★ " in r and not pity_check:
@@ -300,7 +300,7 @@ class Summon(commands.Cog):
             # If the summon is with a value 10 and the summons from 1 until 9 is bad
             # (No 2 star and above for heroes and no 4 star and above for equipments),
             # then, the user deserves higher rates
-            if pity:
+            if pity and (one_or_ten == "10" or one_or_ten.lower() == "ten"):
                 if last_slot_weights == self.heroes_last_slot_weights:
                     target_pity = self.heroes[:]
                 else:
@@ -325,7 +325,7 @@ class Summon(commands.Cog):
                         boxes.append(pr)
 
             # If the user doesn't deserve pity, then continue with normal rates
-            if not pity:
+            if not pity and (one_or_ten == "10" or one_or_ten.lower() == "ten"):
                 results = random.choices(t, w, k=1)
                 for not_pity_result in results:
                     n_p_r = random.choices(not_pity_result, k=1)
@@ -353,10 +353,14 @@ class Summon(commands.Cog):
         # Iterate through box and edit messages to update the results
         boxes = iter(boxes)
         for box in boxes:
-            # Add two entry per request to lower occurance of rate limits
-            await msg.edit(content=msg.content + f"\n{counter}. {box}\n{counter + 1}. {next(boxes)}")
-            await asyncio.sleep(1.5)
-            counter += 2
+            if one_or_ten == 10 or one_or_ten.lower() == "ten":
+                # Add two entry per request to lower occurance of rate limits
+                await msg.edit(content=msg.content + f"\n{counter}. {box}\n{counter + 1}. {next(boxes)}")
+                await asyncio.sleep(1.5)
+                counter += 2
+            else:
+                await msg.edit(content=msg.content + f"\n{counter}. {box}")
+                counter += 1
 
         await msg.reply(reply)
 
