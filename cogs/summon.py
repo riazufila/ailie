@@ -94,9 +94,10 @@ class Summon(commands.Cog):
         for eg in easter_eggs:
             if easter_eggs["ailie"] == True:
                 ailie_check = True
-            if easter_eggs[eg] == True and easter_eggs["ailie"] != True:
-                useless_check = True
-                break
+            if easter_eggs[eg] == True:
+                if eg != "ailie":
+                    useless_check = True
+                    break
 
         if white_box and not obtainedPickup and target:
             if not useless_check:
