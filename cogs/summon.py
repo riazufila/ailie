@@ -361,10 +361,7 @@ class Summon(commands.Cog):
         await msg.reply(reply)
 
     # Lists the current pickup banner
-    @commands.command(
-        name="banner",
-        help="List current pickup banner."
-    )
+    @commands.command(name="banner",help="List current pickup banner.")
     @commands.cooldown(1, 15, commands.BucketType.user)
     async def pickUpInfo(self, ctx):
         message = "\n\n**Pick Up Heroes**"
@@ -387,7 +384,7 @@ class Summon(commands.Cog):
 
     # Summon heroes or equipments either on the normal or pick up banne.
     @commands.command(name="summon", help="Summon heroes or equipments.", aliases=["s"])
-    # @commands.cooldown(1, 30, commands.BucketType.user)
+    @commands.cooldown(1, 30, commands.BucketType.user)
     async def summon(self, ctx, type, count, target=None):
         # Initialize variables to return for display
         boxes = []
