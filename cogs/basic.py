@@ -13,7 +13,8 @@ class Basic(commands.Cog):
     @commands.Cog.listener()
     async def on_ready(self):
         print(f"{self.bot.user} is collecting!")
-        await self.bot.change_presence(activity=discord.Game("Guardian Tales"))
+        await self.bot.change_presence(
+                activity=discord.Activity(type=discord.ActivityType.watching, name="ailie;help"))
 
     # Check bot's latency
     @commands.command(name="ping", help="Check latency.")
