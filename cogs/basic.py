@@ -49,8 +49,10 @@ class Basic(commands.Cog):
             await ctx.send(f"Yo, <@{ctx.author.id}>.. There's no such commands.")
         elif isinstance(error, commands.MissingRequiredArgument):
             await ctx.send(f"Not to be rude. But you've got the parameters wrong, <@{ctx.author.id}>.")
+        elif isinstance(error, commands.BadArgument):
+            await ctx.send(f"No such members. Try again, but try with someone in the server, <@{ctx.author.id}>.")
         else:
-            await ctx.send(f"**Oops! An error occured.**\n\n*Error: {error}*\n\nThis is expected as this bot is still under heavy development.\nPlease post an issue at https://github.com/riazufila/ailie.\n\nSorry, <@{ctx.author.id}>.. And thank you.")
+            await ctx.send(f"**Oops! An error occured.**\n\n*Error: {error}*\n\nThis is expected as this bot is still under heavy development.\n\nPlease post an issue at https://github.com/riazufila/ailie.\n\nSorry, <@{ctx.author.id}>.. And thank you.")
 
 
 def setup(bot):
