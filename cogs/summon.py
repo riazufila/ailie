@@ -51,60 +51,69 @@ class Summon(commands.Cog):
         return buffer
 
     # Summons are determined to check for certain requirements
-    def checkWhatIsSummoned(self, r, target, heroes_check, white_box, obtainedPickup,
-                            ailie=None, alef=None, plitvice=None, lapice=None, nari=None):
+    def checkWhatIsSummoned(self, r, target, heroes_check, white_box, obtainedPickup, easter_eggs=None):
         if heroes_check:
             if "★★★" in r:
                 white_box = True
             if r == target:
                 obtainedPickup = True
             if "Ailie" in r:
-                ailie = True
+                easter_eggs["ailie"] = True
             if "Alef" in r:
-                alef = True
+                easter_eggs["alef"] = True
             if "Plitvice" in r:
-                plitvice = True
+                easter_eggs["plitvice"] = True
             if "Lapice" in r:
-                lapice = True
+                easter_eggs["lapice"] = True
             if "Nari" in r:
-                nari = True
+                easter_eggs["nari"] = True
         else:
             if "★★★★★ [Ex]" in r:
                 white_box = True
             if r == target:
                 obtainedPickup = True
 
-        return white_box, obtainedPickup, ailie, alef, plitvice, lapice, nari
+        return white_box, obtainedPickup, easter_eggs
 
     # Replies are sent back according to the summons obtained
-    def getRepliesForSpecificSummons(self, ctx, target, heroes_check, white_box, obtainedPickup,
-                                     ailie, alef, plitvice, lapice, nari):
+    def getRepliesForSpecificSummons(self, ctx, target, heroes_check, white_box, obtainedPickup, easter_eggs):
         # Initialize reply variable
         reply = ""
 
         # Get funky replies
         if heroes_check:
+            # Easter Eggs counter
+            useless_check = False
+            ailie_check = False
+            for eg in easter_eggs:
+                if easter_eggs["ailie"] == True:
+                    ailie_check = True
+                if easter_eggs[eg] == True and easter_eggs["ailie"] != True:
+                    useless_check = True
+                    break
+
             if white_box and not obtainedPickup and target:
-                if not alef or not plitvice or not lapice or not nari:
+                if not useless_check:
                     reply = [
                         f"I see 3 star hero. But no {target}.. Sad life, <@{ctx.author.id}>.",
                         f"Well.. Not too shabby I guess. Right, <@{ctx.author.id}>? Although there's no {target}. Hahaha.",
                         f"At least there's 3 star hero. It could've been worse, <@{ctx.author.id}>."
                     ]
                 else:
-                    if alef:
-                        reply = [
+                        "pass egcheck in white box, not obtainedPickup and target specified")
+                    if easter_eggs["alef"]:
+                        reply=[
                             f"LOL. You've got Alef instead, <@{ctx.author.id}>. Congratulations?"
                         ]
-                    if plitvice:
+                    if easter_eggs["plitvice"]:
                         reply = [
                             f"3 STAR WOW! Wait.. Oh. Its Plitvice. Good for you, <@{ctx.author.id}>."
                         ]
-                    if lapice:
+                    if easter_eggs["lapice"]:
                         reply = [
                             f"Huh? Lapice? Whats that, <@{ctx.author.id}>?"
                         ]
-                    if nari:
+                    if easter_eggs["nari"]:
                         reply = [
                             f"YES, <@{ctx.author.id}>! NARI! But shhhhhh! Keep it quiet. Some YouTuber doesn't seem too fond of Nari. *smirks*"
                         ]
@@ -119,20 +128,20 @@ class Summon(commands.Cog):
 
                 reply = random.choice(reply)
             if white_box and not target:
-                if alef or plitvice or lapice or nari:
-                    if alef:
+                if useless_check:
+                    if easter_eggs["alef"]:
                         reply = [
                             f"LOL. You've got Alef instead, <@{ctx.author.id}>. Congratulations?"
                         ]
-                    if plitvice:
+                    if easter_eggs["plitvice"]:
                         reply = [
                             f"3 STAR WOW! Wait.. Oh. Its Plitvice. Good for you, <@{ctx.author.id}>."
                         ]
-                    if lapice:
+                    if easter_eggs["lapice"]:
                         reply = [
                             f"Huh? Lapice? Whats that, <@{ctx.author.id}>?"
                         ]
-                    if nari:
+                    if easter_eggs["nari"]:
                         reply = [
                             f"YES, <@{ctx.author.id}>! NARI! But shhhhhh! Keep it quiet. Some YouTuber doesn't seem too fond of Nari. *smirks*"
                         ]
@@ -144,9 +153,10 @@ class Summon(commands.Cog):
                     ]
 
                 reply = random.choice(reply)
-            if not white_box and ailie:
-                reply = f"Think positive, <@{ctx.author.id}>! At least you got me :D"
-            elif not white_box and not ailie:
+            if not white_box and ailie_check:
+                reply = [
+                    f"Think positive, <@{ctx.author.id}>! At least you got me :D"]
+            elif not white_box and not ailie_check:
                 reply = [
                     f"You just suck at gachas, <@{ctx.author.id}>..",
                     f"Try harder, <@{ctx.author.id}>.",
@@ -280,11 +290,13 @@ class Summon(commands.Cog):
             pity_check = False
             obtainedPickup = False
             pity = False
-            ailie = False
-            alef = False
-            plitvice = False
-            lapice = False
-            nari = False
+            easter_eggs = {
+                "ailie": False,
+                "alef": False,
+                "plitvice": False,
+                "lapice": False,
+                "nari": False,
+            }
 
             if w == self.heroes_weights or w == self.heroes_pick_up_weights:
                 heroes_check = True
@@ -314,11 +326,10 @@ class Summon(commands.Cog):
 
                     # Check what is being summoned for specific replies
                     if heroes_check:
-                        white_box, obtainedPickup, ailie, alef, plitvice, lapice, nari = self.checkWhatIsSummoned(
-                            r, target, heroes_check, white_box, obtainedPickup,
-                            ailie, alef, plitvice, lapice, nari)
+                        white_box, obtainedPickup, easter_eggs = self.checkWhatIsSummoned(
+                            r, target, heroes_check, white_box, obtainedPickup, easter_eggs)
                     else:
-                        white_box, obtainedPickup, ailie, alef, plitvice, lapice, nari = self.checkWhatIsSummoned(
+                        white_box, obtainedPickup, easter_eggs = self.checkWhatIsSummoned(
                             r, target, heroes_check, white_box, obtainedPickup)
 
                     # Append the summons to boxes to be returned
@@ -346,11 +357,10 @@ class Summon(commands.Cog):
                     for pr in p_r:
                         # Check what is being summoned for specific replies
                         if heroes_check:
-                            white_box, obtainedPickup, ailie, alef, plitvice, lapice, nari = self.checkWhatIsSummoned(
-                                pr, target, heroes_check, white_box, obtainedPickup,
-                                ailie, alef, plitvice, lapice, nari)
+                            white_box, obtainedPickup, easter_eggs = self.checkWhatIsSummoned(
+                                pr, target, heroes_check, white_box, obtainedPickup, easter_eggs)
                         else:
-                            white_box, obtainedPickup, ailie, alef, plitvice, lapice, nari = self.checkWhatIsSummoned(
+                            white_box, obtainedPickup, easter_eggs = self.checkWhatIsSummoned(
                                 pr, target, heroes_check, white_box, obtainedPickup)
 
                         # Append the summons to boxes to be returned
@@ -364,11 +374,10 @@ class Summon(commands.Cog):
                     for npr in n_p_r:
                         # Check what is being summoned for specific replies
                         if heroes_check:
-                            white_box, obtainedPickup, ailie, alef, plitvice, lapice, nari = self.checkWhatIsSummoned(
-                                npr, target, heroes_check, white_box, obtainedPickup,
-                                ailie, alef, plitvice, lapice, nari)
+                            white_box, obtainedPickup, easter_eggs = self.checkWhatIsSummoned(
+                                npr, target, heroes_check, white_box, obtainedPickup, easter_eggs)
                         else:
-                            white_box, obtainedPickup, ailie, alef, plitvice, lapice, nari = self.checkWhatIsSummoned(
+                            white_box, obtainedPickup, easter_eggs = self.checkWhatIsSummoned(
                                 npr, target, heroes_check, white_box, obtainedPickup)
 
                         # Append the summons to boxes to be returned
@@ -377,10 +386,10 @@ class Summon(commands.Cog):
             # Get specific replies corresponding to the summons
             if heroes_check:
                 reply = self.getRepliesForSpecificSummons(
-                    ctx, target, heroes_check, white_box, obtainedPickup, ailie, alef, plitvice, lapice, nari)
+                    ctx, target, heroes_check, white_box, obtainedPickup, easter_eggs)
             else:
                 reply = self.getRepliesForSpecificSummons(
-                    ctx, target, heroes_check, white_box, obtainedPickup, ailie, alef, plitvice, lapice, nari)
+                    ctx, target, heroes_check, white_box, obtainedPickup, easter_eggs)
 
         return boxes, reply
 
@@ -404,8 +413,7 @@ class Summon(commands.Cog):
     # Lists the current pickup banner
     @commands.command(
         name="banner",
-        help="List current pickup banner.",
-        aliases=["pickupinfo", "p.i", "pi"]
+        help="List current pickup banner."
     )
     @commands.cooldown(1, 15, commands.BucketType.user)
     async def pickUpInfo(self, ctx):
