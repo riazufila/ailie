@@ -56,7 +56,7 @@ class Basic(commands.Cog):
         elif isinstance(error, commands.UserInputError):
             await ctx.send(f"<@{ctx.author.id}>, are you okay? I don't think you're using the command correctly.")
         else:
-            await ctx.send(f"**Oops! An error occured.**\n\n*Error: {error}*\n\nPlease post a new issue under the tab 'Issue' at https://github.com/riazufila/ailie.\nSorry, <@{ctx.author.id}>.. And thank you.")
+            await ctx.send(f"**Oops! Looks like you found a bug.**\n\n*Error: {error}*\n\nPlease post a new issue under the tab 'Issue' at https://github.com/riazufila/ailie.\nSorry, <@{ctx.author.id}>.. And thank you.")
 
 
 def setup(bot):
