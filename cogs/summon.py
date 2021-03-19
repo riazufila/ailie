@@ -51,143 +51,120 @@ class Summon(commands.Cog):
         return buffer
 
     # Summons are determined to check for certain requirements
-    def checkWhatIsSummoned(self, r, target, heroes_check, white_box, obtainedPickup,
-                            ailie=None, alef=None, plitvice=None, lapice=None, nari=None):
+    def checkWhatIsSummoned(self, r, target, heroes_check, white_box, obtainedPickup, easter_eggs=None):
         if heroes_check:
             if "★★★" in r:
                 white_box = True
             if r == target:
                 obtainedPickup = True
             if "Ailie" in r:
-                ailie = True
+                easter_eggs["ailie"] = True
             if "Alef" in r:
-                alef = True
+                easter_eggs["alef"] = True
             if "Plitvice" in r:
-                plitvice = True
+                easter_eggs["plitvice"] = True
             if "Lapice" in r:
-                lapice = True
+                easter_eggs["lapice"] = True
             if "Nari" in r:
-                nari = True
+                easter_eggs["nari"] = True
         else:
             if "★★★★★ [Ex]" in r:
                 white_box = True
             if r == target:
                 obtainedPickup = True
 
-        return white_box, obtainedPickup, ailie, alef, plitvice, lapice, nari
+        return white_box, obtainedPickup, easter_eggs
 
     # Replies are sent back according to the summons obtained
-    def getRepliesForSpecificSummons(self, ctx, target, heroes_check, white_box, obtainedPickup,
-                                     ailie, alef, plitvice, lapice, nari):
+    def getRepliesForSpecificSummons(self, ctx, target, heroes_check, white_box, obtainedPickup, easter_eggs):
         # Initialize reply variable
         reply = ""
 
-        # Get funky replies
         if heroes_check:
-            if white_box and not obtainedPickup and target:
-                if not alef or not plitvice or not lapice or not nari:
-                    reply = [
-                        f"I see 3 star hero. But no {target}.. Sad life, <@{ctx.author.id}>.",
-                        f"Well.. Not too shabby I guess. Right, <@{ctx.author.id}>? Although there's no {target}. Hahaha.",
-                        f"At least there's 3 star hero. It could've been worse, <@{ctx.author.id}>."
-                    ]
-                else:
-                    if alef:
-                        reply = [
-                            f"LOL. You've got Alef instead, <@{ctx.author.id}>. Congratulations?"
-                        ]
-                    if plitvice:
-                        reply = [
-                            f"3 STAR WOW! Wait.. Oh. Its Plitvice. Good for you, <@{ctx.author.id}>."
-                        ]
-                    if lapice:
-                        reply = [
-                            f"Huh? Lapice? Whats that, <@{ctx.author.id}>?"
-                        ]
-                    if nari:
-                        reply = [
-                            f"YES, <@{ctx.author.id}>! NARI! But shhhhhh! Keep it quiet. Some YouTuber doesn't seem too fond of Nari. *smirks*"
-                        ]
-
-                reply = random.choice(reply)
-            if white_box and obtainedPickup and target:
-                reply = [
-                    f"WOHOOOOOOOOOOOOOOOOOO, <@{ctx.author.id}>! You got the pick up hero!",
-                    f"This calls for a treat, <@{ctx.author.id}>! Easy-peasy.",
-                    f"<@{ctx.author.id}>, what kind of luck do you have? Are you somekind of luck beast or something?!"
-                ]
-
-                reply = random.choice(reply)
-            if white_box and not target:
-                if alef or plitvice or lapice or nari:
-                    if alef:
-                        reply = [
-                            f"LOL. You've got Alef instead, <@{ctx.author.id}>. Congratulations?"
-                        ]
-                    if plitvice:
-                        reply = [
-                            f"3 STAR WOW! Wait.. Oh. Its Plitvice. Good for you, <@{ctx.author.id}>."
-                        ]
-                    if lapice:
-                        reply = [
-                            f"Huh? Lapice? Whats that, <@{ctx.author.id}>?"
-                        ]
-                    if nari:
-                        reply = [
-                            f"YES, <@{ctx.author.id}>! NARI! But shhhhhh! Keep it quiet. Some YouTuber doesn't seem too fond of Nari. *smirks*"
-                        ]
-                else:
-                    reply = [
-                        f"WOW! W-w-waaaiittt a second, <@{ctx.author.id}>..  Is that a freaking 3 star hero?!",
-                        f"3 star heroes are attracted to you, <@{ctx.author.id}>. Yeah I said it.",
-                        f"Yeah. You got 3 star hero, <@{ctx.author.id}>. I can see that. But how many gems has it been?"
-                    ]
-
-                reply = random.choice(reply)
-            if not white_box and ailie:
-                reply = f"Think positive, <@{ctx.author.id}>! At least you got me :D"
-            elif not white_box and not ailie:
-                reply = [
-                    f"You just suck at gachas, <@{ctx.author.id}>..",
-                    f"Try harder, <@{ctx.author.id}>.",
-                    f"Ermmm.. <@{ctx.author.id}>. Oh well. You've tried."
-                ]
-
-                reply = random.choice(reply)
+            type = "3 star hero"
+            type_short = "hero"
         else:
-            if white_box and not obtainedPickup and target:
+            type = "5 star exclusive weapon"
+            type_short = "weapon"
+
+        # Get funky replies
+        # Easter Eggs counter
+        useless_check = False
+        ailie_check = False
+        for eg in easter_eggs:
+            if easter_eggs["ailie"] == True:
+                ailie_check = True
+            if easter_eggs[eg] == True:
+                if eg != "ailie":
+                    useless_check = True
+                    break
+
+        if white_box and not obtainedPickup and target:
+            if not useless_check:
                 reply = [
-                    f"I see 5 star exclusive weapon. But no {target}.. Sad life, <@{ctx.author.id}>.",
+                    f"I see {type}. But no {target}.. Sad life, <@{ctx.author.id}>.",
                     f"Well.. Not too shabby I guess. Right, <@{ctx.author.id}>? Although there's no {target}. Hahaha.",
-                    f"At least there's 5 star exclusive weapon. It could've been worse, <@{ctx.author.id}>."
+                    f"At least there's {type}. It could've been worse, <@{ctx.author.id}>."
                 ]
-
-                reply = random.choice(reply)
-            if white_box and obtainedPickup and target:
+            else:
+                if easter_eggs["alef"]:
+                    reply = [
+                        f"LOL. You've got Alef instead, <@{ctx.author.id}>. Congratulations?"
+                    ]
+                if easter_eggs["plitvice"]:
+                    reply = [
+                        f"3 STAR WOW! Wait.. Oh. Its Plitvice. Good for you, <@{ctx.author.id}>."
+                    ]
+                if easter_eggs["lapice"]:
+                    reply = [
+                        f"Huh? Lapice? Whats that, <@{ctx.author.id}>?"
+                    ]
+                if easter_eggs["nari"]:
+                    reply = [
+                        f"YES, <@{ctx.author.id}>! NARI! But shhhhhh! Keep it quiet. Some YouTuber doesn't seem too fond of Nari. *smirks*"
+                    ]
+        elif white_box and obtainedPickup and target:
+            reply = [
+                f"WOHOOOOOOOOOOOOOOOOOO, <@{ctx.author.id}>! You got the pick up {type_short}!",
+                f"This calls for a treat, <@{ctx.author.id}>! Easy-peasy.",
+                f"<@{ctx.author.id}>, what kind of luck do you have? Are you somekind of luck beast or something?!"
+            ]
+        elif white_box and not target:
+            if useless_check:
+                if easter_eggs["alef"]:
+                    reply = [
+                        f"LOL. You've got Alef instead, <@{ctx.author.id}>. Congratulations?"
+                    ]
+                if easter_eggs["plitvice"]:
+                    reply = [
+                        f"3 STAR WOW! Wait.. Oh. Its Plitvice. Good for you, <@{ctx.author.id}>."
+                    ]
+                if easter_eggs["lapice"]:
+                    reply = [
+                        f"Huh? Lapice? Whats that, <@{ctx.author.id}>?"
+                    ]
+                if easter_eggs["nari"]:
+                    reply = [
+                        f"YES, <@{ctx.author.id}>! NARI! But shhhhhh! Keep it quiet. Some YouTuber doesn't seem too fond of Nari. *smirks*"
+                    ]
+            else:
                 reply = [
-                    f"WOHOOOOOOOOOOOOOOOOOO, <@{ctx.author.id}>! You got the pick up equipment!",
-                    f"This calls for a treat, <@{ctx.author.id}>! Easy-peasy.",
-                    f"<@{ctx.author.id}>, what kind of luck do you have? Are you somekind of luck beast or something?!"
+                    f"WOW! W-w-waaaiittt a second, <@{ctx.author.id}>..  Is that a freaking {type}?!",
+                    f"{type} comes to you like a magnet, <@{ctx.author.id}>. Yeah I said it.",
+                    f"Yeah. You got {type}, <@{ctx.author.id}>. I can see that. But how many gems has it been?"
                 ]
+        elif not white_box and ailie_check:
+            reply = [
+                f"Think positive, <@{ctx.author.id}>! At least you got me :D"
+            ]
+        elif not white_box and not ailie_check:
+            reply = [
+                f"You just suck at gachas, <@{ctx.author.id}>..",
+                f"Try harder, <@{ctx.author.id}>.",
+                f"Ermmm.. <@{ctx.author.id}>. Oh well. You've tried."
+            ]
 
-                reply = random.choice(reply)
-            if white_box and not target:
-                reply = [
-                    f"WOW! W-w-waaaiittt a second, <@{ctx.author.id}>..  Is that a freaking 5 star exclusive weapon?!",
-                    f"5 star exclusive weapons are attracted to you, <@{ctx.author.id}>. Yeah I said it.",
-                    f"Yeah. You got 5 star exclusive weapon, <@{ctx.author.id}>. I can see that. But how many gems has it been?"
-                ]
-
-                reply = random.choice(reply)
-
-            if not white_box:
-                reply = [
-                    f"You just suck at gachas, <@{ctx.author.id}>..",
-                    f"Try harder, <@{ctx.author.id}>.",
-                    f"Ermmm.. <@{ctx.author.id}>. Oh well. You've tried."
-                ]
-
-                reply = random.choice(reply)
+        reply = random.choice(reply)
 
         return reply
 
@@ -259,9 +236,9 @@ class Summon(commands.Cog):
         boxes = []
 
         # Check for summon values be it 10, 1 or invalid
-        if one_or_ten == "10" or one_or_ten == "ten":
+        if one_or_ten == "10" or one_or_ten.lower() == "ten":
             results = random.choices(t, w, k=9)
-        elif one_or_ten == "1" or one_or_ten == "one":
+        elif one_or_ten == "1" or one_or_ten.lower() == "one":
             results = random.choices(t, w, k=1)
         else:
             results = [
@@ -273,18 +250,20 @@ class Summon(commands.Cog):
             reply = random.choice(results)
 
         # If the value is valid, then the statements here is executed
-        if one_or_ten == "10" or one_or_ten == "ten" or one_or_ten == "1" or one_or_ten == "one":
+        if one_or_ten == "10" or one_or_ten.lower() == "ten" or one_or_ten == "1" or one_or_ten.lower() == "one":
             # Variables used as a counter to check what is being summoned
             heroes_check = False
             white_box = False
             pity_check = False
             obtainedPickup = False
             pity = False
-            ailie = False
-            alef = False
-            plitvice = False
-            lapice = False
-            nari = False
+            easter_eggs = {
+                "ailie": False,
+                "alef": False,
+                "plitvice": False,
+                "lapice": False,
+                "nari": False,
+            }
 
             if w == self.heroes_weights or w == self.heroes_pick_up_weights:
                 heroes_check = True
@@ -293,7 +272,7 @@ class Summon(commands.Cog):
             for result in results:
                 result = random.choices(result, k=1)
                 for r in result:
-                    if one_or_ten == "10" or one_or_ten == "ten":
+                    if one_or_ten == "10" or one_or_ten.lower() == "ten":
                         # To determine if pity is deserved for last slot summon
                         if heroes_check:
                             if not "★★★ " in r and not pity_check:
@@ -313,13 +292,8 @@ class Summon(commands.Cog):
                                 pity_check = True
 
                     # Check what is being summoned for specific replies
-                    if heroes_check:
-                        white_box, obtainedPickup, ailie, alef, plitvice, lapice, nari = self.checkWhatIsSummoned(
-                            r, target, heroes_check, white_box, obtainedPickup,
-                            ailie, alef, plitvice, lapice, nari)
-                    else:
-                        white_box, obtainedPickup, ailie, alef, plitvice, lapice, nari = self.checkWhatIsSummoned(
-                            r, target, heroes_check, white_box, obtainedPickup)
+                    white_box, obtainedPickup, easter_eggs = self.checkWhatIsSummoned(
+                        r, target, heroes_check, white_box, obtainedPickup, easter_eggs)
 
                     # Append the summons to boxes to be returned
                     boxes.append(r)
@@ -327,7 +301,7 @@ class Summon(commands.Cog):
             # If the summon is with a value 10 and the summons from 1 until 9 is bad
             # (No 2 star and above for heroes and no 4 star and above for equipments),
             # then, the user deserves higher rates
-            if pity:
+            if pity and (one_or_ten == "10" or one_or_ten.lower() == "ten"):
                 if last_slot_weights == self.heroes_last_slot_weights:
                     target_pity = self.heroes[:]
                 else:
@@ -345,42 +319,28 @@ class Summon(commands.Cog):
                     p_r = random.choices(pity_result, k=1)
                     for pr in p_r:
                         # Check what is being summoned for specific replies
-                        if heroes_check:
-                            white_box, obtainedPickup, ailie, alef, plitvice, lapice, nari = self.checkWhatIsSummoned(
-                                pr, target, heroes_check, white_box, obtainedPickup,
-                                ailie, alef, plitvice, lapice, nari)
-                        else:
-                            white_box, obtainedPickup, ailie, alef, plitvice, lapice, nari = self.checkWhatIsSummoned(
-                                pr, target, heroes_check, white_box, obtainedPickup)
+                        white_box, obtainedPickup, easter_eggs = self.checkWhatIsSummoned(
+                            pr, target, heroes_check, white_box, obtainedPickup, easter_eggs)
 
                         # Append the summons to boxes to be returned
                         boxes.append(pr)
 
             # If the user doesn't deserve pity, then continue with normal rates
-            if not pity:
+            if not pity and (one_or_ten == "10" or one_or_ten.lower() == "ten"):
                 results = random.choices(t, w, k=1)
                 for not_pity_result in results:
                     n_p_r = random.choices(not_pity_result, k=1)
                     for npr in n_p_r:
                         # Check what is being summoned for specific replies
-                        if heroes_check:
-                            white_box, obtainedPickup, ailie, alef, plitvice, lapice, nari = self.checkWhatIsSummoned(
-                                npr, target, heroes_check, white_box, obtainedPickup,
-                                ailie, alef, plitvice, lapice, nari)
-                        else:
-                            white_box, obtainedPickup, ailie, alef, plitvice, lapice, nari = self.checkWhatIsSummoned(
-                                npr, target, heroes_check, white_box, obtainedPickup)
+                        white_box, obtainedPickup, easter_eggs = self.checkWhatIsSummoned(
+                            npr, target, heroes_check, white_box, obtainedPickup, easter_eggs)
 
                         # Append the summons to boxes to be returned
                         boxes.append(npr)
 
             # Get specific replies corresponding to the summons
-            if heroes_check:
-                reply = self.getRepliesForSpecificSummons(
-                    ctx, target, heroes_check, white_box, obtainedPickup, ailie, alef, plitvice, lapice, nari)
-            else:
-                reply = self.getRepliesForSpecificSummons(
-                    ctx, target, heroes_check, white_box, obtainedPickup, ailie, alef, plitvice, lapice, nari)
+            reply = self.getRepliesForSpecificSummons(
+                ctx, target, heroes_check, white_box, obtainedPickup, easter_eggs)
 
         return boxes, reply
 
@@ -394,19 +354,19 @@ class Summon(commands.Cog):
         # Iterate through box and edit messages to update the results
         boxes = iter(boxes)
         for box in boxes:
-            # Add two entry per request to lower occurance of rate limits
-            await msg.edit(content=msg.content + f"\n{counter}. {box}\n{counter + 1}. {next(boxes)}")
-            await asyncio.sleep(1.5)
-            counter += 2
+            if one_or_ten == 10 or one_or_ten.lower() == "ten":
+                # Add two entry per request to lower occurance of rate limits
+                await msg.edit(content=msg.content + f"\n{counter}. {box}\n{counter + 1}. {next(boxes)}")
+                await asyncio.sleep(1.5)
+                counter += 2
+            else:
+                await msg.edit(content=msg.content + f"\n{counter}. {box}")
+                counter += 1
 
         await msg.reply(reply)
 
     # Lists the current pickup banner
-    @commands.command(
-        name="banner",
-        help="List current pickup banner.",
-        aliases=["pickupinfo", "p.i", "pi"]
-    )
+    @commands.command(name="banner",help="List current pickup banner.")
     @commands.cooldown(1, 15, commands.BucketType.user)
     async def pickUpInfo(self, ctx):
         message = "\n\n**Pick Up Heroes**"
@@ -433,17 +393,40 @@ class Summon(commands.Cog):
     async def summon(self, ctx, type, count, target=None):
         # Initialize variables to return for display
         boxes = []
+        weightage = []
+        pick_up_weightage = []
         reply = ""
         present = False
 
         # Determine what banner is chosen
-        if type in ["h", "hero", "heroes"] and not target:
-            boxes, reply = self.calcResults(
-                ctx, count, self.heroes, self.heroes_weights, self.heroes_last_slot_weights)
-        elif type in ["h", "hero", "heroes"] and target:
+        if not target:
+            if type in ["h", "hero", "heroes"]:
+                pool = self.heroes
+                weightage = self.heroes_weights
+                last_slot_weightage = self.heroes_last_slot_weights
+            elif type in ["e", "eq", "equip", "equipment", "equipments"]:
+                pool = self.equipments
+                weightage = self.equipments_weights
+                last_slot_weightage = self.equipments_last_slot_weights
+            else:
+                await ctx.send("Use the command properly please, <@{ctx.author.id}>?")
+                return
+        else:
+            if type in ["h", "hero", "heroes"]:
+                pool = self.heroes
+                pick_up_weightage = self.heroes_pick_up_weights
+                last_slot_weightage = self.heroes_last_slot_weights
+            elif type in ["e", "eq", "equip", "equipment", "equipments"]:
+                pool = self.equipments
+                pick_up_weightage = self.equipments_pick_up_weights
+                last_slot_weightage = self.equipments_last_slot_weights
+            else:
+                await ctx.send("Use the command properly please, <@{ctx.author.id}>?")
+                return
+
+        if target:
             # Check if pick up is available
-            present, invalid, hero_banner = self.checkPickUpAvailability(
-                target, self.heroes_pick_up_weights)
+            present, invalid, target_banner = self.checkPickUpAvailability(target, pick_up_weightage)
 
             # If the parameter entered is too short
             if invalid:
@@ -452,42 +435,18 @@ class Summon(commands.Cog):
 
             # If hero is indeed present in current pick up banner
             if present:
-                pick_up_pool, target = self.pickUpPresent(
-                    hero_banner, self.heroes)
+                pick_up_pool, target = self.pickUpPresent(target_banner, pool)
 
                 # Once the pick up is determined, then calculate the summons
                 boxes, reply = self.calcResults(ctx, count, pick_up_pool,
-                                                self.heroes_pick_up_weights, self.heroes_last_slot_weights,
-                                                target
-                                                )
-        elif type in ["e", "eq", "equip", "equipment", "equipments"] and not target:
-            boxes, reply = self.calcResults(
-                ctx, count, self.equipments, self.equipments_weights, self.equipments_last_slot_weights)
-        elif type in ["e", "eq", "equip", "equipment", "equipments"] and target:
-            # Check if pick up is available
-            present, invalid, equipment_banner = self.checkPickUpAvailability(
-                target, self.equipments_pick_up_weights)
-
-            # If the parameter entered is too short
-            if invalid:
-                await ctx.send(f"Yo, <@{ctx.author.id}>. At least put 4 characters please?")
-                return
-
-            # If equipment is indeed present in current pick up banner
-            if present:
-                pick_up_pool, target = self.pickUpPresent(
-                    equipment_banner, self.equipments)
-
-                # Once the pick up is determined, then calculate the summons
-                boxes, reply = self.calcResults(ctx, count, pick_up_pool,
-                                                self.equipments_pick_up_weights,
-                                                self.equipments_last_slot_weights,
+                                                pick_up_weightage, last_slot_weightage,
                                                 target
                                                 )
         else:
-            await ctx.send(f"Hey.. <@{ctx.author.id}>. Are you.. trying to break me or something?")
-            return
+            boxes, reply = self.calcResults(
+                    ctx, count, pool, weightage, last_slot_weightage)
 
+        # If target hero or equipment entered is not present in the current banner
         if not present and target:
             await ctx.send(
                 f"Ermmm, <@{ctx.author.id}>. The hero you mentioned is not in the current pick up banner."
