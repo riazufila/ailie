@@ -388,20 +388,40 @@ class Summon(commands.Cog):
     async def summon(self, ctx, type, count, target=None):
         # Initialize variables to return for display
         boxes = []
+        weightage = []
+        pick_up_weightage = []
         reply = ""
         present = False
 
         # Determine what banner is chosen
-        if type in ["h", "hero", "heroes"] and not target:
-            boxes, reply = self.calcResults(
-                ctx, count, self.heroes, self.heroes_weights, self.heroes_last_slot_weights)
-        elif type in ["e", "eq", "equip", "equipment", "equipments"] and not target:
-            boxes, reply = self.calcResults(
-                ctx, count, self.equipments, self.equipments_weights, self.equipments_last_slot_weights)
-        elif type in ["h", "hero", "heroes"] and target:
+        if not target:
+            if type in ["h", "hero", "heroes"]:
+                pool = self.heroes
+                weightage = self.heroes_weights
+                last_slot_weightage = self.heroes_last_slot_weights
+            elif type in ["e", "eq", "equip", "equipment", "equipments"]:
+                pool = self.equipments
+                weightage = self.equipments_weights
+                last_slot_weightage = self.equipments_last_slot_weights
+            else:
+                await ctx.send("Use the command properly please, <@{ctx.author.id}>?")
+                return
+        else:
+            if type in ["h", "hero", "heroes"]:
+                pool = self.heroes
+                pick_up_weightage = self.heroes_pick_up_weights
+                last_slot_weightage = self.heroes_last_slot_weights
+            elif type in ["e", "eq", "equip", "equipment", "equipments"]:
+                pool = self.equipments
+                pick_up_weightage = self.equipments_pick_up_weights
+                last_slot_weightage = self.equipments_last_slot_weights
+            else:
+                await ctx.send("Use the command properly please, <@{ctx.author.id}>?")
+                return
+
+        if target:
             # Check if pick up is available
-            present, invalid, hero_banner = self.checkPickUpAvailability(
-                target, self.heroes_pick_up_weights)
+            present, invalid, target_banner = self.checkPickUpAvailability(target, pick_up_weightage)
 
             # If the parameter entered is too short
             if invalid:
@@ -410,39 +430,18 @@ class Summon(commands.Cog):
 
             # If hero is indeed present in current pick up banner
             if present:
-                pick_up_pool, target = self.pickUpPresent(
-                    hero_banner, self.heroes)
+                pick_up_pool, target = self.pickUpPresent(target_banner, pool)
 
                 # Once the pick up is determined, then calculate the summons
                 boxes, reply = self.calcResults(ctx, count, pick_up_pool,
-                                                self.heroes_pick_up_weights, self.heroes_last_slot_weights,
-                                                target
-                                                )
-        elif type in ["e", "eq", "equip", "equipment", "equipments"] and target:
-            # Check if pick up is available
-            present, invalid, equipment_banner = self.checkPickUpAvailability(
-                target, self.equipments_pick_up_weights)
-
-            # If the parameter entered is too short
-            if invalid:
-                await ctx.send(f"Yo, <@{ctx.author.id}>. At least put 4 characters please?")
-                return
-
-            # If equipment is indeed present in current pick up banner
-            if present:
-                pick_up_pool, target = self.pickUpPresent(
-                    equipment_banner, self.equipments)
-
-                # Once the pick up is determined, then calculate the summons
-                boxes, reply = self.calcResults(ctx, count, pick_up_pool,
-                                                self.equipments_pick_up_weights,
-                                                self.equipments_last_slot_weights,
+                                                pick_up_weightage, last_slot_weightage,
                                                 target
                                                 )
         else:
-            await ctx.send(f"Hey.. <@{ctx.author.id}>. Are you.. trying to break me or something?")
-            return
+            boxes, reply = self.calcResults(
+                    ctx, count, pool, weightage, last_slot_weightage)
 
+        # If target hero or equipment entered is not present in the current banner
         if not present and target:
             await ctx.send(
                 f"Ermmm, <@{ctx.author.id}>. The hero you mentioned is not in the current pick up banner."
