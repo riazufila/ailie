@@ -69,7 +69,7 @@ class Summon(commands.Cog):
             if "Nari" in r:
                 easter_eggs["nari"] = True
         else:
-            if "★★★★★ [Ex]" in r:
+            if "[Ex]" in r:
                 not_easter_eggs["white_box"] = True
             if r == target:
                 not_easter_eggs["obtainedPickup"] = True
@@ -86,7 +86,7 @@ class Summon(commands.Cog):
             type = "3 star hero"
             type_short = "hero"
         else:
-            type = "5 star exclusive weapon"
+            type = "exclusive weapon"
             type_short = "weapon"
 
         # Get funky replies
@@ -101,41 +101,34 @@ class Summon(commands.Cog):
                     useless_check = True
                     break
 
-        if not_easter_eggs["white_box"] and \
-                not not_easter_eggs["obtainedPickup"] and target:
-            if not useless_check:
-                reply = [
-                    f"I see {type}. But no {target}.. "
-                    + f"Sad life, <@{ctx.author.id}>.",
-                    "Well.. Not too shabby I guess. Right, "
-                    + f"<@{ctx.author.id}>? Although there's no {target}. "
-                    + "Hahaha.",
-                    f"At least there's {type}. It could've been worse, "
-                    + f"<@{ctx.author.id}>."
-                ]
-            else:
-                if easter_eggs["alef"]:
-                    reply = [
-                        f"LOL. You've got Alef instead, <@{ctx.author.id}>. "
-                        + "Congratulations?"
-                    ]
-                if easter_eggs["plitvice"]:
-                    reply = [
-                        "3 STAR WOW! Wait.. Oh. Its Plitvice. "
-                        + f"Good for you, <@{ctx.author.id}>."
-                    ]
-                if easter_eggs["lapice"]:
-                    reply = [
-                        f"Huh? Lapice? Whats that, <@{ctx.author.id}>?"
-                    ]
-                if easter_eggs["nari"]:
-                    reply = [
-                        f"YES, <@{ctx.author.id}>! NARI! But shhhhhh! Keep it "
-                        + "quiet. Some YouTuber doesn't seem too fond of Nari. "
-                        + "*smirks*"
-                    ]
-        elif not_easter_eggs["white_box"] and \
-                not_easter_eggs["obtainedPickup"] and target:
+        # Fail summons but obtained ailie
+        if not not_easter_eggs["white_box"] and ailie_check \
+                and not_easter_eggs["heroes_check"]:
+            reply = [
+                f"Think positive, <@{ctx.author.id}>! "
+                + "At least you got me :D"
+            ]
+        # Fail summons without ailie
+        elif not not_easter_eggs["white_box"] and not ailie_check:
+            reply = [
+                f"You just suck at gachas, <@{ctx.author.id}>..",
+                f"Try harder, <@{ctx.author.id}>.",
+                f"Ermmm.. <@{ctx.author.id}>. Oh well. You've tried."
+            ]
+        # Lucky summons without useless heroes in normal banner
+        elif not_easter_eggs["white_box"] and not useless_check and \
+                not not_easter_eggs["obtainedPickup"] and not target:
+            reply = [
+                f"WOW! W-w-waaaiittt a second, <@{ctx.author.id}>.. "
+                + f"Is that a freaking {type}?!",
+                f"{type.capitalize()} comes to you like a magnet, "
+                + f"<@{ctx.author.id}>. "
+                + "Yeah I said it.",
+                f"Yeah. You got {type}, <@{ctx.author.id}>. "
+                + "I can see that. But how many gems has it been?"
+            ]
+        # Lucky summons with pick up heroes
+        elif not_easter_eggs["white_box"] and not_easter_eggs["obtainedPickup"]:
             reply = [
                 f"WOHOOOOOOOOOOOOOOOOOO, <@{ctx.author.id}>! You got the "
                 + f"pick up {type_short}!",
@@ -143,46 +136,46 @@ class Summon(commands.Cog):
                 f"<@{ctx.author.id}>, what kind of luck do you have? Are you "
                 + "somekind of luck beast or something?!"
             ]
-        elif not_easter_eggs["white_box"] and not target:
-            if useless_check:
-                if easter_eggs["alef"]:
-                    reply = [
-                        f"LOL. You've got Alef instead, <@{ctx.author.id}>. "
-                        + "Congratulations?"
-                    ]
-                if easter_eggs["plitvice"]:
-                    reply = [
-                        "3 STAR WOW! Wait.. Oh. Its Plitvice. Good for you, "
-                        + f"<@{ctx.author.id}>."
-                    ]
-                if easter_eggs["lapice"]:
-                    reply = [
-                        f"Huh? Lapice? Whats that, <@{ctx.author.id}>?"
-                    ]
-                if easter_eggs["nari"]:
-                    reply = [
-                        f"YES, <@{ctx.author.id}>! NARI! But shhhhhh! "
-                        + "Keep it quiet. Some YouTuber doesn't seem too "
-                        + "fond of Nari. *smirks*"
-                    ]
-            else:
+        # Lucky summons but you get useless heroes in normal banner.
+        elif not_easter_eggs["white_box"] and useless_check and \
+                not not_easter_eggs["obtainedPickup"]:
+            if easter_eggs["alef"]:
                 reply = [
-                    f"WOW! W-w-waaaiittt a second, <@{ctx.author.id}>.. "
-                    + f"Is that a freaking {type}?!",
-                    f"{type} comes to you like a magnet, <@{ctx.author.id}>. "
-                    + "Yeah I said it.",
-                    f"Yeah. You got {type}, <@{ctx.author.id}>. "
-                    + "I can see that. But how many gems has it been?"
+                    f"LOL. You've got Alef instead, <@{ctx.author.id}>. "
+                    + "Congratulations?"
                 ]
-        elif not not_easter_eggs["white_box"] and ailie_check:
+            if easter_eggs["plitvice"]:
+                reply = [
+                    "3 STAR WOW! Wait.. Oh. Its Plitvice. "
+                    + f"Good for you, <@{ctx.author.id}>."
+                ]
+            if easter_eggs["lapice"]:
+                reply = [
+                    f"Huh? Lapice? Whats that, <@{ctx.author.id}>?"
+                ]
+            if easter_eggs["nari"]:
+                reply = [
+                    f"YES, <@{ctx.author.id}>! NARI! But shhhhhh! Keep it "
+                    + "quiet. Some YouTuber doesn't seem too fond of Nari. "
+                    + "*smirks*"
+                ]
+        # Lucky summons but you get useless heroes in pick up banner
+        elif not_easter_eggs["white_box"] and \
+                not not_easter_eggs["obtainedPickup"] and target:
             reply = [
-                f"Think positive, <@{ctx.author.id}>! At least you got me :D"
+                f"I see {type}. But no {target}.. "
+                + f"Sad life, <@{ctx.author.id}>.",
+                "Well.. Not too shabby I guess. Right, "
+                + f"<@{ctx.author.id}>? Although there's no {target}. "
+                + "Hahaha.",
+                f"At least there's {type}. It could've been worse, "
+                + f"<@{ctx.author.id}>."
             ]
-        elif not not_easter_eggs["white_box"] and not ailie_check:
+        # If this reply is chosen, then there's a check that is
+        # not taken into account
+        else:
             reply = [
-                f"You just suck at gachas, <@{ctx.author.id}>..",
-                f"Try harder, <@{ctx.author.id}>.",
-                f"Ermmm.. <@{ctx.author.id}>. Oh well. You've tried."
+                f"I don't know anymore, <@{ctx.author.id}>.."
             ]
 
         reply = random.choice(reply)
