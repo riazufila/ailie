@@ -354,13 +354,14 @@ class Summon(commands.Cog):
         # Iterate through box and edit messages to update the results
         boxes = iter(boxes)
         for box in boxes:
-            if one_or_ten == 10 or one_or_ten.lower() == "ten":
+            if one_or_ten == "10" or one_or_ten.lower() == "ten":
                 # Add two entry per request to lower occurance of rate limits
                 await msg.edit(content=msg.content + f"\n{counter}. {box}\n{counter + 1}. {next(boxes)}")
                 await asyncio.sleep(1.5)
                 counter += 2
             else:
                 await msg.edit(content=msg.content + f"\n{counter}. {box}")
+                await asyncio.sleep(1.5)
                 counter += 1
 
         await msg.reply(reply)
@@ -390,13 +391,14 @@ class Summon(commands.Cog):
     # Summon heroes or equipments either on the normal or pick up banne.
     @commands.command(name="summon", help="Summon heroes or equipments.", aliases=["s"])
     @commands.cooldown(1, 30, commands.BucketType.user)
-    async def summon(self, ctx, type, count, target=None):
+    async def summon(self, ctx, type, count, *target):
         # Initialize variables to return for display
         boxes = []
         weightage = []
         pick_up_weightage = []
         reply = ""
         present = False
+        target = " ".join(target)
 
         # Determine what banner is chosen
         if not target:
