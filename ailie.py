@@ -11,7 +11,9 @@ if __name__ == "__main__":
 
     # Bot setup
     bot = commands.Bot(
-        command_prefix=["ailie;", "a;"], description="Guardian's collector."
+        command_prefix=["ailie;", "a;"],
+        description="Guardian's collector.",
+        help_command=None,
     )
 
     # Load extensions
