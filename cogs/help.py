@@ -12,6 +12,7 @@ bottom_info = "https://github.com/riazufila/ailie"
 
 class Help(commands.Cog):
     """ Help commands """
+
     def __init__(self, bot):
         self.bot = bot
 
@@ -34,14 +35,15 @@ class Help(commands.Cog):
                 t = "|".join(command.aliases)
                 temp += f"[{command.name}|{t}]"
             # Parameters
-            params = f" "
+            params = " "
             for param in command.clean_params:
                 params += f"<{command.clean_params[param]}> "
             temp += f"{params}"
             return temp
 
         def generate_command_list(cog):
-            """ Generates the command list with properly spaced help messages """
+            """Generates the command list with
+            properly spaced help messages"""
             # Determine longest word
             max = 0
             for command in bot.get_cog(cog).get_commands():
@@ -67,9 +69,7 @@ class Help(commands.Cog):
             for cog in bot.cogs:
                 temp = generate_command_list(cog)
                 if temp != "":
-                    embed.add_field(name=f"**{cog}**",
-                                    value=temp,
-                                    inline=False)
+                    embed.add_field(name=f"**{cog}**", value=temp, inline=False)
             if bottom_info != "":
                 embed.add_field(name="Info", value=bottom_info, inline=False)
         elif len(commands) == 1:
@@ -88,23 +88,26 @@ class Help(commands.Cog):
             else:
                 command = bot.get_command(name)
                 if command is not None:
-                    help = f""
+                    help = ""
                     if command.help is not None:
                         help = command.help
                     embed.add_field(
                         name=f"**{command}**",
-                        value=
-                        f"{command.description}```{generate_usage(name)}```\n{help}",
-                        inline=False)
+                        value=f"{command.description}"
+                        + f"```{generate_usage(name)}```\n{help}",
+                        inline=False,
+                    )
                 else:
                     msg = " ".join(commands)
                     embed.add_field(
                         name="Not found",
-                        value=f"Command/category `{msg}` not found.")
+                        value=f"Command/category `{msg}` not found.",
+                    )
         else:
             msg = " ".join(commands)
-            embed.add_field(name="Not found",
-                            value=f"Command/category `{msg}` not found.")
+            embed.add_field(
+                name="Not found", value=f"Command/category `{msg}` not found."
+            )
 
         await ctx.send(f"{ctx.author.mention}", embed=embed)
         return
