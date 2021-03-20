@@ -13,7 +13,6 @@ if __name__ == "__main__":
     bot = commands.Bot(
         command_prefix=["ailie;", "a;"], description="Guardian's collector."
     )
-    bot.remove_command("help")
 
     # Load extensions
     extensions = ["cogs.basic", "cogs.summon", "cogs.extra"]
