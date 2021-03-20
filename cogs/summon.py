@@ -68,9 +68,17 @@ class Summon(commands.Cog):
                 easter_eggs["lapice"] = True
             if "Nari" in r:
                 easter_eggs["nari"] = True
+            if "Lupina" in r:
+                easter_eggs["lupina"] = True
+            if "Idol" in r:
+                easter_eggs["idol"] = True
         else:
             if "[Ex]" in r:
                 not_easter_eggs["white_box"] = True
+            if "★★★★ [Ex]" in r:
+                not_easter_eggs["four_ex"] = True
+            if "★★★★★ [Ex]" in r:
+                not_easter_eggs["five_ex"] = True
             if r == target:
                 not_easter_eggs["obtainedPickup"] = True
 
@@ -115,19 +123,27 @@ class Summon(commands.Cog):
                 f"Try harder, <@{ctx.author.id}>.",
                 f"Ermmm.. <@{ctx.author.id}>. Oh well. You've tried."
             ]
-        # Lucky summons without useless heroes in normal banner
+        # Lucky summons without useless things in normal banner
         elif not_easter_eggs["white_box"] and not useless_check and \
                 not not_easter_eggs["obtainedPickup"] and not target:
-            reply = [
-                f"WOW! W-w-waaaiittt a second, <@{ctx.author.id}>.. "
-                + f"Is that a freaking {type}?!",
-                f"{type.capitalize()} comes to you like a magnet, "
-                + f"<@{ctx.author.id}>. "
-                + "Yeah I said it.",
-                f"Yeah. You got {type}, <@{ctx.author.id}>. "
-                + "I can see that. But how many gems has it been?"
-            ]
-        # Lucky summons with pick up heroes
+            # "Lucky" but only with four star exclusive weapon
+            if not_easter_eggs["four_ex"] and not not_easter_eggs["five_ex"]:
+                reply = [
+                    f"Oh.. Its just a four star {type}. But thats better "
+                    + f"than nothing. Right, <@{ctx.author.id}>?"
+                ]
+            # Replies for the lucky pulls that aren't fake
+            else:
+                reply = [
+                    f"WOW! W-w-waaaiittt a second, <@{ctx.author.id}>.. "
+                    + f"Is that a freaking {type}?!",
+                    f"{type.capitalize()} comes to you like a magnet, "
+                    + f"<@{ctx.author.id}>. "
+                    + "Yeah I said it.",
+                    f"Yeah. You got {type}, <@{ctx.author.id}>. "
+                    + "I can see that. But how many gems has it been?"
+                ]
+        # Lucky summons with pick up banners
         elif not_easter_eggs["white_box"] and not_easter_eggs["obtainedPickup"]:
             reply = [
                 f"WOHOOOOOOOOOOOOOOOOOO, <@{ctx.author.id}>! You got the "
@@ -136,7 +152,7 @@ class Summon(commands.Cog):
                 f"<@{ctx.author.id}>, what kind of luck do you have? Are you "
                 + "somekind of luck beast or something?!"
             ]
-        # Lucky summons but you get useless heroes in normal banner.
+        # Lucky summons but you get useless things in normal banner.
         elif not_easter_eggs["white_box"] and useless_check and \
                 not not_easter_eggs["obtainedPickup"]:
             if easter_eggs["alef"]:
@@ -159,7 +175,17 @@ class Summon(commands.Cog):
                     + "quiet. Some YouTuber doesn't seem too fond of Nari. "
                     + "*smirks*"
                 ]
-        # Lucky summons but you get useless heroes in pick up banner
+            if easter_eggs["lupina"]:
+                reply = [
+                    "I don't know if you should be happy with "
+                    + f"this, <@{ctx.author.id}>.."
+                ]
+            if easter_eggs["idol"]:
+                reply = [
+                    "Okay fine, Idol Eva is used more now in colosseum. "
+                    + f"Maybe she's good after all. Right, <@{ctx.author.id}>"
+                ]
+        # Lucky summons but you get useless things in pick up banner
         elif not_easter_eggs["white_box"] and \
                 not not_easter_eggs["obtainedPickup"] and target:
             reply = [
@@ -172,7 +198,8 @@ class Summon(commands.Cog):
                 + f"<@{ctx.author.id}>."
             ]
         # If this reply is chosen, then there's a check that is
-        # not taken into account
+        # not taken into account and should be taken care of
+        # quickly. But the checks should cover all pulls.
         else:
             reply = [
                 f"I don't know anymore, <@{ctx.author.id}>.."
@@ -276,7 +303,9 @@ class Summon(commands.Cog):
             not_easter_eggs = {
                 "heroes_check": False,
                 "white_box": False,
-                "obtainedPickup": False
+                "obtainedPickup": False,
+                "five_ex": False,
+                "four_ex": False
             }
             easter_eggs = {
                 "ailie": False,
@@ -284,6 +313,8 @@ class Summon(commands.Cog):
                 "plitvice": False,
                 "lapice": False,
                 "nari": False,
+                "lupina": False,
+                "idol": False
             }
 
             if w == self.heroes_weights or w == self.heroes_pick_up_weights:
