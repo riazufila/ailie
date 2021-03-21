@@ -8,6 +8,8 @@ from discord.ext import commands
 class Info(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        # Assign help command to Info category
+        self.bot.help_command.cog = self
 
     # Execute when bot is ready
     @commands.Cog.listener()
