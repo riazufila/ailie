@@ -15,6 +15,63 @@ class Help(commands.MinimalHelpCommand):
             )
             await destination.send(embed=embed)
 
+    def add_bot_commands_formatting(self, commands, heading):
+        if commands:
+            i = 0
+            joined = ""
+            for c in commands:
+                better_c = "`" + c.name + "`"
+                if i != 0:
+                    joined = joined + " " + better_c
+                else:
+                    joined = better_c
+                i += 1
+            self.paginator.add_line("__**%s**__" % heading)
+            self.paginator.add_line(joined)
+
+    def add_command_formatting(self, command):
+        if command.description:
+            self.paginator.add_line(command.description, empty=True)
+
+        signature = self.get_command_signature(command)
+        if command.aliases:
+            self.paginator.add_line(signature)
+            self.add_aliases_formatting(command.aliases)
+        else:
+            self.paginator.add_line(signature, empty=True)
+
+        if command.help:
+            try:
+                self.paginator.add_line(command.help, empty=True)
+            except RuntimeError:
+                for line in command.help.splitlines():
+                    self.paginator.add_line(line)
+                self.paginator.add_line()
+
+        note = self.get_ending_note()
+        if note:
+            self.paginator.add_line(note)
+
+    def add_subcommand_formatting(self, command):
+        fmt = "`{0}{1}` \N{EN DASH} `{2}`" if command.short_doc else "`{0}{1}`"
+        self.paginator.add_line(
+            fmt.format(
+                self.clean_prefix, command.qualified_name, command.short_doc
+            )
+        )
+
+    def get_command_signature(self, command):
+        return (
+            f"`{self.clean_prefix}{command.qualified_name}` "
+            + f"`{command.signature}`"
+        )
+
+    def get_ending_note(self):
+        return (
+            "For issues, feedback, or inquiry, "
+            + "visit https://github.com/riazufila/ailie."
+        )
+
 
 if __name__ == "__main__":
     # Get secrets
