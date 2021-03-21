@@ -72,6 +72,16 @@ class Help(commands.MinimalHelpCommand):
             + f"`{command.signature}`"
         )
 
+    def get_opening_note(self):
+        command_name = self.invoked_with
+        return (
+            "`ailie;` or `a;` for invoking bot."
+            + f"\n`{self.clean_prefix}{command_name} [command]` for "
+            + "more info on a command."
+            + f"\n`{self.clean_prefix}{command_name} [category]` for "
+            + "more info on a category."
+        )
+
     # Get ending note
     def get_ending_note(self):
         return (
