@@ -5,7 +5,7 @@ import discord
 from discord.ext import commands
 
 
-class Basic(commands.Cog):
+class Info(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
@@ -79,11 +79,11 @@ class Basic(commands.Cog):
         else:
             await ctx.send(
                 "**Oops! Looks like you found a bug.**"
-                + "\n\n*Error: {error}*\n\nPlease post a new issue under "
+                + f"\n\n*Error: {error}*\n\nPlease post a new issue under "
                 + "the tab 'Issue' at https://github.com/riazufila/ailie."
-                + "\nSorry, <@{ctx.author.id}>.. And thank you."
+                + f"\nSorry, <@{ctx.author.id}>.. And thank you."
             )
 
 
 def setup(bot):
-    bot.add_cog(Basic(bot))
+    bot.add_cog(Info(bot))
