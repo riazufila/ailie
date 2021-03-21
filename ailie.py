@@ -6,7 +6,9 @@ from dotenv import load_dotenv
 from discord.ext import commands
 
 
+# Subclassing MinimalHelpCommand to create custom help command
 class Help(commands.MinimalHelpCommand):
+    # Send the help pages
     async def send_pages(self):
         destination = self.get_destination()
         for page in self.paginator.pages:
@@ -15,6 +17,7 @@ class Help(commands.MinimalHelpCommand):
             )
             await destination.send(embed=embed)
 
+    # Shows the main help page
     def add_bot_commands_formatting(self, commands, heading):
         if commands:
             i = 0
@@ -29,6 +32,7 @@ class Help(commands.MinimalHelpCommand):
             self.paginator.add_line("__**%s**__" % heading)
             self.paginator.add_line(joined)
 
+    # Shows the help page for command help pages
     def add_command_formatting(self, command):
         if command.description:
             self.paginator.add_line(command.description, empty=True)
@@ -52,6 +56,7 @@ class Help(commands.MinimalHelpCommand):
         if note:
             self.paginator.add_line(note)
 
+    # Cog or Category command help page
     def add_subcommand_formatting(self, command):
         fmt = "`{0}{1}` \N{EN DASH} `{2}`" if command.short_doc else "`{0}{1}`"
         self.paginator.add_line(
@@ -60,12 +65,14 @@ class Help(commands.MinimalHelpCommand):
             )
         )
 
+    # Command signature
     def get_command_signature(self, command):
         return (
             f"`{self.clean_prefix}{command.qualified_name}` "
             + f"`{command.signature}`"
         )
 
+    # Get ending note
     def get_ending_note(self):
         return (
             "For issues, feedback, or inquiry, "
