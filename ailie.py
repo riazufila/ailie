@@ -72,6 +72,7 @@ class Help(commands.MinimalHelpCommand):
             + f"`{command.signature}`"
         )
 
+    # Get opening note
     def get_opening_note(self):
         command_name = self.invoked_with
         return (
