@@ -79,9 +79,9 @@ class Info(commands.Cog):
         else:
             await ctx.send(
                 "**Oops! Looks like you found a bug.**"
-                + "\n\n*Error: {error}*\n\nPlease post a new issue under "
+                + f"\n\n*Error: {error}*\n\nPlease post a new issue under "
                 + "the tab 'Issue' at https://github.com/riazufila/ailie."
-                + "\nSorry, <@{ctx.author.id}>.. And thank you."
+                + f"\nSorry, <@{ctx.author.id}>.. And thank you."
             )
 
 
