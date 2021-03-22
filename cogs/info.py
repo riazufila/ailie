@@ -59,7 +59,14 @@ class Info(commands.Cog):
         # Initialize and retrieve gems count for user
         ailie_db = Database()
         guardian_info = ailie_db.getGuardianInfo(ctx.author.id)
-        expired = ailie_db.checkTimeExpired(ctx.author.id)
+        if guardian_info:
+            expired = ailie_db.checkTimeExpired(ctx.author.id)
+        else:
+            await ctx.send(
+                f"<@{ctx.author.id}>, summon first before you can have any "
+                + "profile at all!"
+            )
+            return
         ailie_db.disconnect()
 
         if expired:
