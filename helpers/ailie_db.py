@@ -1,13 +1,11 @@
 #!/usr/bin/env python
 
-import os
 import sqlite3
 import datetime
 
 
 class Database:
     def __init__(self):
-        self.DB = os.getenv("DB")
         self.connection = sqlite3.connect(
             "ailie.db",
             detect_types=sqlite3.PARSE_DECLTYPES | sqlite3.PARSE_COLNAMES,
