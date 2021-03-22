@@ -25,7 +25,7 @@ class Database:
         guardian_info = {}
 
         # Query guardian details
-        query = "SELECT * FROM guardians WHERE id = %s;"
+        query = "SELECT * FROM guardians WHERE user_id = %s;"
         data = [id]
         self.cursor.execute(query, data)
 
@@ -49,7 +49,7 @@ class Database:
 
         # Insert value accordingly for first pull
         query = (
-            "INSERT INTO guardians (id, tmp_gems, total_gems, last_pull) "
+            "INSERT INTO guardians (user_id, tmp_gems, total_gems, last_pull) "
             + "VALUES (%s, %s, %s, %s);"
         )
         data = (id, gems, gems, pull_time)
@@ -72,7 +72,7 @@ class Database:
         # Update the value accordingly
         query = (
             "UPDATE guardians SET tmp_gems = %s, total_gems = %s, "
-            + "last_pull = %s WHERE id = %s;"
+            + "last_pull = %s WHERE user_id = %s;"
         )
         data = (tmp_gems, total_gems, pull_time, id)
         self.cursor.execute(query, data)
@@ -82,7 +82,7 @@ class Database:
         last_pull = None
 
         # Query guardian details
-        query = "SELECT last_pull FROM guardians WHERE id = %s;"
+        query = "SELECT last_pull FROM guardians WHERE user_id = %s;"
         data = [id]
         self.cursor.execute(query, data)
 
@@ -96,7 +96,7 @@ class Database:
         period = time_now - last_pull
 
         if period.total_seconds() > 600:
-            query = "UPDATE guardians SET tmp_gems = %s WHERE id = %s;"
+            query = "UPDATE guardians SET tmp_gems = %s WHERE user_id = %s;"
             data = (0, id)
             self.cursor.execute(query, data)
             self.connection.commit()
