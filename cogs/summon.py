@@ -4,6 +4,7 @@ import asyncio
 import random
 import csv
 from discord.ext import commands
+from helpers.ailie_db import Database
 
 
 class Summon(commands.Cog):
@@ -273,6 +274,26 @@ class Summon(commands.Cog):
     # Calculate the chances in summons
     def calcResults(
             self, ctx, one_or_ten, t, w, last_slot_weights, target=None):
+        # Initialize and establish connection to database
+        ailie_db = Database()
+
+        # Check if guardian is available
+        guardian_info = ailie_db.getGuardianInfo(ctx.author.id)
+
+        # If guardian is not new. Then, just pull and add gems normally.
+        if guardian_info:
+            if ailie_db.checkTimeExpired(ctx.author.id):
+                guardian_info["tmp_gems"] = 0
+            ailie_db.secondOrMorePulls(
+                    ctx.author.id, one_or_ten, guardian_info["tmp_gems"],
+                    guardian_info["total_gems"])
+        # If guardian is new. Then, add guardian records to the db.
+        else:
+            ailie_db.firstPull(ctx.author.id, one_or_ten)
+
+        # Close database
+        ailie_db.disconnect()
+
         # Initialize value to return later
         reply = ""
         boxes = []
@@ -420,7 +441,15 @@ class Summon(commands.Cog):
                 await asyncio.sleep(1.5)
                 counter += 1
 
-        await msg.reply(reply)
+        # Get gems used in current session
+        ailie_db = Database()
+        guardian_info = ailie_db.getGuardianInfo(ctx.author.id)
+        ailie_db.disconnect()
+
+        # Send the reply to fellow guardian
+        reply = f"{guardian_info['tmp_gems']} gems used. " + reply
+        msg = await msg.reply(reply)
+        await msg.add_reaction("💎")
 
     # Lists the current pickup banner
     @commands.command(name="banner", help="List current pickup banner.")
