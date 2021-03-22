@@ -36,7 +36,7 @@ class Info(commands.Cog):
     @commands.cooldown(1, 10, commands.BucketType.user)
     async def version(self, ctx):
         # Change upon version update
-        version = "1.2.0"
+        version = "1.2.1"
 
         # Mimic loading animation
         msg = await ctx.send(
