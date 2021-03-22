@@ -23,7 +23,7 @@ class Help(commands.MinimalHelpCommand):
             for c in commands:
                 better_c = "`" + c.name + "`"
                 if i != 0:
-                    joined = joined + "\u2002" + better_c
+                    joined = joined + ",\u2002" + better_c
                 else:
                     joined = better_c
                 i += 1
