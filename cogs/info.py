@@ -87,8 +87,8 @@ class Info(commands.Cog):
         )
         embed.set_footer(
             text="Session is the total gems used in continuation in less "
-            + "than\n10 minutes between one pull and the other.\nOverall "
-            + "is the total gems used for every summon including\nseparate "
+            + "than 10 minutes between one pull and the other.\nOverall "
+            + "is the total gems used for every summon including separate "
             + "sessions."
         )
 
