@@ -3,7 +3,7 @@
 import asyncio
 import discord
 from discord.ext import commands
-from helpers.ailie_db import Database
+from helpers.db_ailie import Database
 
 
 class Info(commands.Cog):

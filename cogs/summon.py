@@ -4,7 +4,7 @@ import asyncio
 import random
 import csv
 from discord.ext import commands
-from helpers.ailie_db import Database
+from helpers.db_ailie import Database
 
 
 class Summon(commands.Cog):
