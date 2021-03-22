@@ -1,16 +1,33 @@
 #!/usr/bin/env python
 
+import os
 import sqlite3
 import datetime
 
 
 class Database:
     def __init__(self):
-        self.connection = sqlite3.connect(
-            "ailie.db",
-            detect_types=sqlite3.PARSE_DECLTYPES | sqlite3.PARSE_COLNAMES,
-        )
-        self.cursor = self.connection.cursor()
+        # If file is present in the first place
+        if os.path.isfile("ailie.db"):
+            self.connection = sqlite3.connect(
+                "ailie.db",
+                detect_types=sqlite3.PARSE_DECLTYPES | sqlite3.PARSE_COLNAMES,
+            )
+            self.cursor = self.connection.cursor()
+        # If the file is not present then the tables is created along with the database
+        else:
+            self.connection = sqlite3.connect(
+                "ailie.db",
+                detect_types=sqlite3.PARSE_DECLTYPES | sqlite3.PARSE_COLNAMES,
+            )
+            self.cursor = self.connection.cursor()
+
+            # Create all the tables
+            with open("ailie.sql") as file:
+                lines = file.readlines()
+                for l in lines:
+                    self.cursor.execute(l)
+                self.connection.commit()
 
     def disconnect(self):
         self.cursor.close()
