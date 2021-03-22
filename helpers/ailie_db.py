@@ -1,26 +1,33 @@
 #!/usr/bin/env python
 
 import os
-import psycopg2
-from datetime import datetime, timezone
+import sqlite3
+import datetime
 
 
 class Database:
     def __init__(self):
-        DB_NAME = os.getenv("DB_NAME")
-        DB_USER = os.getenv("DB_USER")
-        DB_PASSWORD = os.getenv("DB_PASSWORD")
-        DB_HOST = os.getenv("DB_HOST")
-        DB_PORT = os.getenv("DB_PORT")
+        # If file is present in the first place
+        if os.path.isfile("ailie.db"):
+            self.connection = sqlite3.connect(
+                "ailie.db",
+                detect_types=sqlite3.PARSE_DECLTYPES | sqlite3.PARSE_COLNAMES,
+            )
+            self.cursor = self.connection.cursor()
+        # If the file is not present then the tables is created along with the database
+        else:
+            self.connection = sqlite3.connect(
+                "ailie.db",
+                detect_types=sqlite3.PARSE_DECLTYPES | sqlite3.PARSE_COLNAMES,
+            )
+            self.cursor = self.connection.cursor()
 
-        self.connection = psycopg2.connect(
-            database=DB_NAME,
-            user=DB_USER,
-            password=DB_PASSWORD,
-            host=DB_HOST,
-            port=DB_PORT,
-        )
-        self.cursor = self.connection.cursor()
+            # Create all the tables
+            with open("ailie.sql") as file:
+                lines = file.readlines()
+                for l in lines:
+                    self.cursor.execute(l)
+                self.connection.commit()
 
     def disconnect(self):
         self.cursor.close()
@@ -31,7 +38,7 @@ class Database:
         guardian_info = {}
 
         # Query guardian details
-        query = "SELECT * FROM guardians WHERE id = %s;"
+        query = "SELECT * FROM guardians WHERE id = ?;"
         data = [id]
         self.cursor.execute(query, data)
 
@@ -45,7 +52,7 @@ class Database:
 
     def firstPull(self, id, count):
         # Initialize pull timestamp
-        pull_time = datetime.now(timezone.utc)
+        pull_time = datetime.datetime.now()
 
         # Check value of gems
         if count == "10" or count.lower() == "ten":
@@ -56,7 +63,7 @@ class Database:
         # Insert value accordingly for first pull
         query = (
             "INSERT INTO guardians (id, tmp_gems, total_gems, last_pull) "
-            + "VALUES (%s, %s, %s, %s);"
+            + "VALUES (?, ?, ?, ?);"
         )
         data = (id, gems, gems, pull_time)
         self.cursor.execute(query, data)
@@ -64,7 +71,7 @@ class Database:
 
     def secondOrMorePulls(self, id, count, tmp_gems, total_gems):
         # Initialize pull timestamp
-        pull_time = datetime.now(timezone.utc)
+        pull_time = datetime.datetime.now()
 
         # Gems check per session and total
         if count == "10" or count.lower() == "ten":
@@ -77,18 +84,18 @@ class Database:
 
         # Update the value accordingly
         query = (
-            "UPDATE guardians SET tmp_gems = %s, total_gems = %s, "
-            + "last_pull = %s WHERE id = %s;"
+            "UPDATE guardians SET tmp_gems = ?, total_gems = ?, "
+            + "last_pull = ? WHERE id = ?;"
         )
         data = (tmp_gems, total_gems, pull_time, id)
         self.cursor.execute(query, data)
         self.connection.commit()
 
     def checkTimeExpired(self, id):
-        last_pull = datetime.now(timezone.utc)
+        last_pull = datetime.datetime.now()
 
         # Query guardian details
-        query = "SELECT last_pull FROM guardians WHERE id = %s;"
+        query = "SELECT last_pull FROM guardians WHERE id = ?;"
         data = [id]
         self.cursor.execute(query, data)
 
@@ -98,11 +105,11 @@ class Database:
             last_pull = row[0]
 
         # Calculate how long has it been since last pull
-        time_now = datetime.now(timezone.utc)
+        time_now = datetime.datetime.now()
         period = time_now - last_pull
 
         if period.total_seconds() > 600:
-            query = "UPDATE guardians SET tmp_gems = %s WHERE id = %s;"
+            query = "UPDATE guardians SET tmp_gems = ? WHERE id = ?;"
             data = (0, id)
             self.cursor.execute(query, data)
             self.connection.commit()
