@@ -3,6 +3,7 @@
 import asyncio
 import discord
 from discord.ext import commands
+from helpers.ailie_db import Database
 
 
 class Info(commands.Cog):
@@ -50,6 +51,41 @@ class Info(commands.Cog):
         await asyncio.sleep(0.5)
         await msg.edit(content=msg.content + f" {version}!")
         await asyncio.sleep(0.5)
+
+    # Retrieve guardian profile
+    @commands.command(name="profile", help="Shows user profile.")
+    @commands.cooldown(1, 20, commands.BucketType.user)
+    async def profile(self, ctx):
+        # Initialize and retrieve gems count for user
+        ailie_db = Database()
+        guardian_info = ailie_db.getGuardianInfo(ctx.author.id)
+        expired = ailie_db.checkTimeExpired(ctx.author.id)
+        ailie_db.disconnect()
+
+        if expired:
+            guardian_info["tmp_gems"] = 0
+
+        embed = discord.Embed(
+            description="User statistics according to summons.",
+            color=discord.Color.purple(),
+        )
+        embed.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
+        embed.add_field(
+            name="Session",
+            value=f"{guardian_info['tmp_gems']} 💎",
+        )
+        embed.add_field(
+            name="Overall",
+            value=f"{guardian_info['total_gems']} 💎",
+        )
+        embed.set_footer(
+            text="Session is the total gems used in continuation in less "
+            + "than\n10 minutes between one pull and the other.\nOverall "
+            + "is the total gems used for every summon including\nseparate "
+            + "sessions."
+        )
+
+        await ctx.send(embed=embed)
 
     # Send error message upon spamming commands
     @commands.Cog.listener()
