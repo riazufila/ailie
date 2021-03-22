@@ -13,6 +13,7 @@ class Help(commands.MinimalHelpCommand):
             embed = discord.Embed(
                 color=discord.Color.purple(), description=page
             )
+            embed.set_author(icon_url=self.context.me.avatar_url, name="Ailie")
             await destination.send(embed=embed)
 
     # Shows the main help page
