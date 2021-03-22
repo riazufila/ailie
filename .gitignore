@@ -6,6 +6,3 @@
 
 # Python virtual environment
 venv/
-
-# Development database
-*.db
