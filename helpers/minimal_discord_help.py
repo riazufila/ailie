@@ -13,6 +13,7 @@ class Help(commands.MinimalHelpCommand):
             embed = discord.Embed(
                 color=discord.Color.purple(), description=page
             )
+            embed.set_author(icon_url=self.context.me.avatar_url, name="Ailie")
             await destination.send(embed=embed)
 
     # Shows the main help page
@@ -23,7 +24,7 @@ class Help(commands.MinimalHelpCommand):
             for c in commands:
                 better_c = "`" + c.name + "`"
                 if i != 0:
-                    joined = joined + " " + better_c
+                    joined = joined + ",\u2002" + better_c
                 else:
                     joined = better_c
                 i += 1
