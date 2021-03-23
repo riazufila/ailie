@@ -508,7 +508,7 @@ class Summon(commands.Cog):
                 last_slot_weightage = self.equipments_last_slot_weights
             else:
                 await ctx.send(
-                        "Use the command properly please, <@{ctx.author.id}>?")
+                        f"Use the command properly please, <@{ctx.author.id}>?")
                 return
         else:
             if type in ["h", "hero", "heroes"]:
@@ -521,7 +521,7 @@ class Summon(commands.Cog):
                 last_slot_weightage = self.equipments_last_slot_weights
             else:
                 await ctx.send(
-                        "Use the command properly please, <@{ctx.author.id}>?")
+                        f"Use the command properly please, <@{ctx.author.id}>?")
                 return
 
         if target:

@@ -106,7 +106,7 @@ class Info(commands.Cog):
             )
         elif isinstance(error, commands.MissingRequiredArgument):
             await ctx.send(
-                "Not to be rude. But you've got"
+                "Not to be rude. But you've got "
                 + f"the parameters wrong, <@{ctx.author.id}>."
             )
         elif isinstance(error, commands.MemberNotFound):
