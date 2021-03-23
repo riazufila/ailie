@@ -11,7 +11,7 @@ class Misc(commands.Cog):
 
     # Pours salt to those lucky people
     @commands.command(name="salt", help="Pour salt.")
-    @commands.cooldown(1, 10, commands.BucketType.user)
+    @commands.cooldown(1, 5, commands.BucketType.user)
     async def pourSalt(self, ctx, mention: discord.Member):
         reply = [
             f"*Pours salt on {mention.mention}.. POURING INTENSIFIED!*",
@@ -34,7 +34,7 @@ class Misc(commands.Cog):
 
     # Press F
     @commands.command(name="f", help="Pay respect.")
-    @commands.cooldown(1, 10, commands.BucketType.user)
+    @commands.cooldown(1, 5, commands.BucketType.user)
     async def pressF(self, ctx, mention: discord.Member):
         reply = [
             f"Pay respect to the fallen member, {mention.mention}..",

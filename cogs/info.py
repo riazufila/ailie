@@ -24,7 +24,7 @@ class Info(commands.Cog):
 
     # Check bot's latency
     @commands.command(name="ping", help="Check latency.")
-    @commands.cooldown(1, 45, commands.BucketType.user)
+    @commands.cooldown(1, 10, commands.BucketType.user)
     async def ping(self, ctx):
         await ctx.send(
             f"Pong, <@{ctx.author.id}>! Sending back this message with "
@@ -54,7 +54,7 @@ class Info(commands.Cog):
 
     # Retrieve guardian profile
     @commands.command(name="profile", help="Shows user profile.")
-    @commands.cooldown(1, 20, commands.BucketType.user)
+    @commands.cooldown(1, 10, commands.BucketType.user)
     async def profile(self, ctx):
         # Initialize and retrieve gems count for user
         ailie_db = Database()

@@ -454,7 +454,7 @@ class Summon(commands.Cog):
 
     # Lists the current pickup banner
     @commands.command(name="banner", help="List current pickup banner.")
-    @commands.cooldown(1, 15, commands.BucketType.user)
+    @commands.cooldown(1, 5, commands.BucketType.user)
     async def pickUpInfo(self, ctx):
         embed = discord.Embed(
                 description="Current Pick Up Banners.",
@@ -486,7 +486,7 @@ class Summon(commands.Cog):
     # Summon heroes or equipments either on the normal or pick up banne.
     @commands.command(
             name="summon", help="Summon heroes or equipments.", aliases=["s"])
-    @commands.cooldown(1, 30, commands.BucketType.user)
+    @commands.cooldown(1, 15, commands.BucketType.user)
     async def summon(self, ctx, type, count, *target):
         # Initialize variables to return for display
         boxes = []
