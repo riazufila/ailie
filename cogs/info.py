@@ -100,27 +100,50 @@ class Info(commands.Cog):
         if isinstance(error, commands.CommandOnCooldown):
             await ctx.send(f"Hey, <@{ctx.author.id}>.. {error}!")
         elif isinstance(error, commands.CommandNotFound):
-            await ctx.send(
+            msg = await ctx.send(
                 f"Yo, <@{ctx.author.id}>..There's no such commands. "
                 + "Try again. But properly."
             )
+            await ctx.send_help()
+            await asyncio.sleep(0.5)
+            await msg.edit(content=msg.content + " Hope this helps!")
         elif isinstance(error, commands.MissingRequiredArgument):
-            await ctx.send(
+            msg = await ctx.send(
                 "Not to be rude. But you've got "
                 + f"the parameters wrong, <@{ctx.author.id}>."
             )
+            await ctx.send_help(ctx.command)
+            await asyncio.sleep(0.5)
+            await msg.edit(
+                content=msg.content
+                + " The one enclosed in `<` and `>` is required while the one "
+                + "in `[` and `]` is optional. Got it?"
+            )
         elif isinstance(error, commands.MemberNotFound):
-            await ctx.send(
+            msg = await ctx.send(
                 "No such members. Try again, but try with someone in the "
                 + f"server, <@{ctx.author.id}>."
             )
+            await asyncio.sleep(0.5)
+            await msg.edit(
+                content=msg.content
+                + " Oh! And `everyone` or `roles` is not a valid option."
+            )
         elif isinstance(error, commands.TooManyArguments):
-            await ctx.send(f"<@{ctx.author.id}>, there's too many arguments.")
+            msg = await ctx.send(
+                f"<@{ctx.author.id}>, there's too many arguments."
+            )
+            await ctx.send_help(ctx.command)
+            await asyncio.sleep(0.5)
+            await msg.edit(content=msg.content + " Read that!")
         elif isinstance(error, commands.UserInputError):
-            await ctx.send(
+            msg = await ctx.send(
                 f"<@{ctx.author.id}>, are you okay? I don't think "
                 + "you're using the command correctly."
             )
+            await ctx.send_help(ctx.command)
+            await asyncio.sleep(0.5)
+            await msg.edit(content=msg.content + " Will that help?")
         else:
             await ctx.send(
                 "**Oops! Looks like you found a bug.**"
