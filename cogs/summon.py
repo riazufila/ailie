@@ -275,26 +275,6 @@ class Summon(commands.Cog):
     # Calculate the chances in summons
     def calcResults(
             self, ctx, one_or_ten, t, w, last_slot_weights, target=None):
-        # Initialize and establish connection to database
-        ailie_db = Database()
-
-        # Check if guardian is available
-        guardian_info = ailie_db.getGuardianInfo(ctx.author.id)
-
-        # If guardian is not new. Then, just pull and add gems normally.
-        if guardian_info:
-            if ailie_db.checkTimeExpired(ctx.author.id):
-                guardian_info["tmp_gems"] = 0
-            ailie_db.secondOrMorePulls(
-                    ctx.author.id, one_or_ten, guardian_info["tmp_gems"],
-                    guardian_info["total_gems"])
-        # If guardian is new. Then, add guardian records to the db.
-        else:
-            ailie_db.firstPull(ctx.author.id, one_or_ten)
-
-        # Close database
-        ailie_db.disconnect()
-
         # Initialize value to return later
         reply = ""
         boxes = []
@@ -319,6 +299,26 @@ class Summon(commands.Cog):
         # If the value is valid, then the statements here is executed
         if one_or_ten == "10" or one_or_ten.lower() == "ten" or \
                 one_or_ten == "1" or one_or_ten.lower() == "one":
+            # Initialize and establish connection to database
+            ailie_db = Database()
+
+            # Check if guardian is available
+            guardian_info = ailie_db.getGuardianInfo(ctx.author.id)
+
+            # If guardian is not new. Then, just pull and add gems normally.
+            if guardian_info:
+                if ailie_db.checkTimeExpired(ctx.author.id):
+                    guardian_info["tmp_gems"] = 0
+                ailie_db.secondOrMorePulls(
+                        ctx.author.id, one_or_ten, guardian_info["tmp_gems"],
+                        guardian_info["total_gems"])
+            # If guardian is new. Then, add guardian records to the db.
+            else:
+                ailie_db.firstPull(ctx.author.id, one_or_ten)
+
+            # Close database
+            ailie_db.disconnect()
+
             # Variables used as a counter to check what is being summoned
             pity_check = False
             pity = False
