@@ -3,6 +3,7 @@
 import asyncio
 import random
 import csv
+import discord
 from discord.ext import commands
 from helpers.db_ailie import Database
 
@@ -455,25 +456,32 @@ class Summon(commands.Cog):
     @commands.command(name="banner", help="List current pickup banner.")
     @commands.cooldown(1, 15, commands.BucketType.user)
     async def pickUpInfo(self, ctx):
-        message = "\n\n**Pick Up Heroes**"
-        i = 1
+        embed = discord.Embed(
+                description="Current Pick Up Banners.",
+                color=discord.Color.purple())
 
         # Store heroes pick up banner
+        i = 1
+        message = ""
         for pick_up_info in self.pick_up_heroes:
             message = message + f"\n{i}. {pick_up_info}"
             i += 1
 
-        message = message + "\n\n**Pick Up Equipments**"
-        i = 1
+        embed.add_field(name="Heroes", value=message, inline=False)
+
         # Store equipments pick up banner
+        i = 1
+        message = ""
         for pick_up_info in self.pick_up_equipments:
             message = message + f"\n{i}. {pick_up_info}"
             i += 1
 
-        # Send the string in one take so rate limit doesn't occur
-        await ctx.send(
-                f"Hello, <@{ctx.author.id}>. These are the "
-                + f"Pick Up Banner ongoing. {message}")
+        embed.add_field(name="Equipments", value=message, inline=False)
+        embed.set_author(name="Ailie", icon_url=ctx.me.avatar_url)
+        embed.set_footer(
+                text="Pick Up Banners will change according to the "
+                + "current banners in Guardian Tales.")
+        await ctx.send(embed=embed)
 
     # Summon heroes or equipments either on the normal or pick up banne.
     @commands.command(
