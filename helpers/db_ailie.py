@@ -42,6 +42,41 @@ class DatabaseAilie:
             self.cursor.execute(query, data)
             self.connection.commit()
 
+    def create_guild(self, guardian_id, guild_id, guild_name):
+        query = "INSERT INTO guilds (guild_id, guild_name) VALUES (%s, %s);"
+        data = [guild_id, guild_name]
+        self.cursor.execute(query, data)
+        self.connection.commit()
+        self.join_guild(guardian_id, guild_id)
+
+    def join_guild(self, guardian_id, guild_id):
+        query = "UPDATE guardians SET guild_id = %s WHERE guardian_id = %s;"
+        data = (guild_id, guardian_id)
+        self.cursor.execute(query, data)
+        self.connection.commit()
+
+    def is_guildless(self, guardian_id):
+        query = "SELECT guild_id FROM guardians WHERE guardian_id = %s;"
+        data = [guardian_id]
+        self.cursor.execute(query, data)
+
+        row = self.cursor.fetchone()
+        if row[0]:
+            return False
+        else:
+            return True
+
+    def guild_exists(self, guild_id):
+        query = "SELECT guild_id FROM guilds WHERE guild_id = %s;"
+        data = [guild_id]
+        self.cursor.execute(query, data)
+
+        row = self.cursor.fetchone()
+        if row[0]:
+            return True
+        else:
+            return False
+
     def disconnect(self):
         self.cursor.close()
         self.connection.close()

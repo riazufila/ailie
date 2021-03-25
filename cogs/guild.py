@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import random
 from discord.ext import commands
 from helpers.db_ailie import DatabaseAilie
 
@@ -9,8 +10,21 @@ class Guild(commands.Cog):
         self.bot = bot
 
     @commands.command(name="create", help="Create guild.")
-    async def create(self, ctx):
-        return "data"
+    async def create(self, ctx, guild_name):
+        db_ailie = DatabaseAilie(ctx.author.id)
+        guild_check = True
+        guild_id = 0
+
+        while guild_check:
+            guild_id = random.randint(pow(10, 14), (pow(10, 15) - 1))
+            guild_check = db_ailie.guild_exists(guild_id)
+
+        if db_ailie.is_guildless(ctx.author.id):
+            db_ailie.create_guild(ctx.author.id, guild_id, guild_name)
+            await ctx.send(
+                f"Congratulations, <@{ctx.author.id}>! You have created "
+                + f"a Guild named, `{guild_name}` with the ID, `{guild_id}`."
+            )
 
 
 def setup(bot):
