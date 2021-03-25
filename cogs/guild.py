@@ -20,7 +20,9 @@ class Guild(commands.Cog):
             guild_check = db_ailie.guild_exists(guild_id)
 
         if db_ailie.is_guildless(ctx.author.id):
-            db_ailie.create_guild(ctx.author.id, guild_id, guild_name)
+            db_ailie.create_guild(
+                ctx.author.id, "Guild Master", guild_id, guild_name
+            )
             await ctx.send(
                 f"Congratulations, <@{ctx.author.id}>! You have created "
                 + f"a Guild named, `{guild_name}` with the ID, `{guild_id}`."
@@ -38,10 +40,15 @@ class Guild(commands.Cog):
         db_ailie = DatabaseAilie(ctx.author.id)
 
         if db_ailie.is_guildless(ctx.author.id):
-            db_ailie.join_guild(ctx.author.id, guild_id)
+            db_ailie.join_guild(ctx.author.id, "Member", guild_id)
             await ctx.send(
                 f"<@{ctx.author.id}> has joined the guild "
                 + f"with an ID of `{guild_id}`."
+            )
+        else:
+            await ctx.send(
+                "Aren't you a very loyal person? You already "
+                + f"have a guild! No, <@{ctx.author.id}>?"
             )
 
 

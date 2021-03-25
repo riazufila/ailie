@@ -42,16 +42,21 @@ class DatabaseAilie:
             self.cursor.execute(query, data)
             self.connection.commit()
 
-    def create_guild(self, guardian_id, guild_id, guild_name):
+    def create_guild(
+        self, guardian_id, guardian_position, guild_id, guild_name
+    ):
         query = "INSERT INTO guilds (guild_id, guild_name) VALUES (%s, %s);"
         data = [guild_id, guild_name]
         self.cursor.execute(query, data)
         self.connection.commit()
-        self.join_guild(guardian_id, guild_id)
+        self.join_guild(guardian_id, guardian_position, guild_id)
 
-    def join_guild(self, guardian_id, guild_id):
-        query = "UPDATE guardians SET guild_id = %s WHERE guardian_id = %s;"
-        data = (guild_id, guardian_id)
+    def join_guild(self, guardian_id, guardian_position, guild_id):
+        query = (
+            "UPDATE guardians SET guild_id = %s, "
+            + "guardian_position = %s WHERE guardian_id = %s;"
+        )
+        data = (guild_id, guardian_position, guardian_id)
         self.cursor.execute(query, data)
         self.connection.commit()
 
