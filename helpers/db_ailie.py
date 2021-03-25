@@ -90,6 +90,24 @@ class DatabaseAilie:
         else:
             return False
 
+    def get_guild_master(self, guild_id):
+        query = (
+            "SELECT guardian_id FROM guardians WHERE "
+            + "guild_id = %s and guardian_position = %s;"
+        )
+        data = [guild_id, "Guild Master"]
+        self.cursor.execute(query, data)
+
+        row = self.cursor.fetchone()
+
+        if isinstance(row, tuple):
+            row = row[0]
+
+        if row:
+            return row
+        else:
+            return row
+
     def disconnect(self):
         self.cursor.close()
         self.connection.close()

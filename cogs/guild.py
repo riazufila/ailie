@@ -40,16 +40,48 @@ class Guild(commands.Cog):
         db_ailie = DatabaseAilie(ctx.author.id)
 
         if db_ailie.is_guildless(ctx.author.id):
-            db_ailie.join_guild(ctx.author.id, "Member", guild_id)
-            await ctx.send(
-                f"<@{ctx.author.id}> has joined the guild "
-                + f"with an ID of `{guild_id}`."
-            )
+            if db_ailie.guild_exists(guild_id):
+                # Get Guild Master
+                guild_master = db_ailie.get_guild_master(guild_id)
+
+                # Get Guild Master's confirmation
+                await ctx.send(
+                    f"<@{guild_master}>, please choose to accept or decline "
+                    + f"<@{ctx.author.id}> application with `Y` or `N`."
+                )
+
+                # Function to confirm application
+                def confirm_application(message):
+                    print(message.author)
+                    print(ctx.author.id)
+                    return (
+                        message.author.id == ctx.author.id
+                        and message.content.upper() in ["YES", "Y", "NO", "N"]
+                    )
+
+                # Wait for Guild Master's confirmation
+                msg = await self.bot.wait_for(
+                    "message", check=confirm_application, timeout=30
+                )
+
+                # Application accepted
+                if msg.content.upper() in ["YES", "Y"]:
+                    db_ailie.join_guild(ctx.author.id, "Member", guild_id)
+                    await ctx.send(f"Welcome to the Guild, <@{ctx.author.id}>!")
+                # Application rejected
+                else:
+                    await ctx.send(
+                        f"Application denied! Sorry, <@{ctx.author.id}>.."
+                    )
+            else:
+                await ctx.send("The guild you mentioned does not exist.")
         else:
             await ctx.send(
                 "Aren't you a very loyal person? You already "
                 + f"have a guild! No, <@{ctx.author.id}>?"
             )
+
+        db_ailie.disconnect()
 
 
 def setup(bot):
