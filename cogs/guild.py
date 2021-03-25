@@ -9,16 +9,19 @@ class Guild(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
+    # Create guild
     @commands.command(name="create", help="Create guild.")
     async def create(self, ctx, guild_name):
         db_ailie = DatabaseAilie(ctx.author.id)
         guild_check = True
         guild_id = 0
 
+        # Create a random Guild ID until there is no duplicate
         while guild_check:
             guild_id = random.randint(pow(10, 14), (pow(10, 15) - 1))
             guild_check = db_ailie.guild_exists(guild_id)
 
+        # Guild creation if and only if the user is guildless
         if db_ailie.is_guildless(ctx.author.id):
             db_ailie.create_guild(
                 ctx.author.id, "Guild Master", guild_id, guild_name
@@ -44,10 +47,14 @@ class Guild(commands.Cog):
                 # Get Guild Master
                 guild_master = db_ailie.get_guild_master(guild_id)
 
+                # Get Guild details
+                guild_id, guild_name = db_ailie.get_guild_id_name(guild_id)
+
                 # Get Guild Master's confirmation
                 await ctx.send(
                     f"<@{guild_master}>, please choose to accept or decline "
-                    + f"<@{ctx.author.id}> application with `Y` or `N`."
+                    + f"<@{ctx.author.id}> application to "
+                    + f"`{guild_name}#{guild_id}` with `Y` or `N`."
                 )
 
                 # Function to confirm application
@@ -67,7 +74,10 @@ class Guild(commands.Cog):
                 # Application accepted
                 if msg.content.upper() in ["YES", "Y"]:
                     db_ailie.join_guild(ctx.author.id, "Member", guild_id)
-                    await ctx.send(f"Welcome to the Guild, <@{ctx.author.id}>!")
+                    await ctx.send(
+                        f"Welcome to `{guild_name}#{guild_id}`, "
+                        + f"<@{ctx.author.id}>!"
+                    )
                 # Application rejected
                 else:
                     await ctx.send(
@@ -76,10 +86,14 @@ class Guild(commands.Cog):
             else:
                 await ctx.send("The guild you mentioned does not exist.")
         else:
-            await ctx.send(
-                "Aren't you a very loyal person? You already "
-                + f"have a guild! No, <@{ctx.author.id}>?"
-            )
+            if db_ailie.guild_exists(guild_id):
+                guild_id, guild_name = db_ailie.get_guild_id_name(guild_id)
+                await ctx.send(
+                    "Aren't you a very loyal person? You are already "
+                    + f"in `{guild_name}#{guild_id}`! No, <@{ctx.author.id}>?"
+                )
+            else:
+                await ctx.send("The guild you mentioned does not exist.")
 
         db_ailie.disconnect()
 

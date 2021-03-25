@@ -90,6 +90,16 @@ class DatabaseAilie:
         else:
             return False
 
+    def get_guild_id_name(self, guild_id):
+        query = "SELECT guild_id, guild_name FROM guilds WHERE guild_id = %s;"
+        data = [guild_id]
+        self.cursor.execute(query, data)
+
+        row = self.cursor.fetchone()
+
+        # Return Guild ID and Guild Name
+        return row[0], row[1]
+
     def get_guild_master(self, guild_id):
         query = (
             "SELECT guardian_id FROM guardians WHERE "
