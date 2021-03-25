@@ -31,6 +31,19 @@ class Guild(commands.Cog):
                 + f"already have one. No, <@{ctx.author.id}>?"
             )
 
+        db_ailie.disconnect()
+
+    @commands.command(name="join", help="Join guild.")
+    async def join(self, ctx, guild_id):
+        db_ailie = DatabaseAilie(ctx.author.id)
+
+        if db_ailie.is_guildless(ctx.author.id):
+            db_ailie.join_guild(ctx.author.id, guild_id)
+            await ctx.send(
+                f"<@{ctx.author.id}> has joined the guild "
+                + f"with an ID of `{guild_id}`."
+            )
+
 
 def setup(bot):
     bot.add_cog(Guild(bot))
