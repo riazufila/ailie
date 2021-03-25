@@ -5,7 +5,6 @@ import random
 import csv
 import discord
 from discord.ext import commands
-from helpers.db_ailie import Database
 
 
 class Summon(commands.Cog):
@@ -299,26 +298,6 @@ class Summon(commands.Cog):
         # If the value is valid, then the statements here is executed
         if one_or_ten == "10" or one_or_ten.lower() == "ten" or \
                 one_or_ten == "1" or one_or_ten.lower() == "one":
-            # Initialize and establish connection to database
-            ailie_db = Database()
-
-            # Check if guardian is available
-            guardian_info = ailie_db.getGuardianInfo(ctx.author.id)
-
-            # If guardian is not new. Then, just pull and add gems normally.
-            if guardian_info:
-                if ailie_db.checkTimeExpired(ctx.author.id):
-                    guardian_info["tmp_gems"] = 0
-                ailie_db.secondOrMorePulls(
-                        ctx.author.id, one_or_ten, guardian_info["tmp_gems"],
-                        guardian_info["total_gems"])
-            # If guardian is new. Then, add guardian records to the db.
-            else:
-                ailie_db.firstPull(ctx.author.id, one_or_ten)
-
-            # Close database
-            ailie_db.disconnect()
-
             # Variables used as a counter to check what is being summoned
             pity_check = False
             pity = False
@@ -442,13 +421,7 @@ class Summon(commands.Cog):
                 await asyncio.sleep(1.5)
                 counter += 1
 
-        # Get gems used in current session
-        ailie_db = Database()
-        guardian_info = ailie_db.getGuardianInfo(ctx.author.id)
-        ailie_db.disconnect()
-
         # Send the reply to fellow guardian
-        reply = f"{guardian_info['tmp_gems']} gems used. " + reply
         msg = await msg.reply(reply)
         await msg.add_reaction("💎")
 
