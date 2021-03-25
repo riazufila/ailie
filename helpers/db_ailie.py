@@ -31,7 +31,7 @@ class DatabaseAilie:
         data = [guardian_id]
         self.cursor.execute(query, data)
         row = self.cursor.fetchone()
-        if row[0]:
+        if row:
             initialized = True
         else:
             initialized = False
@@ -61,7 +61,11 @@ class DatabaseAilie:
         self.cursor.execute(query, data)
 
         row = self.cursor.fetchone()
-        if row[0]:
+
+        if isinstance(row, tuple):
+            row = row[0]
+
+        if row:
             return False
         else:
             return True
@@ -72,7 +76,11 @@ class DatabaseAilie:
         self.cursor.execute(query, data)
 
         row = self.cursor.fetchone()
-        if row[0]:
+
+        if isinstance(row, tuple):
+            row = row[0]
+
+        if row:
             return True
         else:
             return False

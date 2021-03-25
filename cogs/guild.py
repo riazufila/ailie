@@ -25,6 +25,11 @@ class Guild(commands.Cog):
                 f"Congratulations, <@{ctx.author.id}>! You have created "
                 + f"a Guild named, `{guild_name}` with the ID, `{guild_id}`."
             )
+        else:
+            await ctx.send(
+                "I don't think you should be creating a guild when you "
+                + f"already have one. No, <@{ctx.author.id}>?"
+            )
 
 
 def setup(bot):
