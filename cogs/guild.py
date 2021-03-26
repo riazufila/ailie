@@ -58,7 +58,7 @@ class Guild(commands.Cog):
                     return
 
                 # Get Guild details
-                guild_id, guild_name = db_ailie.get_guild_id_name(guild_id)
+                guild_name = db_ailie.get_guild_name(guild_id)
 
                 # Get Guild Master's confirmation
                 await ctx.send(
@@ -87,8 +87,7 @@ class Guild(commands.Cog):
                             f"Welcome to `{guild_name}#{guild_id}`, "
                             + f"<@{ctx.author.id}>!"
                         )
-                    # Application rejected
-                    else:
+                        # Application rejected else:
                         await ctx.send(
                             f"Application denied! Sorry, <@{ctx.author.id}>.."
                         )
@@ -100,13 +99,43 @@ class Guild(commands.Cog):
             else:
                 await ctx.send("The guild you mentioned does not exist.")
         else:
-            guild_id, guild_name = db_ailie.get_guild_id_name(guild_id)
+            guild_name = db_ailie.get_guild_name(guild_id)
             await ctx.send(
                 "Aren't you a very loyal person? You are already "
                 + f"in `{guild_name}#{guild_id}`! No, <@{ctx.author.id}>?"
             )
 
         db_ailie.disconnect()
+
+    @commands.command(name="members", help="List Guild members.")
+    async def members(self, ctx):
+        db_ailie = DatabaseAilie(ctx.author.id)
+
+        if not db_ailie.is_guildless(ctx.author.id):
+            # Get guild name to present in output
+            guild_name = db_ailie.get_guild_name_of_member(ctx.author.id)
+            members_output = f"*{guild_name}'s Members'*"
+
+            # Get all the members
+            members = db_ailie.get_members_list(ctx.author.id)
+            structured_member = ""
+            counter = 1
+            for member in members:
+                structured_member = structured_member + f"{counter}. "
+                structured_member = structured_member + f"{member[0]} "
+                if member[1] is not None:
+                    structured_member = (
+                        structured_member + f" a.k.a. {member[1]} "
+                    )
+                structured_member = structured_member + f"({member[2]})"
+                members_output = members_output + f"\n{structured_member}"
+                structured_member = ""
+                counter += 1
+        else:
+            await ctx.send(
+                "You can't list your Guild members if you're "
+                + f"not in a Guild, <@{ctx.author.id}>."
+            )
 
 
 def setup(bot):
