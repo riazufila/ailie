@@ -114,7 +114,7 @@ class Guild(commands.Cog):
         if not db_ailie.is_guildless(ctx.author.id):
             # Get guild name to present in output
             guild_name = db_ailie.get_guild_name_of_member(ctx.author.id)
-            members_output = f"*{guild_name}'s Members'*"
+            members_output = f"**{guild_name}'s Members**"
 
             # Get all the members
             members = db_ailie.get_members_list(ctx.author.id)
