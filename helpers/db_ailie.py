@@ -90,15 +90,18 @@ class DatabaseAilie:
         else:
             return False
 
-    def get_guild_id_name(self, guild_id):
-        query = "SELECT guild_id, guild_name FROM guilds WHERE guild_id = %s;"
+    def get_guild_name(self, guild_id):
+        query = "SELECT guild_name FROM guilds WHERE guild_id = %s;"
         data = [guild_id]
         self.cursor.execute(query, data)
 
         row = self.cursor.fetchone()
 
-        # Return Guild ID and Guild Name
-        return row[0], row[1]
+        if isinstance(row, tuple):
+            row = row[0]
+
+        # Return Guild Name
+        return row[0]
 
     def get_guild_master(self, guild_id):
         query = (
@@ -117,6 +120,44 @@ class DatabaseAilie:
             return row
         else:
             return row
+
+    def get_members_list(self, guardian_id):
+        query = "SELECT guild_id FROM guardians WHERE guardian_id = %s;"
+        data = [guardian_id]
+        self.cursor.execute(query, data)
+
+        row = self.cursor.fetchone()
+
+        if isinstance(row, tuple):
+            row = row[0]
+
+        guild_id = row
+
+        query = (
+            "SELECT guardian_id, guardian_username, guardian_position "
+            + "FROM guardians WHERE guild_id = %s;"
+        )
+        data = [guild_id]
+        self.cursor.execute(query, data)
+        members = self.cursor.fetchall()
+
+        return members
+
+    def get_guild_name_of_member(self, guardian_id):
+        query = (
+            "SELECT guild_name FROM guilds INNER JOIN guardians "
+            + "ON guilds.guild_id = guardians.guild_id "
+            + "WHERE guardians.guardian_id = %s;"
+        )
+        self.cursor.execute(query)
+        row = self.cursor.fetchone()
+
+        if isinstance(row, tuple):
+            row = row[0]
+
+        guild_name = row
+
+        return guild_name
 
     def disconnect(self):
         self.cursor.close()
