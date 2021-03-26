@@ -63,7 +63,7 @@ class Guild(commands.Cog):
                 # Get Guild Master's confirmation
                 await ctx.send(
                     f"<@{guild_master}>, please choose to accept or decline "
-                    + f"<@{ctx.author.id}> application to "
+                    + f"<@{ctx.author.id}>'s application to "
                     + f"`{guild_name}#{guild_id}` with `Y` or `N`."
                 )
 
@@ -75,21 +75,27 @@ class Guild(commands.Cog):
                     )
 
                 # Wait for Guild Master's confirmation
-                msg = await self.bot.wait_for(
-                    "message", check=confirm_application
-                )
-
-                # Application accepted
-                if msg.content.upper() in ["YES", "Y"]:
-                    db_ailie.join_guild(ctx.author.id, "Member", guild_id)
-                    await ctx.send(
-                        f"Welcome to `{guild_name}#{guild_id}`, "
-                        + f"<@{ctx.author.id}>!"
+                try:
+                    msg = await self.bot.wait_for(
+                        "message", check=confirm_application, timeout=30
                     )
-                # Application rejected
-                else:
+
+                    # Application accepted
+                    if msg.content.upper() in ["YES", "Y"]:
+                        db_ailie.join_guild(ctx.author.id, "Member", guild_id)
+                        await ctx.send(
+                            f"Welcome to `{guild_name}#{guild_id}`, "
+                            + f"<@{ctx.author.id}>!"
+                        )
+                    # Application rejected
+                    else:
+                        await ctx.send(
+                            f"Application denied! Sorry, <@{ctx.author.id}>.."
+                        )
+                except Exception:
                     await ctx.send(
-                        f"Application denied! Sorry, <@{ctx.author.id}>.."
+                        "Looks like your application got ignored, "
+                        + f"<@{ctx.author.id}>. Ouch!"
                     )
             else:
                 await ctx.send("The guild you mentioned does not exist.")
