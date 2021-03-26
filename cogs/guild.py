@@ -46,16 +46,17 @@ class Guild(commands.Cog):
         # Get Guild Master
         guild_master = db_ailie.get_guild_master(guild_id)
 
-        # Check if Guild Master is in the Discord Server
-        discord_server = self.bot.get_guild(ctx.message.guild.id)
-        if not discord_server.get_member(guild_master):
-            await ctx.send(
-                "You must be in the same Discord Server as the Guild Master."
-            )
-            return
-
         if db_ailie.is_guildless(ctx.author.id):
             if db_ailie.guild_exists(guild_id):
+                # Check if Guild Master is in the Discord Server
+                discord_server = self.bot.get_guild(ctx.message.guild.id)
+                if not discord_server.get_member(guild_master):
+                    await ctx.send(
+                        "You must be in the same Discord Server "
+                        + "as the Guild Master."
+                    )
+                    return
+
                 # Get Guild details
                 guild_id, guild_name = db_ailie.get_guild_id_name(guild_id)
 
