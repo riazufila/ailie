@@ -40,13 +40,22 @@ class Guild(commands.Cog):
 
     @commands.command(name="join", help="Join guild.")
     async def join(self, ctx, guild_id):
+        # Initialize database
         db_ailie = DatabaseAilie(ctx.author.id)
+
+        # Get Guild Master
+        guild_master = db_ailie.get_guild_master(guild_id)
+
+        # Check if Guild Master is in the Discord Server
+        discord_server = self.bot.get_guild(ctx.message.guild.id)
+        if not discord_server.get_member(guild_master):
+            await ctx.send(
+                "You must be in the same Discord Server as the Guild Master."
+            )
+            return
 
         if db_ailie.is_guildless(ctx.author.id):
             if db_ailie.guild_exists(guild_id):
-                # Get Guild Master
-                guild_master = db_ailie.get_guild_master(guild_id)
-
                 # Get Guild details
                 guild_id, guild_name = db_ailie.get_guild_id_name(guild_id)
 
@@ -59,8 +68,6 @@ class Guild(commands.Cog):
 
                 # Function to confirm application
                 def confirm_application(message):
-                    print(message.author)
-                    print(ctx.author.id)
                     return (
                         message.author.id == ctx.author.id
                         and message.content.upper() in ["YES", "Y", "NO", "N"]
