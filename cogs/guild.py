@@ -70,13 +70,13 @@ class Guild(commands.Cog):
                 # Function to confirm application
                 def confirm_application(message):
                     return (
-                        message.author.id == ctx.author.id
+                        message.author.id == guild_master
                         and message.content.upper() in ["YES", "Y", "NO", "N"]
                     )
 
                 # Wait for Guild Master's confirmation
                 msg = await self.bot.wait_for(
-                    "message", check=confirm_application, timeout=30
+                    "message", check=confirm_application
                 )
 
                 # Application accepted
