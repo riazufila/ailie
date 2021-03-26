@@ -101,6 +101,11 @@ class Info(commands.Cog):
             await ctx.send_help(ctx.command)
             await asyncio.sleep(0.5)
             await msg.edit(content=msg.content + " Will that help?")
+        elif isinstance(error, asyncio.TimeoutError):
+            await ctx.send(
+                f"Looks like your application got ignored, <@{ctx.author.id}>. "
+                + "Ouch!"
+            )
         else:
             await ctx.send(
                 "**Oops! Looks like you found a bug.**"
