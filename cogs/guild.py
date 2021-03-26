@@ -94,14 +94,11 @@ class Guild(commands.Cog):
             else:
                 await ctx.send("The guild you mentioned does not exist.")
         else:
-            if db_ailie.guild_exists(guild_id):
-                guild_id, guild_name = db_ailie.get_guild_id_name(guild_id)
-                await ctx.send(
-                    "Aren't you a very loyal person? You are already "
-                    + f"in `{guild_name}#{guild_id}`! No, <@{ctx.author.id}>?"
-                )
-            else:
-                await ctx.send("The guild you mentioned does not exist.")
+            guild_id, guild_name = db_ailie.get_guild_id_name(guild_id)
+            await ctx.send(
+                "Aren't you a very loyal person? You are already "
+                + f"in `{guild_name}#{guild_id}`! No, <@{ctx.author.id}>?"
+            )
 
         db_ailie.disconnect()
 
