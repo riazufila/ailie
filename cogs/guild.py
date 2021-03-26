@@ -131,6 +131,9 @@ class Guild(commands.Cog):
                 members_output = members_output + f"\n{structured_member}"
                 structured_member = ""
                 counter += 1
+
+            # Finally send the list
+            await ctx.send(members_output)
         else:
             await ctx.send(
                 "You can't list your Guild members if you're "

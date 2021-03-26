@@ -149,7 +149,8 @@ class DatabaseAilie:
             + "ON guilds.guild_id = guardians.guild_id "
             + "WHERE guardians.guardian_id = %s;"
         )
-        self.cursor.execute(query)
+        data = [guardian_id]
+        self.cursor.execute(query, data)
         row = self.cursor.fetchone()
 
         if isinstance(row, tuple):
