@@ -414,11 +414,11 @@ class Summon(commands.Cog):
                 await msg.edit(
                         content=msg.content
                         + f"\n{counter}. {box}\n{counter + 1}. {next(boxes)}")
-                await asyncio.sleep(1.5)
+                await asyncio.sleep(1.7)
                 counter += 2
             else:
                 await msg.edit(content=msg.content + f"\n{counter}. {box}")
-                await asyncio.sleep(1.5)
+                await asyncio.sleep(1.7)
                 counter += 1
 
         # Send the reply to fellow guardian
@@ -459,7 +459,7 @@ class Summon(commands.Cog):
     # Summon heroes or equipments either on the normal or pick up banne.
     @commands.command(
             name="summon", help="Summon heroes or equipments.", aliases=["s"])
-    @commands.cooldown(1, 15, commands.BucketType.user)
+    @commands.cooldown(1, 20, commands.BucketType.user)
     async def summon(self, ctx, type, count, *target):
         # Initialize variables to return for display
         boxes = []

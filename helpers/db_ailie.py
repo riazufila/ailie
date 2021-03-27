@@ -44,15 +44,31 @@ class DatabaseAilie:
 
     def get_guardian_info(self, guardian_id):
         query = (
-            "SELECT guardian_username, guild_name, "
-            + "guardian_position FROM guardians INNER JOIN guilds "
-            + "ON guardians.guild_id = guilds.guild_id WHERE guardian_id = %s;"
+            "SELECT guardian_username, guild_id FROM guardians "
+            + "WHERE guardian_id = %s;"
         )
         data = [guardian_id]
         self.cursor.execute(query, data)
         row = self.cursor.fetchone()
+        guild_username = row[0]
 
-        return row[0], row[1], row[2]
+        if row[1]:
+            query = (
+                "SELECT guild_name, guardian_position FROM guardians "
+                + "INNER JOIN guilds ON guardians.guild_id = "
+                + "guilds.guild_id WHERE guardian_id = %s;"
+            )
+            data = [guardian_id]
+            self.cursor.execute(query, data)
+            row = self.cursor.fetchone()
+
+            guild_name = row[0]
+            guardian_position = row[1]
+        else:
+            guild_name = None
+            guardian_position = None
+
+        return guild_username, guild_name, guardian_position
 
     def create_guild(
         self, guardian_id, guardian_position, guild_id, guild_name
@@ -113,7 +129,7 @@ class DatabaseAilie:
             row = row[0]
 
         # Return Guild Name
-        return row[0]
+        return row
 
     def get_guild_master(self, guild_id):
         query = (
@@ -193,6 +209,26 @@ class DatabaseAilie:
         guild_id = row
 
         return guild_id
+
+    def total_members(self, guild_id):
+        query = "SELECT guardian_id FROM guardians WHERE guild_id = %s;"
+        data = [guild_id]
+        self.cursor.execute(query, data)
+
+        row = self.cursor.fetchall()
+
+        return len(row)
+
+    def disband_guild(self, guild_id):
+        query = "UPDATE guardians SET guild_id = NULL WHERE guild_id = %s;"
+        data = [guild_id]
+        self.cursor.execute(query, data)
+
+        query = "DELETE FROM guilds WHERE guild_id = %s;"
+        data = [guild_id]
+        self.cursor.execute(query, data)
+
+        self.connection.commit()
 
     def quit_guild(self, guardian_id):
         query = "UPDATE guardians SET guild_id = NULL WHERE guardian_id = %s;"
