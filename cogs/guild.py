@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import random
+import discord
 from discord.ext import commands
 from helpers.db_ailie import DatabaseAilie
 
@@ -114,7 +115,7 @@ class Guild(commands.Cog):
         if not db_ailie.is_guildless(ctx.author.id):
             # Get guild name to present in output
             guild_name = db_ailie.get_guild_name_of_member(ctx.author.id)
-            members_output = f"**{guild_name}'s Members**"
+            members_output = ""
 
             # Get all the members
             members = db_ailie.get_members_list(ctx.author.id)
@@ -133,7 +134,14 @@ class Guild(commands.Cog):
                 counter += 1
 
             # Finally send the list
-            await ctx.send(members_output)
+            embed = discord.Embed(
+                color=discord.Color.purple(),
+            )
+            embed.set_author(icon_url=self.bot.user.avatar_url, name="Ailie")
+            embed.add_field(
+                name=f"**{guild_name}'s Members**", value=members_output
+            )
+            await ctx.send(embed=embed)
         else:
             await ctx.send(
                 "You can't list your Guild members if you're "
