@@ -132,6 +132,7 @@ class Guild(commands.Cog):
         # Initialize variables
         db_ailie = DatabaseAilie(ctx.author.id)
         position = " ".join(position)
+        position = position.title()
 
         # Check if author has a guild
         if db_ailie.is_guildless(ctx.author.id):
@@ -148,7 +149,7 @@ class Guild(commands.Cog):
             return
 
         # Check position
-        if position.lower() not in ["Guild Master", "Raid Checker", "Member"]:
+        if position.lower() not in ["guild master", "raid checker", "member"]:
             await ctx.send(
                 "The position you entered is invalid. For now, only "
                 + "Guild Master, Raid Checker, and Member is available."
@@ -159,6 +160,36 @@ class Guild(commands.Cog):
             guardian_one = db_ailie.get_guild_id_of_member(member.id)
             guardian_two = db_ailie.get_guild_id_of_member(ctx.author.id)
             if guardian_one == guardian_two:
+                if position.lower() == "guild master":
+                    # Ask for confirmation to change Guild Master
+                    await ctx.send(
+                        "Are you sure you want to transfer "
+                        + "Guild Master? Reply with `Y` or `N`."
+                    )
+
+                    # Function to confirm promotion to Guild Master
+                    def confirm_application(message):
+                        return (
+                            message.author.id == ctx.author.id
+                            and message.content.upper()
+                            in ["YES", "Y", "NO", "N"]
+                        )
+
+                    try:
+                        msg = await self.bot.wait_for(
+                            "message", check=confirm_application, timeout=30
+                        )
+                        if msg.content.upper() in ["YES", "Y"]:
+                            await ctx.send(
+                                "Transferring Guild Master position now.."
+                            )
+                            db_ailie.change_position(guild_master, "Member")
+                        else:
+                            await ctx.send("Aborting Guild Master transfer!")
+                    except Exception:
+                        await ctx.send("Timeout!")
+                        return
+
                 db_ailie.change_position(member.id, position)
                 await ctx.send(f"Changed position of {member} to {position}.")
             else:
