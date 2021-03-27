@@ -10,6 +10,7 @@ class Guardian(commands.Cog):
         self.bot = bot
 
     @commands.command(name="profile", help="View profile.")
+    @commands.cooldown(1, 15, commands.BucketType.user)
     async def profile(self, ctx):
         db_ailie = DatabaseAilie(ctx.author.id)
         username, guild_name, position, gems = db_ailie.get_guardian_info(
@@ -28,7 +29,19 @@ class Guardian(commands.Cog):
         embed.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
         embed.add_field(name="Guardian's Profile", value=output)
 
+        db_ailie.disconnect()
         await ctx.send(embed=embed)
+
+    @commands.command(name="username", help="Set username.")
+    @commands.cooldown(1, 60, commands.BucketType.user)
+    async def username(self, ctx, username):
+        db_ailie = DatabaseAilie(ctx.author.id)
+        db_ailie.set_username(ctx.author.id, username)
+        await ctx.send(
+            f"Your username is now, {username}. Enjoy, <@{ctx.author.id}>."
+        )
+
+        return
 
 
 def setup(bot):
