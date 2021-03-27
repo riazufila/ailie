@@ -277,7 +277,7 @@ class DatabaseAilie:
             "UPDATE guardians SET guardian_username = %s "
             + "WHERE guardian_id = %s;"
         )
-        data = [guardian_id, guardian_username]
+        data = [guardian_username, guardian_id]
         self.cursor.execute(query, data)
         self.connection.commit()
 
