@@ -5,7 +5,7 @@ import discord
 from discord.ext import commands
 
 
-class Info(commands.Cog):
+class Bot(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         # Assign help command to Info category
@@ -111,4 +111,4 @@ class Info(commands.Cog):
 
 
 def setup(bot):
-    bot.add_cog(Info(bot))
+    bot.add_cog(Bot(bot))
