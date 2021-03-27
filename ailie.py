@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 
 import os
-from helpers.minimal_discord_help import Help
+import discord
+from helpers.help import Help
 from dotenv import load_dotenv
 from discord.ext import commands
 
@@ -11,14 +12,23 @@ if __name__ == "__main__":
     TOKEN = os.getenv("DISCORD_TOKEN")
 
     # Bot setup
+    intents = discord.Intents.default()
+    intents.members = True
     bot = commands.Bot(
         command_prefix=["ailie;", "a;"],
         description="Guardian's collector.",
         help_command=Help(),
+        intents=intents,
     )
 
     # Load extensions
-    extensions = ["cogs.info", "cogs.summon", "cogs.guild", "cogs.misc"]
+    extensions = [
+        "cogs.bot",
+        "cogs.summon",
+        "cogs.guild",
+        "cogs.guardian",
+        "cogs.misc",
+    ]
 
     for extension in extensions:
         bot.load_extension(extension)
