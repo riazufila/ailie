@@ -66,9 +66,14 @@ class Help(commands.MinimalHelpCommand):
 
     # Command signature
     def get_command_signature(self, command):
+        if command.signature:
+            encased_command_signature = f"`{command.signature}`"
+        else:
+            encased_command_signature = command.signature
+
         return (
             f"`{self.clean_prefix}{command.qualified_name}` "
-            + f"`{command.signature}`"
+            + f"{encased_command_signature}"
         )
 
     # Get opening note
