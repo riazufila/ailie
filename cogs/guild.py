@@ -123,7 +123,9 @@ class Guild(commands.Cog):
             counter = 1
             for member in members:
                 structured_member = structured_member + f"{counter}. "
-                structured_member = structured_member + f"{member[0]} "
+                structured_member = (
+                    structured_member + f"{self.bot.get_user(member[0])} "
+                )
                 if member[1] is not None:
                     structured_member = (
                         structured_member + f" a.k.a. {member[1]} "
