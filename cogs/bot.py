@@ -70,12 +70,6 @@ class Bot(commands.Cog):
                 + f"the parameters wrong, <@{ctx.author.id}>."
             )
             await ctx.send_help(ctx.command)
-            await asyncio.sleep(0.5)
-            await msg.edit(
-                content=msg.content
-                + " The one enclosed in `<` and `>` is required while the one "
-                + "in `[` and `]` is optional. Got it?"
-            )
         elif isinstance(error, commands.MemberNotFound):
             msg = await ctx.send(
                 "No such members. Try again, but try with someone in the "
