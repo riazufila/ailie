@@ -83,6 +83,38 @@ class Currency(commands.Cog):
 
         await ctx.send(random.choice(reply))
 
+    @commands.command(name="gamble", help="Gamble gems.")
+    @commands.cooldown(1, 15, commands.BucketType.user)
+    async def gamble(self, ctx, gems: int):
+        gems_obtained = random.choices([-gems, gems], [50, 50], k=1)
+
+        # Assign gem amount from array to single variable
+        for gems in gems_obtained:
+            gems = gems
+
+        # Store and display gems obtained
+        if gems < 0:
+            lost_gems = -gems
+            reply = [
+                f"<@{ctx.author.id}>, you lost {lost_gems} gems. HAHA.",
+                f"Condolences to <@{ctx.author.id}> for losing {lost_gems} "
+                + "gems.",
+                f"Welp. Lost {lost_gems} gems. Too bad, <@[ctx.author.id]>.",
+            ]
+        else:
+            reply = [
+                f"<@{ctx.author.id}>, your luck is omnipotent! Gained "
+                + f"{gems} gems.",
+                f"Congratulations for winning {gems} gems, <@{ctx.author.id}>!",
+                f"Keep the gems rolling, <@{ctx.author.id}>. {gems} gems "
+                + "obtained!",
+            ]
+
+        db_ailie = DatabaseAilie(ctx.author.id)
+        db_ailie.store_gems(ctx.author.id, gems)
+
+        await ctx.send(random.choice(reply))
+
 
 def setup(bot):
     bot.add_cog(Currency(bot))
