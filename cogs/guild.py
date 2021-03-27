@@ -115,7 +115,7 @@ class Guild(commands.Cog):
         if not db_ailie.is_guildless(ctx.author.id):
             # Get guild name to present in output
             guild_name = db_ailie.get_guild_name_of_member(ctx.author.id)
-            members_output = ""
+            members_output = []
 
             # Get all the members
             members = db_ailie.get_members_list(ctx.author.id)
@@ -129,7 +129,7 @@ class Guild(commands.Cog):
                         structured_member + f" a.k.a. {member[1]} "
                     )
                 structured_member = structured_member + f"({member[2]})"
-                members_output = members_output + f"\n{structured_member}"
+                members_output.append(structured_member)
                 structured_member = ""
                 counter += 1
 
@@ -139,7 +139,8 @@ class Guild(commands.Cog):
             )
             embed.set_author(icon_url=self.bot.user.avatar_url, name="Ailie")
             embed.add_field(
-                name=f"**{guild_name}'s Members**", value=members_output
+                name=f"**{guild_name}'s Members**",
+                value="\n".join(members_output),
             )
             await ctx.send(embed=embed)
         else:
