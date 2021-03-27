@@ -118,14 +118,18 @@ class Guild(commands.Cog):
             if ctx.author.id == guild_master:
                 await ctx.send(
                     "You're the Guild Master and you want to run away from "
-                    + "your responsibilities? Sorry, but NO!"
+                    + f"your responsibilities, <@{ctx.author.id}>? "
+                    + "Sorry, but NO!"
                 )
                 return
             else:
                 db_ailie.quit_guild(ctx.author.id)
                 await ctx.send("You're solo now.")
         else:
-            await ctx.send("Can't quit a Guild when you don't even have one.")
+            await ctx.send(
+                "Can't quit a Guild when you don't even have one, "
+                + f"<@{ctx.author.id}>."
+            )
 
     @commands.command(name="promote", help="Change members' position.")
     async def promote(self, ctx, member: discord.Member, *position):
@@ -136,7 +140,7 @@ class Guild(commands.Cog):
 
         # Check if author has a guild
         if db_ailie.is_guildless(ctx.author.id):
-            await ctx.send("You're not even in a Guild!")
+            await ctx.send(f"You're not even in a Guild, <@{ctx.author.id}>!")
             return
 
         # Check if author is Guild Master
@@ -144,13 +148,16 @@ class Guild(commands.Cog):
         guild_master = db_ailie.get_guild_master(guild_id)
         if ctx.author.id != guild_master:
             await ctx.send(
-                "You're not privileged to change positions of other members."
+                "You're not privileged to change positions of "
+                + f"other members, <@{ctx.author.id}>."
             )
             return
 
         # Abort command upon changing own position
         if guild_master == member.id:
-            await ctx.send("Can't change your own position!")
+            await ctx.send(
+                f"Can't change your own position, <@{ctx.author.id}>!"
+            )
             return
 
         # Check position
@@ -169,7 +176,8 @@ class Guild(commands.Cog):
                     # Ask for confirmation to change Guild Master
                     await ctx.send(
                         "Are you sure you want to transfer "
-                        + "Guild Master? Reply with `Y` or `N`."
+                        + f"Guild Master to {member}? Reply with "
+                        + "`Y` or `N` to confirm."
                     )
 
                     # Function to confirm promotion to Guild Master
@@ -224,11 +232,11 @@ class Guild(commands.Cog):
             for member in members:
                 structured_member = structured_member + f"{counter}. "
                 structured_member = (
-                    structured_member + f"{self.bot.get_user(member[0])} "
+                    structured_member + f"`{self.bot.get_user(member[0])}` "
                 )
                 if member[1] is not None:
                     structured_member = (
-                        structured_member + f" a.k.a. {member[1]} "
+                        structured_member + f" a.k.a. `{member[1]}` "
                     )
                 structured_member = structured_member + f"({member[2]})"
                 members_output.append(structured_member)
