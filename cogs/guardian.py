@@ -12,14 +12,16 @@ class Guardian(commands.Cog):
     @commands.command(name="profile", help="View profile.")
     async def profile(self, ctx):
         db_ailie = DatabaseAilie(ctx.author.id)
-        username, guild_name, position = db_ailie.get_guardian_info(
+        username, guild_name, position, gems = db_ailie.get_guardian_info(
             ctx.author.id
         )
         guild_id = db_ailie.get_guild_id_of_member(ctx.author.id)
 
         output = (
-            f"**Username**: `{username}`\n**Guild**: "
-            + f"`{guild_name}`#`{guild_id}`\n**Position**: `{position}`"
+            f"**Username**: `{username}`"
+            + f"\n**Gems**: `{gems}` 💎"
+            + f"\n**Guild**: `{guild_name}`#`{guild_id}`"
+            + f"\n**Position**: `{position}`"
         )
 
         embed = discord.Embed(color=discord.Color.purple())

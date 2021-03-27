@@ -44,13 +44,14 @@ class DatabaseAilie:
 
     def get_guardian_info(self, guardian_id):
         query = (
-            "SELECT guardian_username, guild_id FROM guardians "
+            "SELECT guardian_username, guild_id, guardian_gems FROM guardians "
             + "WHERE guardian_id = %s;"
         )
         data = [guardian_id]
         self.cursor.execute(query, data)
         row = self.cursor.fetchone()
         guild_username = row[0]
+        gems = row[2]
 
         if row[1]:
             query = (
@@ -68,7 +69,7 @@ class DatabaseAilie:
             guild_name = None
             guardian_position = None
 
-        return guild_username, guild_name, guardian_position
+        return guild_username, guild_name, guardian_position, gems
 
     def create_guild(
         self, guardian_id, guardian_position, guild_id, guild_name
@@ -235,6 +236,41 @@ class DatabaseAilie:
         data = [guardian_id]
         self.cursor.execute(query, data)
         self.connection.commit()
+
+    def store_gems(self, guardian_id, gems):
+        # Get already existing gems
+        query = "SELECT guardian_gems FROM guardians WHERE guardian_id = %s;"
+        data = [guardian_id]
+        self.cursor.execute(query, data)
+
+        row = self.cursor.fetchone()
+
+        if isinstance(row, tuple):
+            row = row[0]
+
+        # Add total gems
+        gems = row + gems
+
+        # Update into database
+        query = (
+            "UPDATE guardians SET guardian_gems = %s WHERE guardian_id = %s;"
+        )
+        data = [gems, guardian_id]
+        self.cursor.execute(query, data)
+        self.connection.commit()
+
+    def get_gems(self, guardian_id):
+        # Get already existing gems
+        query = "SELECT guardian_gems FROM guardians WHERE guardian_id = %s;"
+        data = [guardian_id]
+        self.cursor.execute(query, data)
+
+        row = self.cursor.fetchone()
+
+        if isinstance(row, tuple):
+            row = row[0]
+
+        return row
 
     def disconnect(self):
         self.cursor.close()

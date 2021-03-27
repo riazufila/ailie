@@ -176,7 +176,7 @@ class Guild(commands.Cog):
             return
 
         # Check position
-        if position.lower() not in ["guild master", "raid checker", "member"]:
+        if position.lower() not in ["guild master", "elder", "member"]:
             await ctx.send(
                 "The position you entered is invalid. For now, only "
                 + "Guild Master, Raid Checker, and Member is available."
