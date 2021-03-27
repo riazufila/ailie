@@ -33,6 +33,11 @@ class Guardian(commands.Cog):
 
     @commands.command(name="username", help="Set username.")
     async def username(self, ctx, username):
+        db_ailie = DatabaseAilie(ctx.author.id)
+        db_ailie.set_username(ctx.author.id, username)
+        await ctx.send(
+            f"Your username is now, {username}. Enjoy, <@{ctx.author.id}>."
+        )
 
         return
 
