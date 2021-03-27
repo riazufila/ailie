@@ -44,6 +44,7 @@ class Currency(commands.Cog):
 
         db_ailie = DatabaseAilie(ctx.author.id)
         db_ailie.store_gems(ctx.author.id, gems)
+        db_ailie.disconnect()
 
         await ctx.send(random.choice(reply))
 
@@ -80,13 +81,20 @@ class Currency(commands.Cog):
 
         db_ailie = DatabaseAilie(ctx.author.id)
         db_ailie.store_gems(ctx.author.id, gems)
+        db_ailie.disconnect()
 
         await ctx.send(random.choice(reply))
 
     @commands.command(name="gamble", help="Gamble gems.")
     @commands.cooldown(1, 15, commands.BucketType.user)
     async def gamble(self, ctx, gems: int):
+        # Disallow negative numbers as input
+        if gems <= 0:
+            await ctx.send(f"Are you okay, <@{ctx.author.id}>?")
+            return
+
         # Check if gems is available to gamble
+        db_ailie = DatabaseAilie(ctx.author.id)
         current_gems = db_ailie.get_gems(ctx.author.id)
         balance = current_gems - gems
         if balance < 0:
@@ -94,6 +102,7 @@ class Currency(commands.Cog):
                 "You don't have enough gems to gamble, "
                 + f"<@{ctx.author.id}>.."
             )
+            return
 
         # 50% chance of gambled gems being negative or positive
         gems_obtained = random.choices([-gems, gems], [50, 50], k=1)
@@ -122,6 +131,7 @@ class Currency(commands.Cog):
 
         db_ailie = DatabaseAilie(ctx.author.id)
         db_ailie.store_gems(ctx.author.id, gems)
+        db_ailie.disconnect()
 
         await ctx.send(random.choice(reply))
 
