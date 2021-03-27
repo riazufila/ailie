@@ -28,7 +28,13 @@ class Guardian(commands.Cog):
         embed.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
         embed.add_field(name="Guardian's Profile", value=output)
 
+        db_ailie.disconnect()
         await ctx.send(embed=embed)
+
+    @commands.command(name="username", help="Set username.")
+    async def username(self, ctx, username):
+
+        return
 
 
 def setup(bot):

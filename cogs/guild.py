@@ -146,6 +146,8 @@ class Guild(commands.Cog):
                 + f"<@{ctx.author.id}>."
             )
 
+        db_ailie.disconnect()
+
     @commands.command(name="promote", help="Change members' position.")
     async def promote(self, ctx, member: discord.Member, *position):
         # Initialize variables
@@ -231,6 +233,8 @@ class Guild(commands.Cog):
                     "Do it again. But mention someone in your Guild!"
                 )
 
+        db_ailie.disconnect()
+
     @commands.command(name="members", help="List Guild members.")
     async def members(self, ctx):
         db_ailie = DatabaseAilie(ctx.author.id)
@@ -273,6 +277,8 @@ class Guild(commands.Cog):
                 "You can't list your Guild members if you're "
                 + f"not in a Guild, <@{ctx.author.id}>."
             )
+
+        db_ailie.disconnect()
 
 
 def setup(bot):
