@@ -148,6 +148,11 @@ class Guild(commands.Cog):
             )
             return
 
+        # Abort command upon changing own position
+        if guild_master == member.id:
+            await ctx.send("Can't change your own position!")
+            return
+
         # Check position
         if position.lower() not in ["guild master", "raid checker", "member"]:
             await ctx.send(
@@ -184,14 +189,20 @@ class Guild(commands.Cog):
                                 "Transferring Guild Master position now.."
                             )
                             db_ailie.change_position(guild_master, "Member")
+                            db_ailie.change_position(member.id, position)
+                            await ctx.send(
+                                f"Changed position of {member} to {position}."
+                            )
                         else:
                             await ctx.send("Aborting Guild Master transfer!")
                     except Exception:
                         await ctx.send("Timeout!")
                         return
-
-                db_ailie.change_position(member.id, position)
-                await ctx.send(f"Changed position of {member} to {position}.")
+                else:
+                    db_ailie.change_position(member.id, position)
+                    await ctx.send(
+                        f"Changed position of {member} to {position}."
+                    )
             else:
                 await ctx.send(
                     "Do it again. But mention someone in your Guild!"
