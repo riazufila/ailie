@@ -40,7 +40,7 @@ class Guild(commands.Cog):
         db_ailie.disconnect()
 
     @commands.command(name="join", help="Join guild.")
-    async def join(self, ctx, guild_id):
+    async def join(self, ctx, guild_id: int):
         # Initialize database
         db_ailie = DatabaseAilie(ctx.author.id)
 
@@ -49,6 +49,13 @@ class Guild(commands.Cog):
 
         if db_ailie.is_guildless(ctx.author.id):
             if db_ailie.guild_exists(guild_id):
+                # Check if guild is full
+                if db_ailie.total_members(guild_id) >= 30:
+                    await ctx.send(
+                        f"The guild is full. Sorry, <@{ctx.author.id}>."
+                    )
+                    return
+
                 # Check if Guild Master is in the Discord Server
                 discord_server = self.bot.get_guild(ctx.message.guild.id)
                 if not discord_server.get_member(guild_master):
@@ -88,6 +95,7 @@ class Guild(commands.Cog):
                             f"Welcome to `{guild_name}`#`{guild_id}`, "
                             + f"<@{ctx.author.id}>!"
                         )
+                    else:
                         # Application rejected else:
                         await ctx.send(
                             f"Application denied! Sorry, <@{ctx.author.id}>.."
@@ -115,16 +123,23 @@ class Guild(commands.Cog):
         if not db_ailie.is_guildless(ctx.author.id):
             guild_id = db_ailie.get_guild_id_of_member(ctx.author.id)
             guild_master = db_ailie.get_guild_master(guild_id)
-            if ctx.author.id == guild_master:
-                await ctx.send(
-                    "You're the Guild Master and you want to run away from "
-                    + f"your responsibilities, <@{ctx.author.id}>? "
-                    + "Sorry, but NO!"
-                )
-                return
+            total_members = db_ailie.total_members(guild_id)
+            if total_members != 1:
+                if ctx.author.id == guild_master:
+                    await ctx.send(
+                        "You're the Guild Master and you want to run away from "
+                        + f"your responsibilities, <@{ctx.author.id}>? "
+                        + "Sorry, but NO!"
+                    )
+                    return
+                else:
+                    db_ailie.quit_guild(ctx.author.id)
+                    await ctx.send(f"You're solo now, <@{ctx.author.id}>.")
             else:
                 db_ailie.quit_guild(ctx.author.id)
-                await ctx.send("You're solo now.")
+                db_ailie.disband_guild(guild_id)
+                await ctx.send(f"You're solo now, <@{ctx.author.id}>.")
+
         else:
             await ctx.send(
                 "Can't quit a Guild when you don't even have one, "
