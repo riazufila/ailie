@@ -42,6 +42,18 @@ class DatabaseAilie:
             self.cursor.execute(query, data)
             self.connection.commit()
 
+    def get_guardian_info(self, guardian_id):
+        query = (
+            "SELECT guardian_username, guild_name, "
+            + "guardian_position FROM guardians INNER JOIN guilds "
+            + "ON guardians.guild_id = guilds.guild_id WHERE guardian_id = %s;"
+        )
+        data = [guardian_id]
+        self.cursor.execute(query, data)
+        row = self.cursor.fetchone()
+
+        return row[0], row[1], row[2]
+
     def create_guild(
         self, guardian_id, guardian_position, guild_id, guild_name
     ):

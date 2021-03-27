@@ -65,7 +65,7 @@ class Guild(commands.Cog):
                 await ctx.send(
                     f"<@{guild_master}>, please choose to accept or decline "
                     + f"<@{ctx.author.id}>'s application to "
-                    + f"`{guild_name}#{guild_id}` with `Y` or `N`."
+                    + f"`{guild_name}`#`{guild_id}` with `Y` or `N`."
                 )
 
                 # Function to confirm application
@@ -85,7 +85,7 @@ class Guild(commands.Cog):
                     if msg.content.upper() in ["YES", "Y"]:
                         db_ailie.join_guild(ctx.author.id, "Member", guild_id)
                         await ctx.send(
-                            f"Welcome to `{guild_name}#{guild_id}`, "
+                            f"Welcome to `{guild_name}`#`{guild_id}`, "
                             + f"<@{ctx.author.id}>!"
                         )
                         # Application rejected else:
@@ -103,7 +103,7 @@ class Guild(commands.Cog):
             guild_name = db_ailie.get_guild_name(guild_id)
             await ctx.send(
                 "Aren't you a very loyal person? You are already "
-                + f"in `{guild_name}#{guild_id}`! No, <@{ctx.author.id}>?"
+                + f"in `{guild_name}`#`{guild_id}`! No, <@{ctx.author.id}>?"
             )
 
         db_ailie.disconnect()

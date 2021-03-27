@@ -22,7 +22,13 @@ if __name__ == "__main__":
     )
 
     # Load extensions
-    extensions = ["cogs.bot", "cogs.summon", "cogs.guild", "cogs.misc"]
+    extensions = [
+        "cogs.bot",
+        "cogs.summon",
+        "cogs.guild",
+        "cogs.guardian",
+        "cogs.misc",
+    ]
 
     for extension in extensions:
         bot.load_extension(extension)
