@@ -238,6 +238,20 @@ class DatabaseAilie:
         self.connection.commit()
 
     def store_gems(self, guardian_id, gems):
+        # Get already existing gems
+        query = "SELECT guardian_gems FROM guardians WHERE guardian_id = %s;"
+        data = [guardian_id]
+        self.cursor.execute(query, data)
+
+        row = self.cursor.fetchone()
+
+        if isinstance(row, tuple):
+            row = row[0]
+
+        # Add total gems
+        gems = row + gems
+
+        # Update into database
         query = (
             "UPDATE guardians SET guardian_gems = %s WHERE guardian_id = %s;"
         )
