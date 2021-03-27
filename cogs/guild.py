@@ -108,6 +108,25 @@ class Guild(commands.Cog):
 
         db_ailie.disconnect()
 
+    @commands.command(name="quit", help="Quit current Guild.")
+    async def quit(self, ctx):
+        db_ailie = DatabaseAilie(ctx.author.id)
+
+        if not db_ailie.is_guildless(ctx.author.id):
+            guild_id = db_ailie.get_guild_id_of_member(ctx.author.id)
+            guild_master = db_ailie.get_guild_master(guild_id)
+            if ctx.author.id == guild_master:
+                await ctx.send(
+                    "You're the Guild Master and you want to run away from "
+                    + "your responsibilities? Sorry, but NO!"
+                )
+                return
+            else:
+                db_ailie.quit_guild(ctx.author.id)
+                await ctx.send("You're solo now.")
+        else:
+            await ctx.send("Can't quit a Guild when you don't even have one.")
+
     @commands.command(name="members", help="List Guild members.")
     async def members(self, ctx):
         db_ailie = DatabaseAilie(ctx.author.id)

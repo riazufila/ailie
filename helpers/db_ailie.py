@@ -160,6 +160,25 @@ class DatabaseAilie:
 
         return guild_name
 
+    def get_guild_id_of_member(self, guardian_id):
+        query = "SELECT guild_id FROM guardians WHERE guardian_id = %s;"
+        data = [guardian_id]
+        self.cursor.execute(query, data)
+        row = self.cursor.fetchone()
+
+        if isinstance(row, tuple):
+            row = row[0]
+
+        guild_id = row
+
+        return guild_id
+
+    def quit_guild(self, guardian_id):
+        query = "UPDATE guardians SET guild_id = NULL WHERE guardian_id = %s;"
+        data = [guardian_id]
+        self.cursor.execute(query, data)
+        self.connection.commit()
+
     def disconnect(self):
         self.cursor.close()
         self.connection.close()
