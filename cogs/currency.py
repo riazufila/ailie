@@ -47,6 +47,42 @@ class Currency(commands.Cog):
 
         await ctx.send(random.choice(reply))
 
+    @commands.command(name="pat", help="Pats Little Princess's head.")
+    @commands.cooldown(1, 30, commands.BucketType.user)
+    async def pat(self, ctx):
+        # Variables initialized
+        gems_to_obtain = []
+        counter = 0
+        gems = 0
+
+        # Fill gems to obtain list with many random increasing numbers
+        while counter < 1500:
+            gems_to_obtain.append(random.randint(counter, counter + 500))
+            counter += 500
+
+        # Choose gems from list with weights
+        gems_obtained = random.choices(gems_to_obtain, [50, 30, 20], k=1)
+
+        # Assign gem amount from array to single variable
+        for gems in gems_obtained:
+            gems = gems
+
+        # Store and display gems obtained
+        reply = [
+            f"Little Princess found you {gems} gems, <@{ctx.author.id}>!",
+            "Little Princess did all the hard work for you and got you, "
+            + f" {gems} gems. Good one, <@{ctx.author.id}>?",
+            f"{gems} gems obtained! You get that by being nice to "
+            + f"Little Princess, <@{ctx.author.id}>!",
+            f"Don't you ever get tired of Little Princess, <@{ctx.author.id}>? "
+            + f"Oh well, she gave you {gems} gems though.",
+        ]
+
+        db_ailie = DatabaseAilie(ctx.author.id)
+        db_ailie.store_gems(ctx.author.id, gems)
+
+        await ctx.send(random.choice(reply))
+
 
 def setup(bot):
     bot.add_cog(Currency(bot))
