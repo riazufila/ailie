@@ -127,6 +127,45 @@ class Guild(commands.Cog):
         else:
             await ctx.send("Can't quit a Guild when you don't even have one.")
 
+    @commands.command(name="promote", help="Change members' position.")
+    async def promote(self, ctx, member: discord.Member, *position):
+        # Initialize variables
+        db_ailie = DatabaseAilie(ctx.author.id)
+        position = " ".join(position)
+
+        # Check if author has a guild
+        if db_ailie.is_guildless(ctx.author.id):
+            await ctx.send("You're not even in a Guild!")
+            return
+
+        # Check if author is Guild Master
+        guild_id = db_ailie.get_guild_id_of_member(ctx.author.id)
+        guild_master = db_ailie.get_guild_master(guild_id)
+        if ctx.author.id != guild_master:
+            await ctx.send(
+                "You're not privileged to change positions of other members."
+            )
+            return
+
+        # Check position
+        if position.lower() not in ["Guild Master", "Raid Checker", "Member"]:
+            await ctx.send(
+                "The position you entered is invalid. For now, only "
+                + "Guild Master, Raid Checker, and Member is available."
+            )
+            return
+        else:
+            # Check if in the same guild
+            guardian_one = db_ailie.get_guild_id_of_member(member.id)
+            guardian_two = db_ailie.get_guild_id_of_member(ctx.author.id)
+            if guardian_one == guardian_two:
+                db_ailie.change_position(member.id, position)
+                await ctx.send(f"Changed position of {member} to {position}.")
+            else:
+                await ctx.send(
+                    "Do it again. But mention someone in your Guild!"
+                )
+
     @commands.command(name="members", help="List Guild members.")
     async def members(self, ctx):
         db_ailie = DatabaseAilie(ctx.author.id)

@@ -160,6 +160,15 @@ class DatabaseAilie:
 
         return guild_name
 
+    def change_position(self, guardian_id, position):
+        query = (
+            "UPDATE guardians SET guardian_position = %s "
+            + "WHERE guardian_id = %s;"
+        )
+        data = [position, guardian_id]
+        self.cursor.execute(query, data)
+        self.connection.commit()
+
     def get_guild_id_of_member(self, guardian_id):
         query = "SELECT guild_id FROM guardians WHERE guardian_id = %s;"
         data = [guardian_id]
