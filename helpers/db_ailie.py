@@ -236,6 +236,14 @@ class DatabaseAilie:
         self.cursor.execute(query, data)
         self.connection.commit()
 
+    def store_gems(self, guardian_id, gems):
+        query = (
+            "UPDATE guardians SET guardian_gems = %s WHERE guardian_id = %s;"
+        )
+        data = [gems, guardian_id]
+        self.cursor.execute(query, data)
+        self.connection.commit()
+
     def disconnect(self):
         self.cursor.close()
         self.connection.close()
