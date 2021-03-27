@@ -44,13 +44,14 @@ class DatabaseAilie:
 
     def get_guardian_info(self, guardian_id):
         query = (
-            "SELECT guardian_username, guild_id FROM guardians "
+            "SELECT guardian_username, guild_id, guardian_gems FROM guardians "
             + "WHERE guardian_id = %s;"
         )
         data = [guardian_id]
         self.cursor.execute(query, data)
         row = self.cursor.fetchone()
         guild_username = row[0]
+        gems = row[2]
 
         if row[1]:
             query = (
@@ -68,7 +69,7 @@ class DatabaseAilie:
             guild_name = None
             guardian_position = None
 
-        return guild_username, guild_name, guardian_position
+        return guild_username, guild_name, guardian_position, gems
 
     def create_guild(
         self, guardian_id, guardian_position, guild_id, guild_name
