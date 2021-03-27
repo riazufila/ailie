@@ -10,6 +10,7 @@ class Guardian(commands.Cog):
         self.bot = bot
 
     @commands.command(name="profile", help="View profile.")
+    @commands.cooldown(1, 15, commands.BucketType.user)
     async def profile(self, ctx):
         db_ailie = DatabaseAilie(ctx.author.id)
         username, guild_name, position, gems = db_ailie.get_guardian_info(
@@ -32,6 +33,7 @@ class Guardian(commands.Cog):
         await ctx.send(embed=embed)
 
     @commands.command(name="username", help="Set username.")
+    @commands.cooldown(1, 60, commands.BucketType.user)
     async def username(self, ctx, username):
         db_ailie = DatabaseAilie(ctx.author.id)
         db_ailie.set_username(ctx.author.id, username)
