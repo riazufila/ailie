@@ -18,9 +18,10 @@ class Guardian(commands.Cog):
         guild_id = db_ailie.get_guild_id_of_member(ctx.author.id)
 
         output = (
-            f"**Username**: `{username}`\n**Guild**: "
-            + f"`{guild_name}`#`{guild_id}`\n**Position**: `{position}`"
+            f"**Username**: `{username}`"
             + f"\n**Gems**: `{gems}` 💎"
+            + f"\n**Guild**: `{guild_name}`#`{guild_id}`"
+            + f"\n**Position**: `{position}`"
         )
 
         embed = discord.Embed(color=discord.Color.purple())
