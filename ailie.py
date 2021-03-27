@@ -2,7 +2,7 @@
 
 import os
 import discord
-from helpers.minimal_discord_help import Help
+from helpers.help import Help
 from dotenv import load_dotenv
 from discord.ext import commands
 
