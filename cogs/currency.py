@@ -86,6 +86,16 @@ class Currency(commands.Cog):
     @commands.command(name="gamble", help="Gamble gems.")
     @commands.cooldown(1, 15, commands.BucketType.user)
     async def gamble(self, ctx, gems: int):
+        # Check if gems is available to gamble
+        current_gems = db_ailie.get_gems(ctx.author.id)
+        balance = current_gems - gems
+        if balance < 0:
+            await ctx.send(
+                "You don't have enough gems to gamble, "
+                + f"<@{ctx.author.id}>.."
+            )
+
+        # 50% chance of gambled gems being negative or positive
         gems_obtained = random.choices([-gems, gems], [50, 50], k=1)
 
         # Assign gem amount from array to single variable

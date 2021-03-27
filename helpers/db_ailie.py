@@ -259,6 +259,19 @@ class DatabaseAilie:
         self.cursor.execute(query, data)
         self.connection.commit()
 
+    def get_gems(self, guardian_id):
+        # Get already existing gems
+        query = "SELECT guardian_gems FROM guardians WHERE guardian_id = %s;"
+        data = [guardian_id]
+        self.cursor.execute(query, data)
+
+        row = self.cursor.fetchone()
+
+        if isinstance(row, tuple):
+            row = row[0]
+
+        return row
+
     def disconnect(self):
         self.cursor.close()
         self.connection.close()
