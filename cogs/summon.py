@@ -30,7 +30,7 @@ class Summon(commands.Cog):
         self.equipments = db_ailie.get_pool(
                 "equipments", "normal", [[], [], [], [], []])
         print("EQUIPMENT")
-        self.equipments = db_ailie.get_pool(
+        self.pick_up_equipments = db_ailie.get_pool(
                 "equipments", "pickup", [])
         print("PICKUP EQUIPMENT")
 
