@@ -6,7 +6,7 @@ import psycopg2
 
 
 class DatabaseAilie:
-    def __init__(self, guardian_id):
+    def __init__(self):
         if sys.argv[1] == "production":
             # Production database
             DATABASE_URL = os.environ["DATABASE_URL"]
@@ -22,8 +22,8 @@ class DatabaseAilie:
             )
 
         self.cursor = self.connection.cursor()
-        self.initialize_user(guardian_id)
 
+    # Guardians related query
     def initialize_user(self, guardian_id):
         initialized = False
 
@@ -71,6 +71,16 @@ class DatabaseAilie:
 
         return guild_username, guild_name, guardian_position, gems
 
+    def set_username(self, guardian_id, guardian_username):
+        query = (
+            "UPDATE guardians SET guardian_username = %s "
+            + "WHERE guardian_id = %s;"
+        )
+        data = [guardian_username, guardian_id]
+        self.cursor.execute(query, data)
+        self.connection.commit()
+
+    # Guilds related query
     def create_guild(
         self, guardian_id, guardian_position, guild_id, guild_name
     ):
@@ -237,6 +247,7 @@ class DatabaseAilie:
         self.cursor.execute(query, data)
         self.connection.commit()
 
+    # Currency related query
     def store_gems(self, guardian_id, gems):
         # Get already existing gems
         query = "SELECT guardian_gems FROM guardians WHERE guardian_id = %s;"
@@ -272,15 +283,61 @@ class DatabaseAilie:
 
         return row
 
-    def set_username(self, guardian_id, guardian_username):
-        query = (
-            "UPDATE guardians SET guardian_username = %s "
-            + "WHERE guardian_id = %s;"
-        )
-        data = [guardian_username, guardian_id]
-        self.cursor.execute(query, data)
-        self.connection.commit()
+    # Summons related query
+    def get_pool(self, type, pickup, stars):
+        pool = stars[:]
 
+        if pickup == "normal" and type == "heroes":
+            query = "SELECT hero_star, hero_name FROM heroes;"
+        elif pickup == "normal" and type == "equipments":
+            query = (
+                "SELECT equip_star, equip_name, equip_exclusive "
+                + "FROM equipments;"
+            )
+        elif pickup == "pickup" and type == "heroes":
+            query = (
+                "SELECT hero_star, hero_name FROM heroes "
+                + "WHERE hero_pickup = TRUE;"
+            )
+        else:
+            query = (
+                "SELECT equip_star, equip_name, equip_exclusive FROM "
+                + "equipments WHERE equip_exclusive = TRUE;"
+            )
+
+        self.cursor.execute(query)
+        records = self.cursor.fetchall()
+
+        for record in records:
+            counter = 0
+            star = record[0]
+            name = record[1]
+
+            while counter != star:
+                if counter == 0:
+                    if type == "equipments":
+                        if record[2] is True:
+                            name = "★ [Ex] " + name
+                    else:
+                        name = "★ " + name
+                else:
+                    name = "★" + name
+
+                counter += 1
+
+            if type == "heroes" and pickup == "normal":
+                pool[star - 1].append(name)
+            elif type == "equipments" and pickup == "normal":
+                if record[2] is True:
+                    pool[4].append(name)
+                else:
+                    pool[star - 2].append(name)
+            else:
+                pool.append(name)
+
+        return pool
+
+    # Disconnect database
     def disconnect(self):
         self.cursor.close()
         self.connection.close()

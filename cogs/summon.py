@@ -2,9 +2,9 @@
 
 import asyncio
 import random
-import csv
 import discord
 from discord.ext import commands
+from helpers.db_ailie import DatabaseAilie
 
 
 class Summon(commands.Cog):
@@ -12,9 +12,14 @@ class Summon(commands.Cog):
         # Bot assigned to class
         self.bot = bot
 
+        # Initialize database for Ailie
+        db_ailie = DatabaseAilie()
+
         # Get all the data for heroes and pick up heroes
-        self.heroes = self.getRecords("csv/heroes.csv", [[], [], []])
-        self.pick_up_heroes = self.getRecords("csv/pick-up-heroes.csv", [])
+        self.heroes = db_ailie.get_pool("heroes", "normal", [[], [], []])
+        print("HERO")
+        self.pick_up_heroes = db_ailie.get_pool("equipments", "pickup", [])
+        print("PICKUP HERO")
 
         # Weights declaration for probability upon hero summons
         self.heroes_weights = [78.250, 19.000, 2.750]
@@ -22,10 +27,12 @@ class Summon(commands.Cog):
         self.heroes_last_slot_weights = [97.25, 2.75]
 
         # Get all the data for heroes and pick up heroes
-        self.equipments = self.getRecords(
-            "csv/equipments.csv", [[], [], [], [], []])
-        self.pick_up_equipments = self.getRecords(
-            "csv/pick-up-equipments.csv", [])
+        self.equipments = db_ailie.get_pool(
+                "equipments", "normal", [[], [], [], [], []])
+        print("EQUIPMENT")
+        self.equipments = db_ailie.get_pool(
+                "equipments", "pickup", [])
+        print("PICKUP EQUIPMENT")
 
         # Weights declaration for probability upon hero summons
         self.equipments_weights = [58.000, 27.000, 9.000, 3.000, 3.000]
@@ -34,22 +41,8 @@ class Summon(commands.Cog):
         ]
         self.equipments_last_slot_weights = [94, 3, 3]
 
-    # Get the records of all Guardian Tales heroes from csv files
-    def getRecords(self, csv_file, records):
-        buffer = records[:]
-
-        with open(csv_file, 'r') as file:
-            reader = csv.reader(file)
-            for row in reader:
-                for r in row:
-                    # Check if the list has a list inside declared
-                    if len(records) != 0:
-                        if r:
-                            buffer[row.index(r)].append(r)
-                    else:
-                        buffer.append(r)
-
-        return buffer
+        # Disconnect database for Ailie
+        db_ailie.disconnect()
 
     # Summons are determined to check for certain requirements
     def checkWhatIsSummoned(
@@ -428,7 +421,7 @@ class Summon(commands.Cog):
     # Lists the current pickup banner
     @commands.command(name="banner", help="List current pickup banner.")
     @commands.cooldown(1, 5, commands.BucketType.user)
-    async def pickUpInfo(self, ctx):
+    async def banner(self, ctx):
         embed = discord.Embed(
                 description="Current Pick Up Banners.",
                 color=discord.Color.purple())
