@@ -118,7 +118,7 @@ class Currency(commands.Cog):
                 f"<@{ctx.author.id}>, you lost {lost_gems} gems. HAHA.",
                 f"Condolences to <@{ctx.author.id}> for losing {lost_gems} "
                 + "gems.",
-                f"Welp. Lost {lost_gems} gems. Too bad, <@[ctx.author.id]>.",
+                f"Welp. Lost {lost_gems} gems. Too bad, <@{ctx.author.id}>.",
             ]
         else:
             reply = [
