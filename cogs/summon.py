@@ -17,9 +17,7 @@ class Summon(commands.Cog):
 
         # Get all the data for heroes and pick up heroes
         self.heroes = db_ailie.get_pool("heroes", "normal", [[], [], []])
-        print("HERO")
-        self.pick_up_heroes = db_ailie.get_pool("equipments", "pickup", [])
-        print("PICKUP HERO")
+        self.pick_up_heroes = db_ailie.get_pool("heroes", "pickup", [])
 
         # Weights declaration for probability upon hero summons
         self.heroes_weights = [78.250, 19.000, 2.750]
@@ -29,10 +27,8 @@ class Summon(commands.Cog):
         # Get all the data for heroes and pick up heroes
         self.equipments = db_ailie.get_pool(
                 "equipments", "normal", [[], [], [], [], []])
-        print("EQUIPMENT")
         self.pick_up_equipments = db_ailie.get_pool(
                 "equipments", "pickup", [])
-        print("PICKUP EQUIPMENT")
 
         # Weights declaration for probability upon hero summons
         self.equipments_weights = [58.000, 27.000, 9.000, 3.000, 3.000]

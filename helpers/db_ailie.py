@@ -302,7 +302,7 @@ class DatabaseAilie:
         else:
             query = (
                 "SELECT equip_star, equip_name, equip_exclusive FROM "
-                + "equipments WHERE equip_exclusive = TRUE;"
+                + "equipments WHERE equip_pickup = TRUE;"
             )
 
         self.cursor.execute(query)
