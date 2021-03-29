@@ -13,7 +13,7 @@ class Guild(commands.Cog):
     # Create guild
     @commands.command(name="create", help="Create guild.")
     async def create(self, ctx, guild_name):
-        db_ailie = DatabaseAilie(ctx.author.id)
+        db_ailie = DatabaseAilie()
         guild_check = True
         guild_id = 0
 
@@ -42,7 +42,7 @@ class Guild(commands.Cog):
     @commands.command(name="join", help="Join guild.")
     async def join(self, ctx, guild_id: int):
         # Initialize database
-        db_ailie = DatabaseAilie(ctx.author.id)
+        db_ailie = DatabaseAilie()
 
         # Get Guild Master
         guild_master = db_ailie.get_guild_master(guild_id)
@@ -118,7 +118,7 @@ class Guild(commands.Cog):
 
     @commands.command(name="quit", help="Quit current Guild.")
     async def quit(self, ctx):
-        db_ailie = DatabaseAilie(ctx.author.id)
+        db_ailie = DatabaseAilie()
 
         if not db_ailie.is_guildless(ctx.author.id):
             guild_id = db_ailie.get_guild_id_of_member(ctx.author.id)
@@ -151,7 +151,7 @@ class Guild(commands.Cog):
     @commands.command(name="promote", help="Change members' position.")
     async def promote(self, ctx, member: discord.Member, *position):
         # Initialize variables
-        db_ailie = DatabaseAilie(ctx.author.id)
+        db_ailie = DatabaseAilie()
         position = " ".join(position)
         position = position.title()
 
@@ -237,7 +237,7 @@ class Guild(commands.Cog):
 
     @commands.command(name="members", help="List Guild members.")
     async def members(self, ctx):
-        db_ailie = DatabaseAilie(ctx.author.id)
+        db_ailie = DatabaseAilie()
 
         if not db_ailie.is_guildless(ctx.author.id):
             # Get guild name to present in output

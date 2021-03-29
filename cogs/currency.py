@@ -42,7 +42,7 @@ class Currency(commands.Cog):
             + f"you've gotten {gems} gems though.",
         ]
 
-        db_ailie = DatabaseAilie(ctx.author.id)
+        db_ailie = DatabaseAilie()
         db_ailie.store_gems(ctx.author.id, gems)
         db_ailie.disconnect()
 
@@ -79,7 +79,7 @@ class Currency(commands.Cog):
             + f"Oh well, she gave you {gems} gems though.",
         ]
 
-        db_ailie = DatabaseAilie(ctx.author.id)
+        db_ailie = DatabaseAilie()
         db_ailie.store_gems(ctx.author.id, gems)
         db_ailie.disconnect()
 
@@ -94,7 +94,7 @@ class Currency(commands.Cog):
             return
 
         # Check if gems is available to gamble
-        db_ailie = DatabaseAilie(ctx.author.id)
+        db_ailie = DatabaseAilie()
         current_gems = db_ailie.get_gems(ctx.author.id)
         balance = current_gems - gems
         if balance < 0:
@@ -129,7 +129,7 @@ class Currency(commands.Cog):
                 + "obtained!",
             ]
 
-        db_ailie = DatabaseAilie(ctx.author.id)
+        db_ailie = DatabaseAilie()
         db_ailie.store_gems(ctx.author.id, gems)
         db_ailie.disconnect()
 

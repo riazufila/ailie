@@ -42,6 +42,10 @@ class DatabaseAilie:
             self.cursor.execute(query, data)
             self.connection.commit()
 
+            return True
+        else:
+            return False
+
     def get_guardian_info(self, guardian_id):
         query = (
             "SELECT guardian_username, guild_id, guardian_gems FROM guardians "
