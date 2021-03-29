@@ -12,6 +12,13 @@ class Currency(commands.Cog):
     @commands.command(name="race", help="Race against Lana.")
     @commands.cooldown(1, 20, commands.BucketType.user)
     async def race(self, ctx):
+        # Check if user is initialized first
+        db_ailie = DatabaseAilie()
+        if not db_ailie.is_initialized(ctx.author.id):
+            await ctx.send("Do `ailie;initialize` or `a;initialize` first before anything!")
+            db_ailie.disconnect()
+            return
+        
         # Variables initialized
         gems_to_obtain = []
         counter = 0
@@ -42,7 +49,6 @@ class Currency(commands.Cog):
             + f"you've gotten {gems} gems though.",
         ]
 
-        db_ailie = DatabaseAilie()
         db_ailie.store_gems(ctx.author.id, gems)
         db_ailie.disconnect()
 
@@ -51,6 +57,13 @@ class Currency(commands.Cog):
     @commands.command(name="pat", help="Pats Little Princess's head.")
     @commands.cooldown(1, 30, commands.BucketType.user)
     async def pat(self, ctx):
+        # Check if user is initialized first
+        db_ailie = DatabaseAilie()
+        if not db_ailie.is_initialized(ctx.author.id):
+            await ctx.send("Do `ailie;initialize` or `a;initialize` first before anything!")
+            db_ailie.disconnect()
+            return
+        
         # Variables initialized
         gems_to_obtain = []
         counter = 0
@@ -79,7 +92,6 @@ class Currency(commands.Cog):
             + f"Oh well, she gave you {gems} gems though.",
         ]
 
-        db_ailie = DatabaseAilie()
         db_ailie.store_gems(ctx.author.id, gems)
         db_ailie.disconnect()
 
@@ -88,9 +100,17 @@ class Currency(commands.Cog):
     @commands.command(name="gamble", help="Gamble gems.")
     @commands.cooldown(1, 15, commands.BucketType.user)
     async def gamble(self, ctx, gems: int):
+        # Check if user is initialized first
+        db_ailie = DatabaseAilie()
+        if not db_ailie.is_initialized(ctx.author.id):
+            await ctx.send("Do `ailie;initialize` or `a;initialize` first before anything!")
+            db_ailie.disconnect()
+            return
+        
         # Disallow negative numbers as input
         if gems <= 0:
             await ctx.send(f"Are you okay, <@{ctx.author.id}>?")
+            db_ailie.disconnect()
             return
 
         # Check if gems is available to gamble
@@ -102,6 +122,7 @@ class Currency(commands.Cog):
                 "You don't have enough gems to gamble, "
                 + f"<@{ctx.author.id}>.."
             )
+            db_ailie.disconnect()
             return
 
         # 50% chance of gambled gems being negative or positive
@@ -129,7 +150,6 @@ class Currency(commands.Cog):
                 + "obtained!",
             ]
 
-        db_ailie = DatabaseAilie()
         db_ailie.store_gems(ctx.author.id, gems)
         db_ailie.disconnect()
 

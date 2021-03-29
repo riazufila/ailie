@@ -431,6 +431,15 @@ class Summon(commands.Cog):
     @commands.command(name="banner", help="List current pickup banner.")
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def banner(self, ctx):
+        # Check if user is initialized first
+        db_ailie = DatabaseAilie()
+        if not db_ailie.is_initialized(ctx.author.id):
+            await ctx.send("Do `ailie;initialize` or `a;initialize` first before anything!")
+            db_ailie.disconnect()
+            return
+        
+        db_ailie.disconnect()
+
         embed = discord.Embed(
                 description="Current Pick Up Banners.",
                 color=discord.Color.purple())
@@ -463,6 +472,15 @@ class Summon(commands.Cog):
             name="summon", help="Summon heroes or equipments.", aliases=["s"])
     @commands.cooldown(1, 20, commands.BucketType.user)
     async def summon(self, ctx, type, count: int, *target):
+        # Check if user is initialized first
+        db_ailie = DatabaseAilie()
+        if not db_ailie.is_initialized(ctx.author.id):
+            await ctx.send("Do `ailie;initialize` or `a;initialize` first before anything!")
+            db_ailie.disconnect()
+            return
+        
+        db_ailie.disconnect()
+
         # Initialize variables to return for display
         boxes = []
         weightage = []

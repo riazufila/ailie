@@ -3,6 +3,7 @@
 import asyncio
 import discord
 from discord.ext import commands
+from helpers.db_ailie import DatabaseAilie
 
 
 class Bot(commands.Cog):
@@ -25,6 +26,15 @@ class Bot(commands.Cog):
     @commands.command(name="ping", help="Check latency.")
     @commands.cooldown(1, 10, commands.BucketType.user)
     async def ping(self, ctx):
+        # Check if user is initialized first
+        db_ailie = DatabaseAilie()
+        if not db_ailie.is_initialized(ctx.author.id):
+            await ctx.send("Do `ailie;initialize` or `a;initialize` first before anything!")
+            db_ailie.disconnect()
+            return
+        
+        db_ailie.disconnect()
+
         await ctx.send(
             f"Pong, <@{ctx.author.id}>! Sending back this message with "
             + f"{round(self.bot.latency * 1000)}ms latency."
@@ -34,6 +44,15 @@ class Bot(commands.Cog):
     @commands.command(name="version", help="Shows version.")
     @commands.cooldown(1, 10, commands.BucketType.user)
     async def version(self, ctx):
+        # Check if user is initialized first
+        db_ailie = DatabaseAilie()
+        if not db_ailie.is_initialized(ctx.author.id):
+            await ctx.send("Do `ailie;initialize` or `a;initialize` first before anything!")
+            db_ailie.disconnect()
+            return
+        
+        db_ailie.disconnect()
+
         # Change upon version update
         version = "1.2.3"
 

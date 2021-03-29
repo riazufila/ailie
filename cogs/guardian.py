@@ -12,7 +12,13 @@ class Guardian(commands.Cog):
     @commands.command(name="profile", help="View profile.")
     @commands.cooldown(1, 15, commands.BucketType.user)
     async def profile(self, ctx):
+        # Check if user is initialized first
         db_ailie = DatabaseAilie()
+        if not db_ailie.is_initialized(ctx.author.id):
+            await ctx.send("Do `ailie;initialize` or `a;initialize` first before anything!")
+            db_ailie.disconnect()
+            return
+        
         username, guild_name, position, gems = db_ailie.get_guardian_info(
             ctx.author.id
         )
@@ -30,16 +36,25 @@ class Guardian(commands.Cog):
         embed.add_field(name="Guardian's Profile", value=output)
 
         db_ailie.disconnect()
+
         await ctx.send(embed=embed)
 
     @commands.command(name="username", help="Set username.")
     @commands.cooldown(1, 60, commands.BucketType.user)
     async def username(self, ctx, username):
+        # Check if user is initialized first
         db_ailie = DatabaseAilie()
+        if not db_ailie.is_initialized(ctx.author.id):
+            await ctx.send("Do `ailie;initialize` or `a;initialize` first before anything!")
+            db_ailie.disconnect()
+            return
+        
         db_ailie.set_username(ctx.author.id, username)
         await ctx.send(
             f"Your username is now, {username}. Enjoy, <@{ctx.author.id}>."
         )
+
+        db_ailie.disconnect()
 
     @commands.command(name="initialize", help="Initialize user.")
     @commands.cooldown(1, 60, commands.BucketType.user)
@@ -55,7 +70,6 @@ class Guardian(commands.Cog):
                 f"You are already initialized, <@{ctx.author.id}>. Have fun!"
             )
 
-        return
 
 def setup(bot):
     bot.add_cog(Guardian(bot))

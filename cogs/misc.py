@@ -3,6 +3,7 @@
 import random
 import discord
 from discord.ext import commands
+from helpers.db_ailie import DatabaseAilie
 
 
 class Misc(commands.Cog):
@@ -13,6 +14,15 @@ class Misc(commands.Cog):
     @commands.command(name="salt", help="Pour salt.")
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def pourSalt(self, ctx, mention: discord.Member):
+        # Check if user is initialized first
+        db_ailie = DatabaseAilie()
+        if not db_ailie.is_initialized(ctx.author.id):
+            await ctx.send("Do `ailie;initialize` or `a;initialize` first before anything!")
+            db_ailie.disconnect()
+            return
+        
+        db_ailie.disconnect()
+
         reply = [
             f"*Pours salt on {mention.mention}.. POURING INTENSIFIED!*",
             f"{mention.mention}, get wrecked in mountains of salt!",
@@ -36,6 +46,15 @@ class Misc(commands.Cog):
     @commands.command(name="f", help="Pay respect.")
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def pressF(self, ctx, mention: discord.Member):
+        # Check if user is initialized first
+        db_ailie = DatabaseAilie()
+        if not db_ailie.is_initialized(ctx.author.id):
+            await ctx.send("Do `ailie;initialize` or `a;initialize` first before anything!")
+            db_ailie.disconnect()
+            return
+        
+        db_ailie.disconnect()
+
         reply = [
             f"Pay respect to the fallen member, {mention.mention}..",
             f"Be strong, {mention.mention}.",

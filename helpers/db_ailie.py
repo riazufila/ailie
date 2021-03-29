@@ -46,6 +46,17 @@ class DatabaseAilie:
         else:
             return False
 
+    def is_initialized(self, guardian_id):
+        query = "SELECT guardian_id FROM guardians WHERE guardian_id = %s;"
+        data = [guardian_id]
+        self.cursor.execute(query, data)
+        initialize_check = self.cursor.fetchone()
+
+        if initialize_check:
+            return True
+        else:
+            return False
+
     def get_guardian_info(self, guardian_id):
         query = (
             "SELECT guardian_username, guild_id, guardian_gems FROM guardians "
