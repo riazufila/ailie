@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import os
 import asyncio
 import discord
 from discord.ext import commands
@@ -117,11 +118,18 @@ class Bot(commands.Cog):
         elif isinstance(error, commands.MaxConcurrencyReached):
             await ctx.send(f"Yo, <@{ctx.author.id}>! CHILL! Let the others do it first?")
         else:
+            AUTHOR_ID = os.getenv("AUTHOR_ID")
+            author = await self.bot.fetch_user(AUTHOR_ID)
+
+            embed = discord.Embed(color=discord.Color.purple())
+            embed.set_author(name="Ailie's Error Log", icon_url=ctx.me.avatar_url)
+            embed.add_field(name="Command", value=ctx.command, inline=False)
+            embed.add_field(name="Error", value=error, inline=False)
+
+            await author.send(embed=embed)
+
             await ctx.send(
-                "**Oops! Looks like you found a bug.**"
-                + f"\n\n*Error: {error}*\n\nPlease post a new issue under "
-                + "the tab 'Issue' at https://github.com/riazufila/ailie."
-                + f"\nSorry, <@{ctx.author.id}>.. And thank you."
+                f"An error occured. But no worries, <@{ctx.author.id}>! I've informed my creator."
             )
 
 
