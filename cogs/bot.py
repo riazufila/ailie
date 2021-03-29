@@ -114,6 +114,8 @@ class Bot(commands.Cog):
             await ctx.send_help(ctx.command)
             await asyncio.sleep(0.5)
             await msg.edit(content=msg.content + " Will that help?")
+        elif isinstance(error, commands.MaxConcurrencyReached):
+            await ctx.send(f"Yo, <@{ctx.author.id}>! CHILL! Let the others do it first?")
         else:
             await ctx.send(
                 "**Oops! Looks like you found a bug.**"

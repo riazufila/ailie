@@ -471,6 +471,7 @@ class Summon(commands.Cog):
     @commands.command(
             name="summon", help="Summon heroes or equipments.", aliases=["s"])
     @commands.cooldown(1, 20, commands.BucketType.user)
+    @commands.max_concurrency(1, per=commands.BucketType.channel, wait=False)
     async def summon(self, ctx, type, count: int, *target):
         # Check if user is initialized first
         db_ailie = DatabaseAilie()
