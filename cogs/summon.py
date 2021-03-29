@@ -398,6 +398,11 @@ class Summon(commands.Cog):
             reply = self.getRepliesForSpecificSummons(
                 ctx, target, not_easter_eggs, easter_eggs)
 
+        # Record obtained units
+        db_ailie = DatabaseAilie()
+        db_ailie.store_heroes(ctx.author.id, boxes)
+        db_ailie.disconnect()
+
         return boxes, reply
 
     # Summon is displayed accordingly

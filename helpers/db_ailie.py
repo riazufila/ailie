@@ -2,6 +2,7 @@
 
 import os
 import sys
+import random
 import psycopg2
 
 
@@ -37,9 +38,21 @@ class DatabaseAilie:
             initialized = False
 
         if not initialized:
-            query = "INSERT INTO guardians (guardian_id) VALUES (%s);"
-            data = [guardian_id]
+            inventory_check = True
+            inventory_id = 0
+
+            while inventory_check:
+                inventory_id = random.randint(pow(10, 14), (pow(10, 15) - 1))
+                inventory_check = self.inventory_exists(inventory_id)
+
+            query = "INSERT INTO inventories (inventory_id) VALUES (%s);"
+            data = [inventory_id]
             self.cursor.execute(query, data)
+
+            query = "INSERT INTO guardians (guardian_id, inventory_id) VALUES (%s, %s);"
+            data = [guardian_id, inventory_id]
+            self.cursor.execute(query, data)
+
             self.connection.commit()
 
             return True
@@ -368,6 +381,27 @@ class DatabaseAilie:
                 pool.append(name)
 
         return pool
+
+    def inventory_exists(self, inventory_id):
+        query = "SELECT inventory_id FROM guardians WHERE inventory_id = %s;"
+        data = [inventory_id]
+        self.cursor.execute(query, data)
+
+        row = self.cursor.fetchone()
+
+        if isinstance(row, tuple):
+            row = row[0]
+
+        if row:
+            return True
+        else:
+            return False
+
+    # def store_heroes(self, inventory_id, boxes):
+
+    #     for box in boxes:
+
+    #     return
 
     # Disconnect database
     def disconnect(self):
