@@ -283,6 +283,23 @@ class DatabaseAilie:
 
         return row
 
+    def spend_gems(self, guardian_id, gems):
+        # Get current gems and substract with to be expended gems
+        current_gems = self.get_gems(guardian_id)
+        balance_gems = current_gems - gems
+
+        if balance_gems < 0:
+            return False
+        else:
+            # Query to update gems amount
+            query = "UPDATE guardians SET guardian_gems = %s WHERE guardian_id = %s;"
+            data = [balance_gems, guardian_id]
+            self.cursor.execute(query, data)
+            self.connection.commit()
+            
+            return True
+
+
     # Summons related query
     def get_pool(self, type, pickup, stars):
         pool = stars[:]

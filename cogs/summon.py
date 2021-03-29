@@ -284,8 +284,20 @@ class Summon(commands.Cog):
 
             reply = random.choice(results)
 
+        # Reduce 2700 gems or 300 gems depending on the count
+        if one_or_ten == 10:
+            gems = 2700
+        else:
+            gems = 300
+
+        # Reduce gems in database after checking if balance is enough
+        db_ailie = DatabaseAilie()
+        enough_balance = db_ailie.spend_gems(ctx.author.id, gems)
+        db_ailie.disconnect()
+
+
         # If the value is valid, then the statements here is executed
-        if one_or_ten == 10 or one_or_ten == 1:
+        if (one_or_ten == 10 or one_or_ten == 1) and enough_balance:
             # Variables used as a counter to check what is being summoned
             pity_check = False
             pity = False
