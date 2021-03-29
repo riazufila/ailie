@@ -500,6 +500,10 @@ class Summon(commands.Cog):
                 pool = self.equipments
                 weightage = self.equipments_weights
                 last_slot_weightage = self.equipments_last_slot_weights
+
+                # Block equipment pulls for now
+                await ctx.send(f"Sorry, <@{ctx.author.id}>. For now, equipment pulls are being maintained.")
+                return
             else:
                 await ctx.send(
                         f"Use the command properly please, <@{ctx.author.id}>?")
@@ -513,6 +517,10 @@ class Summon(commands.Cog):
                 pool = self.equipments
                 pick_up_weightage = self.equipments_pick_up_weights
                 last_slot_weightage = self.equipments_last_slot_weights
+
+                # Block equipment pulls for now
+                await ctx.send(f"Sorry, <@{ctx.author.id}>. For now, equipment pulls are being maintained.")
+                return
             else:
                 await ctx.send(
                         f"Use the command properly please, <@{ctx.author.id}>?")
