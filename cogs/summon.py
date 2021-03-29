@@ -295,6 +295,9 @@ class Summon(commands.Cog):
         enough_balance = db_ailie.spend_gems(ctx.author.id, gems)
         db_ailie.disconnect()
 
+        if not enough_balance:
+            reply = f"You don't have enough gems, <@{ctx.author.id}>."
+
 
         # If the value is valid, then the statements here is executed
         if (one_or_ten == 10 or one_or_ten == 1) and enough_balance:
