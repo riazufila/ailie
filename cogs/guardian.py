@@ -10,7 +10,7 @@ class Guardian(commands.Cog):
         self.bot = bot
 
     @commands.command(name="profile", help="View profile.")
-    @commands.cooldown(1, 15, commands.BucketType.user)
+    @commands.cooldown(1, 5, commands.BucketType.user)
     async def profile(self, ctx):
         # Check if user is initialized first
         db_ailie = DatabaseAilie()
@@ -40,7 +40,7 @@ class Guardian(commands.Cog):
         await ctx.send(embed=embed)
 
     @commands.command(name="inventory", help="View profile.")
-    @commands.cooldown(1, 15, commands.BucketType.user)
+    @commands.cooldown(1, 5, commands.BucketType.user)
     async def inventory(self, ctx, type, grade):
         # Check if user is initialized first
         db_ailie = DatabaseAilie()
