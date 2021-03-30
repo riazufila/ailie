@@ -6,19 +6,8 @@ import psycopg2
 
 class DatabaseAilie:
     def __init__(self):
-        # Production database
         DATABASE_URL = os.environ["DATABASE_URL"]
         self.connection = psycopg2.connect(DATABASE_URL, sslmode="require")
-
-        # Development database
-        # self.connection = psycopg2.connect(
-        #     database=os.getenv("DB_NAME"),
-        #     user=os.getenv("DB_USER"),
-        #     password=os.getenv("DB_PASSWORD"),
-        #     host=os.getenv("DB_HOST"),
-        #     port=os.getenv("DB_PORT"),
-        # )
-
         self.cursor = self.connection.cursor()
 
     # Guardians related query
