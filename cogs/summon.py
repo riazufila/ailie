@@ -421,11 +421,11 @@ class Summon(commands.Cog):
                 await msg.edit(
                         content=msg.content
                         + f"\n{counter}. {box}\n{counter + 1}. {next(boxes)}")
-                await asyncio.sleep(1.7)
+                await asyncio.sleep(1.5)
                 counter += 2
             else:
                 await msg.edit(content=msg.content + f"\n{counter}. {box}")
-                await asyncio.sleep(1.7)
+                await asyncio.sleep(1.5)
                 counter += 1
 
         # Send the reply to fellow guardian
