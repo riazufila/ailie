@@ -56,11 +56,20 @@ class Guardian(commands.Cog):
             embed.set_author(name=ctx.author.name + "'s Inventory", icon_url=ctx.author.avatar_url)
 
             if grade.lower() in ["unique", "u"]:
-                embed.add_field(name="Unique Heroes", value="\n".join(hero_inventory[2]), inline=False)
+                if hero_inventory[2]:
+                    embed.add_field(name="Unique Heroes", value="\n".join(hero_inventory[2]), inline=False)
+                else:
+                    embed.add_field(name="Unique Heroes", value="None", inline=False)
             elif grade.lower() in ["rare", "r"]:
-                embed.add_field(name="Rare Heroes", value="\n".join(hero_inventory[1]), inline=False)
+                if hero_inventory[1]:
+                    embed.add_field(name="Rare Heroes", value="\n".join(hero_inventory[1]), inline=False)
+                else:
+                    embed.add_field(name="Rare Heroes", value="None", inline=False)
             elif grade.lower() in ["normal", "n"]:
-                embed.add_field(name="Normal Heroes", value="\n".join(hero_inventory[0]), inline=False)
+                if hero_inventory[0]:
+                    embed.add_field(name="Normal Heroes", value="\n".join(hero_inventory[0]), inline=False)
+                else:
+                    embed.add_field(name="Normal Heroes", value="None", inline=False)
             else:
                 db_ailie.disconnect()
                 return
