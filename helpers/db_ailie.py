@@ -371,7 +371,7 @@ class DatabaseAilie:
 
         return pool
 
-    def hero_obtained(self, guardian_id, hero_id):
+    def is_hero_obtained(self, guardian_id, hero_id):
         query = (
             "SELECT h.hero_id FROM guardians g "
             + "INNER JOIN inventories i ON g.guardian_id = i.guardian_id "
@@ -387,6 +387,29 @@ class DatabaseAilie:
             return True
         else:
             return False
+
+    def hero_inventory(self, guardian_id):
+        query = (
+            "SELECT h.hero_star, h.hero_name FROM guardians g "
+            + "INNER JOIN inventories i ON g.guardian_id = i.guardian_id "
+            + "INNER JOIN heroes_acquired ha ON i.hero_acquired_id = ha.hero_acquired_id "
+            + "INNER JOIN heroes h ON ha.hero_id = h.hero_id "
+            + "WHERE g.guardian_id = %s ORDER BY h.hero_star DESC;"
+        )
+        data = [guardian_id]
+        self.cursor.execute(query, data)
+        hero_inventory = self.cursor.fetchall()
+        hero_buffer = [[], [], []]
+
+        for hero in hero_inventory:
+            if hero[0] == 3:
+                hero_buffer[2].append("★★★ "+ hero[1])
+            if hero[0] == 2:
+                hero_buffer[1].append("★★ "+ hero[1])
+            if hero[0] == 1:
+                hero_buffer[0].append("★ "+ hero[1])
+
+        return hero_buffer
 
     def get_hero_id(self, name):
         # Get hero_id from heroes table
@@ -415,7 +438,7 @@ class DatabaseAilie:
             # Get hero ID
             hero_id = self.get_hero_id(hero_name)
 
-            if not self.hero_obtained(guardian_id, hero_id):
+            if not self.is_hero_obtained(guardian_id, hero_id):
                 # Enter hero_id in heroes_acquired table
                 query = "INSERT INTO heroes_acquired (hero_id) VALUES (%s);"
                 data = [hero_id]
