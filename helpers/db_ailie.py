@@ -1,26 +1,23 @@
 #!/usr/bin/env python
 
 import os
-import sys
-import random
 import psycopg2
 
 
 class DatabaseAilie:
     def __init__(self):
-        if sys.argv[1] == "production":
-            # Production database
-            DATABASE_URL = os.environ["DATABASE_URL"]
-            self.connection = psycopg2.connect(DATABASE_URL, sslmode="require")
-        else:
-            # Development database
-            self.connection = psycopg2.connect(
-                database=os.getenv("DB_NAME"),
-                user=os.getenv("DB_USER"),
-                password=os.getenv("DB_PASSWORD"),
-                host=os.getenv("DB_HOST"),
-                port=os.getenv("DB_PORT"),
-            )
+        # Production database
+        DATABASE_URL = os.environ["DATABASE_URL"]
+        self.connection = psycopg2.connect(DATABASE_URL, sslmode="require")
+
+        # Development database
+        # self.connection = psycopg2.connect(
+        #     database=os.getenv("DB_NAME"),
+        #     user=os.getenv("DB_USER"),
+        #     password=os.getenv("DB_PASSWORD"),
+        #     host=os.getenv("DB_HOST"),
+        #     port=os.getenv("DB_PORT"),
+        # )
 
         self.cursor = self.connection.cursor()
 
