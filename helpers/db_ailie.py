@@ -2,11 +2,12 @@
 
 import os
 import sys
+import random
 import psycopg2
 
 
 class DatabaseAilie:
-    def __init__(self, guardian_id):
+    def __init__(self):
         if sys.argv[1] == "production":
             # Production database
             DATABASE_URL = os.environ["DATABASE_URL"]
@@ -22,8 +23,8 @@ class DatabaseAilie:
             )
 
         self.cursor = self.connection.cursor()
-        self.initialize_user(guardian_id)
 
+    # Guardians related query
     def initialize_user(self, guardian_id):
         initialized = False
 
@@ -40,7 +41,23 @@ class DatabaseAilie:
             query = "INSERT INTO guardians (guardian_id) VALUES (%s);"
             data = [guardian_id]
             self.cursor.execute(query, data)
+
             self.connection.commit()
+
+            return True
+        else:
+            return False
+
+    def is_initialized(self, guardian_id):
+        query = "SELECT guardian_id FROM guardians WHERE guardian_id = %s;"
+        data = [guardian_id]
+        self.cursor.execute(query, data)
+        initialize_check = self.cursor.fetchone()
+
+        if initialize_check:
+            return True
+        else:
+            return False
 
     def get_guardian_info(self, guardian_id):
         query = (
@@ -71,6 +88,16 @@ class DatabaseAilie:
 
         return guild_username, guild_name, guardian_position, gems
 
+    def set_username(self, guardian_id, guardian_username):
+        query = (
+            "UPDATE guardians SET guardian_username = %s "
+            + "WHERE guardian_id = %s;"
+        )
+        data = [guardian_username, guardian_id]
+        self.cursor.execute(query, data)
+        self.connection.commit()
+
+    # Guilds related query
     def create_guild(
         self, guardian_id, guardian_position, guild_id, guild_name
     ):
@@ -237,6 +264,7 @@ class DatabaseAilie:
         self.cursor.execute(query, data)
         self.connection.commit()
 
+    # Currency related query
     def store_gems(self, guardian_id, gems):
         # Get already existing gems
         query = "SELECT guardian_gems FROM guardians WHERE guardian_id = %s;"
@@ -272,15 +300,168 @@ class DatabaseAilie:
 
         return row
 
-    def set_username(self, guardian_id, guardian_username):
-        query = (
-            "UPDATE guardians SET guardian_username = %s "
-            + "WHERE guardian_id = %s;"
-        )
-        data = [guardian_username, guardian_id]
-        self.cursor.execute(query, data)
-        self.connection.commit()
+    def spend_gems(self, guardian_id, gems):
+        # Get current gems and substract with to be expended gems
+        current_gems = self.get_gems(guardian_id)
+        balance_gems = current_gems - gems
 
+        if balance_gems < 0:
+            return False
+        else:
+            # Query to update gems amount
+            query = "UPDATE guardians SET guardian_gems = %s WHERE guardian_id = %s;"
+            data = [balance_gems, guardian_id]
+            self.cursor.execute(query, data)
+            self.connection.commit()
+            
+            return True
+
+
+    # Summons related query
+    def get_pool(self, type, pickup, stars):
+        pool = stars[:]
+
+        if pickup == "normal" and type == "heroes":
+            query = "SELECT hero_star, hero_name FROM heroes;"
+        elif pickup == "normal" and type == "equipments":
+            query = (
+                "SELECT equip_star, equip_name, equip_exclusive "
+                + "FROM equipments;"
+            )
+        elif pickup == "pickup" and type == "heroes":
+            query = (
+                "SELECT hero_star, hero_name FROM heroes "
+                + "WHERE hero_pickup = TRUE;"
+            )
+        else:
+            query = (
+                "SELECT equip_star, equip_name, equip_exclusive FROM "
+                + "equipments WHERE equip_pickup = TRUE;"
+            )
+
+        self.cursor.execute(query)
+        records = self.cursor.fetchall()
+
+        for record in records:
+            counter = 0
+            star = record[0]
+            name = record[1]
+
+            while counter != star:
+                if counter == 0:
+                    if type == "equipments":
+                        if record[2] is True:
+                            name = "★ [Ex] " + name
+                    else:
+                        name = "★ " + name
+                else:
+                    name = "★" + name
+
+                counter += 1
+
+            if type == "heroes" and pickup == "normal":
+                pool[star - 1].append(name)
+            elif type == "equipments" and pickup == "normal":
+                if record[2] is True:
+                    pool[4].append(name)
+                else:
+                    pool[star - 2].append(name)
+            else:
+                pool.append(name)
+
+        return pool
+
+    def is_hero_obtained(self, guardian_id, hero_id):
+        query = (
+            "SELECT h.hero_id FROM guardians g "
+            + "INNER JOIN inventories i ON g.guardian_id = i.guardian_id "
+            + "INNER JOIN heroes_acquired ha ON i.hero_acquired_id = ha.hero_acquired_id "
+            + "INNER JOIN heroes h ON ha.hero_id = h.hero_id "
+            + "WHERE g.guardian_id = %s AND h.hero_id = %s;"
+        )
+        data = [guardian_id, hero_id]
+        self.cursor.execute(query, data)
+        hero_obtained = self.cursor.fetchone()
+
+        if hero_obtained:
+            return True
+        else:
+            return False
+
+    def hero_inventory(self, guardian_id):
+        query = (
+            "SELECT h.hero_star, h.hero_name FROM guardians g "
+            + "INNER JOIN inventories i ON g.guardian_id = i.guardian_id "
+            + "INNER JOIN heroes_acquired ha ON i.hero_acquired_id = ha.hero_acquired_id "
+            + "INNER JOIN heroes h ON ha.hero_id = h.hero_id "
+            + "WHERE g.guardian_id = %s ORDER BY h.hero_star DESC;"
+        )
+        data = [guardian_id]
+        self.cursor.execute(query, data)
+        hero_inventory = self.cursor.fetchall()
+        hero_buffer = [[], [], []]
+
+        for hero in hero_inventory:
+            if hero[0] == 3:
+                hero_buffer[2].append("★★★ "+ hero[1])
+            if hero[0] == 2:
+                hero_buffer[1].append("★★ "+ hero[1])
+            if hero[0] == 1:
+                hero_buffer[0].append("★ "+ hero[1])
+
+        return hero_buffer
+
+    def get_hero_id(self, name):
+        # Get hero_id from heroes table
+        query = "SELECT hero_id FROM heroes WHERE hero_name = %s;"
+        data = [name]
+        self.cursor.execute(query, data)
+
+        hero_id = self.cursor.fetchone()
+
+        if isinstance(hero_id, tuple):
+            hero_id = hero_id[0]
+
+        return hero_id
+
+    def store_heroes(self, guardian_id, boxes):
+        hero_name = ""
+
+        for box in boxes:
+            if box.startswith("★★★ "):
+                hero_name = box[4:]
+            if box.startswith("★★ "):
+                hero_name = box[3:]
+            if box.startswith("★ "):
+                hero_name = box[2:]
+
+            # Get hero ID
+            hero_id = self.get_hero_id(hero_name)
+
+            if not self.is_hero_obtained(guardian_id, hero_id):
+                # Enter hero_id in heroes_acquired table
+                query = "INSERT INTO heroes_acquired (hero_id) VALUES (%s);"
+                data = [hero_id]
+                self.cursor.execute(query, data)
+                self.connection.commit()
+
+                # Get the hero_acquired_id
+                query = "SELECT hero_acquired_id FROM heroes_acquired WHERE hero_id = %s;"
+                data = [hero_id]
+                self.cursor.execute(query, data)
+
+                hero_acquired_id = self.cursor.fetchone()
+
+                if isinstance(hero_id, tuple):
+                    hero_acquired_id = hero_acquired_id[0]
+
+                # Enter hero_acquired_id in inventories table
+                query = "INSERT INTO inventories (hero_acquired_id, guardian_id) VALUES (%s, %s);"
+                data = [hero_acquired_id, guardian_id]
+                self.cursor.execute(query, data)
+                self.connection.commit()
+
+    # Disconnect database
     def disconnect(self):
         self.cursor.close()
         self.connection.close()

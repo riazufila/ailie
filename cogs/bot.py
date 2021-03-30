@@ -1,8 +1,10 @@
 #!/usr/bin/env python
 
+import os
 import asyncio
 import discord
 from discord.ext import commands
+from helpers.db_ailie import DatabaseAilie
 
 
 class Bot(commands.Cog):
@@ -25,6 +27,15 @@ class Bot(commands.Cog):
     @commands.command(name="ping", help="Check latency.")
     @commands.cooldown(1, 10, commands.BucketType.user)
     async def ping(self, ctx):
+        # Check if user is initialized first
+        db_ailie = DatabaseAilie()
+        if not db_ailie.is_initialized(ctx.author.id):
+            await ctx.send("Do `ailie;initialize` or `a;initialize` first before anything!")
+            db_ailie.disconnect()
+            return
+        
+        db_ailie.disconnect()
+
         await ctx.send(
             f"Pong, <@{ctx.author.id}>! Sending back this message with "
             + f"{round(self.bot.latency * 1000)}ms latency."
@@ -34,6 +45,15 @@ class Bot(commands.Cog):
     @commands.command(name="version", help="Shows version.")
     @commands.cooldown(1, 10, commands.BucketType.user)
     async def version(self, ctx):
+        # Check if user is initialized first
+        db_ailie = DatabaseAilie()
+        if not db_ailie.is_initialized(ctx.author.id):
+            await ctx.send("Do `ailie;initialize` or `a;initialize` first before anything!")
+            db_ailie.disconnect()
+            return
+        
+        db_ailie.disconnect()
+
         # Change upon version update
         version = "1.2.3"
 
@@ -95,12 +115,21 @@ class Bot(commands.Cog):
             await ctx.send_help(ctx.command)
             await asyncio.sleep(0.5)
             await msg.edit(content=msg.content + " Will that help?")
+        elif isinstance(error, commands.MaxConcurrencyReached):
+            await ctx.send(f"Yo, <@{ctx.author.id}>! CHILL! Let the others do it first?")
         else:
+            AUTHOR_ID = os.getenv("AUTHOR_ID")
+            author = await self.bot.fetch_user(AUTHOR_ID)
+
+            embed = discord.Embed(color=discord.Color.purple())
+            embed.set_author(name="Ailie's Error Log", icon_url=ctx.me.avatar_url)
+            embed.add_field(name="Command", value=ctx.command, inline=False)
+            embed.add_field(name="Error", value=error, inline=False)
+
+            await author.send(embed=embed)
+
             await ctx.send(
-                "**Oops! Looks like you found a bug.**"
-                + f"\n\n*Error: {error}*\n\nPlease post a new issue under "
-                + "the tab 'Issue' at https://github.com/riazufila/ailie."
-                + f"\nSorry, <@{ctx.author.id}>.. And thank you."
+                f"An error occured. But no worries, <@{ctx.author.id}>! I've informed my creator."
             )
 
 

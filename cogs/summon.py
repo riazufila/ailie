@@ -2,9 +2,9 @@
 
 import asyncio
 import random
-import csv
 import discord
 from discord.ext import commands
+from helpers.db_ailie import DatabaseAilie
 
 
 class Summon(commands.Cog):
@@ -12,9 +12,12 @@ class Summon(commands.Cog):
         # Bot assigned to class
         self.bot = bot
 
+        # Initialize database for Ailie
+        db_ailie = DatabaseAilie()
+
         # Get all the data for heroes and pick up heroes
-        self.heroes = self.getRecords("csv/heroes.csv", [[], [], []])
-        self.pick_up_heroes = self.getRecords("csv/pick-up-heroes.csv", [])
+        self.heroes = db_ailie.get_pool("heroes", "normal", [[], [], []])
+        self.pick_up_heroes = db_ailie.get_pool("heroes", "pickup", [])
 
         # Weights declaration for probability upon hero summons
         self.heroes_weights = [78.250, 19.000, 2.750]
@@ -22,10 +25,10 @@ class Summon(commands.Cog):
         self.heroes_last_slot_weights = [97.25, 2.75]
 
         # Get all the data for heroes and pick up heroes
-        self.equipments = self.getRecords(
-            "csv/equipments.csv", [[], [], [], [], []])
-        self.pick_up_equipments = self.getRecords(
-            "csv/pick-up-equipments.csv", [])
+        self.equipments = db_ailie.get_pool(
+                "equipments", "normal", [[], [], [], [], []])
+        self.pick_up_equipments = db_ailie.get_pool(
+                "equipments", "pickup", [])
 
         # Weights declaration for probability upon hero summons
         self.equipments_weights = [58.000, 27.000, 9.000, 3.000, 3.000]
@@ -34,22 +37,8 @@ class Summon(commands.Cog):
         ]
         self.equipments_last_slot_weights = [94, 3, 3]
 
-    # Get the records of all Guardian Tales heroes from csv files
-    def getRecords(self, csv_file, records):
-        buffer = records[:]
-
-        with open(csv_file, 'r') as file:
-            reader = csv.reader(file)
-            for row in reader:
-                for r in row:
-                    # Check if the list has a list inside declared
-                    if len(records) != 0:
-                        if r:
-                            buffer[row.index(r)].append(r)
-                    else:
-                        buffer.append(r)
-
-        return buffer
+        # Disconnect database for Ailie
+        db_ailie.disconnect()
 
     # Summons are determined to check for certain requirements
     def checkWhatIsSummoned(
@@ -279,9 +268,9 @@ class Summon(commands.Cog):
         boxes = []
 
         # Check for summon values be it 10, 1 or invalid
-        if one_or_ten == "10" or one_or_ten.lower() == "ten":
+        if one_or_ten == 10:
             results = random.choices(t, w, k=9)
-        elif one_or_ten == "1" or one_or_ten.lower() == "one":
+        elif one_or_ten == 1:
             results = random.choices(t, w, k=1)
         else:
             results = [
@@ -295,9 +284,23 @@ class Summon(commands.Cog):
 
             reply = random.choice(results)
 
+        # Reduce 2700 gems or 300 gems depending on the count
+        if one_or_ten == 10:
+            gems = 2700
+        else:
+            gems = 300
+
+        # Reduce gems in database after checking if balance is enough
+        db_ailie = DatabaseAilie()
+        enough_balance = db_ailie.spend_gems(ctx.author.id, gems)
+        db_ailie.disconnect()
+
+        if not enough_balance:
+            reply = f"You don't have enough gems, <@{ctx.author.id}>."
+
+
         # If the value is valid, then the statements here is executed
-        if one_or_ten == "10" or one_or_ten.lower() == "ten" or \
-                one_or_ten == "1" or one_or_ten.lower() == "one":
+        if (one_or_ten == 10 or one_or_ten == 1) and enough_balance:
             # Variables used as a counter to check what is being summoned
             pity_check = False
             pity = False
@@ -325,7 +328,7 @@ class Summon(commands.Cog):
             for result in results:
                 result = random.choices(result, k=1)
                 for r in result:
-                    if one_or_ten == "10" or one_or_ten.lower() == "ten":
+                    if one_or_ten == 10:
                         # To determine if pity is deserved for last slot summon
                         if not_easter_eggs["heroes_check"]:
                             if r in ["★★ ", "★★★ "] and not pity_check:
@@ -350,7 +353,7 @@ class Summon(commands.Cog):
             # If the summon is with a value 10 and the summons from 1 until 9
             # is bad (No 2 star and above for heroes and no 4 star and above
             # for equipments), then, the user deserves higher rates
-            if pity and (one_or_ten == "10" or one_or_ten.lower() == "ten"):
+            if pity and one_or_ten == 10:
                 if last_slot_weights == self.heroes_last_slot_weights:
                     target_pity = self.heroes[:]
                 else:
@@ -377,8 +380,7 @@ class Summon(commands.Cog):
                         boxes.append(pr)
 
             # If the user doesn't deserve pity, then continue with normal rates
-            if not pity and \
-                    (one_or_ten == "10" or one_or_ten.lower() == "ten"):
+            if not pity and one_or_ten == 10:
                 results = random.choices(t, w, k=1)
                 for not_pity_result in results:
                     n_p_r = random.choices(not_pity_result, k=1)
@@ -396,6 +398,11 @@ class Summon(commands.Cog):
             reply = self.getRepliesForSpecificSummons(
                 ctx, target, not_easter_eggs, easter_eggs)
 
+        # Record obtained units
+        db_ailie = DatabaseAilie()
+        db_ailie.store_heroes(ctx.author.id, boxes)
+        db_ailie.disconnect()
+
         return boxes, reply
 
     # Summon is displayed accordingly
@@ -409,16 +416,16 @@ class Summon(commands.Cog):
         # Iterate through box and edit messages to update the results
         boxes = iter(boxes)
         for box in boxes:
-            if one_or_ten == "10" or one_or_ten.lower() == "ten":
+            if one_or_ten == 10:
                 # Add two entry per request to lower occurance of rate limits
                 await msg.edit(
                         content=msg.content
                         + f"\n{counter}. {box}\n{counter + 1}. {next(boxes)}")
-                await asyncio.sleep(1.7)
+                await asyncio.sleep(1.5)
                 counter += 2
             else:
                 await msg.edit(content=msg.content + f"\n{counter}. {box}")
-                await asyncio.sleep(1.7)
+                await asyncio.sleep(1.5)
                 counter += 1
 
         # Send the reply to fellow guardian
@@ -428,7 +435,16 @@ class Summon(commands.Cog):
     # Lists the current pickup banner
     @commands.command(name="banner", help="List current pickup banner.")
     @commands.cooldown(1, 5, commands.BucketType.user)
-    async def pickUpInfo(self, ctx):
+    async def banner(self, ctx):
+        # Check if user is initialized first
+        db_ailie = DatabaseAilie()
+        if not db_ailie.is_initialized(ctx.author.id):
+            await ctx.send("Do `ailie;initialize` or `a;initialize` first before anything!")
+            db_ailie.disconnect()
+            return
+        
+        db_ailie.disconnect()
+
         embed = discord.Embed(
                 description="Current Pick Up Banners.",
                 color=discord.Color.purple())
@@ -460,7 +476,17 @@ class Summon(commands.Cog):
     @commands.command(
             name="summon", help="Summon heroes or equipments.", aliases=["s"])
     @commands.cooldown(1, 20, commands.BucketType.user)
-    async def summon(self, ctx, type, count, *target):
+    @commands.max_concurrency(1, per=commands.BucketType.channel, wait=False)
+    async def summon(self, ctx, type, count: int, *target):
+        # Check if user is initialized first
+        db_ailie = DatabaseAilie()
+        if not db_ailie.is_initialized(ctx.author.id):
+            await ctx.send("Do `ailie;initialize` or `a;initialize` first before anything!")
+            db_ailie.disconnect()
+            return
+        
+        db_ailie.disconnect()
+
         # Initialize variables to return for display
         boxes = []
         weightage = []
@@ -479,6 +505,10 @@ class Summon(commands.Cog):
                 pool = self.equipments
                 weightage = self.equipments_weights
                 last_slot_weightage = self.equipments_last_slot_weights
+
+                # Block equipment pulls for now
+                await ctx.send(f"Sorry, <@{ctx.author.id}>. For now, equipment pulls are being maintained.")
+                return
             else:
                 await ctx.send(
                         f"Use the command properly please, <@{ctx.author.id}>?")
@@ -492,6 +522,10 @@ class Summon(commands.Cog):
                 pool = self.equipments
                 pick_up_weightage = self.equipments_pick_up_weights
                 last_slot_weightage = self.equipments_last_slot_weights
+
+                # Block equipment pulls for now
+                await ctx.send(f"Sorry, <@{ctx.author.id}>. For now, equipment pulls are being maintained.")
+                return
             else:
                 await ctx.send(
                         f"Use the command properly please, <@{ctx.author.id}>?")

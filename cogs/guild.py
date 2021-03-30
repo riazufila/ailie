@@ -13,7 +13,13 @@ class Guild(commands.Cog):
     # Create guild
     @commands.command(name="create", help="Create guild.")
     async def create(self, ctx, guild_name):
-        db_ailie = DatabaseAilie(ctx.author.id)
+        # Check if user is initialized first
+        db_ailie = DatabaseAilie()
+        if not db_ailie.is_initialized(ctx.author.id):
+            await ctx.send("Do `ailie;initialize` or `a;initialize` first before anything!")
+            db_ailie.disconnect()
+            return
+        
         guild_check = True
         guild_id = 0
 
@@ -41,9 +47,13 @@ class Guild(commands.Cog):
 
     @commands.command(name="join", help="Join guild.")
     async def join(self, ctx, guild_id: int):
-        # Initialize database
-        db_ailie = DatabaseAilie(ctx.author.id)
-
+        # Check if user is initialized first
+        db_ailie = DatabaseAilie()
+        if not db_ailie.is_initialized(ctx.author.id):
+            await ctx.send("Do `ailie;initialize` or `a;initialize` first before anything!")
+            db_ailie.disconnect()
+            return
+        
         # Get Guild Master
         guild_master = db_ailie.get_guild_master(guild_id)
 
@@ -54,6 +64,7 @@ class Guild(commands.Cog):
                     await ctx.send(
                         f"The guild is full. Sorry, <@{ctx.author.id}>."
                     )
+                    db_ailie.disconnect()
                     return
 
                 # Check if Guild Master is in the Discord Server
@@ -63,6 +74,7 @@ class Guild(commands.Cog):
                         "You must be in the same Discord Server "
                         + "as the Guild Master."
                     )
+                    db_ailie.disconnect()
                     return
 
                 # Get Guild details
@@ -118,8 +130,13 @@ class Guild(commands.Cog):
 
     @commands.command(name="quit", help="Quit current Guild.")
     async def quit(self, ctx):
-        db_ailie = DatabaseAilie(ctx.author.id)
-
+        # Check if user is initialized first
+        db_ailie = DatabaseAilie()
+        if not db_ailie.is_initialized(ctx.author.id):
+            await ctx.send("Do `ailie;initialize` or `a;initialize` first before anything!")
+            db_ailie.disconnect()
+            return
+        
         if not db_ailie.is_guildless(ctx.author.id):
             guild_id = db_ailie.get_guild_id_of_member(ctx.author.id)
             guild_master = db_ailie.get_guild_master(guild_id)
@@ -131,6 +148,7 @@ class Guild(commands.Cog):
                         + f"your responsibilities, <@{ctx.author.id}>? "
                         + "Sorry, but NO!"
                     )
+                    db_ailie.disconnect()
                     return
                 else:
                     db_ailie.quit_guild(ctx.author.id)
@@ -150,14 +168,21 @@ class Guild(commands.Cog):
 
     @commands.command(name="promote", help="Change members' position.")
     async def promote(self, ctx, member: discord.Member, *position):
+        # Check if user is initialized first
+        db_ailie = DatabaseAilie()
+        if not db_ailie.is_initialized(ctx.author.id):
+            await ctx.send("Do `ailie;initialize` or `a;initialize` first before anything!")
+            db_ailie.disconnect()
+            return
+        
         # Initialize variables
-        db_ailie = DatabaseAilie(ctx.author.id)
         position = " ".join(position)
         position = position.title()
 
         # Check if author has a guild
         if db_ailie.is_guildless(ctx.author.id):
             await ctx.send(f"You're not even in a Guild, <@{ctx.author.id}>!")
+            db_ailie.disconnect()
             return
 
         # Check if author is Guild Master
@@ -168,6 +193,7 @@ class Guild(commands.Cog):
                 "You're not privileged to change positions of "
                 + f"other members, <@{ctx.author.id}>."
             )
+            db_ailie.disconnect()
             return
 
         # Abort command upon changing own position
@@ -175,14 +201,16 @@ class Guild(commands.Cog):
             await ctx.send(
                 f"Can't change your own position, <@{ctx.author.id}>!"
             )
+            db_ailie.disconnect()
             return
 
         # Check position
         if position.lower() not in ["guild master", "elder", "member"]:
             await ctx.send(
                 "The position you entered is invalid. For now, only "
-                + "Guild Master, Raid Checker, and Member is available."
+                + "Guild Master, Elder, and Member is available."
             )
+            db_ailie.disconnect()
             return
         else:
             # Check if in the same guild
@@ -222,6 +250,7 @@ class Guild(commands.Cog):
                             await ctx.send("Aborting Guild Master transfer!")
                     except Exception:
                         await ctx.send("Timeout!")
+                        db_ailie.disconnect()
                         return
                 else:
                     db_ailie.change_position(member.id, position)
@@ -237,8 +266,13 @@ class Guild(commands.Cog):
 
     @commands.command(name="members", help="List Guild members.")
     async def members(self, ctx):
-        db_ailie = DatabaseAilie(ctx.author.id)
-
+        # Check if user is initialized first
+        db_ailie = DatabaseAilie()
+        if not db_ailie.is_initialized(ctx.author.id):
+            await ctx.send("Do `ailie;initialize` or `a;initialize` first before anything!")
+            db_ailie.disconnect()
+            return
+        
         if not db_ailie.is_guildless(ctx.author.id):
             # Get guild name to present in output
             guild_name = db_ailie.get_guild_name_of_member(ctx.author.id)
