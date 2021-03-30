@@ -371,48 +371,51 @@ class DatabaseAilie:
 
         return pool
 
-    def hero_obtained(self, guardian_id):
+    def hero_obtained(self, guardian_id, hero_id):
         query = (
-            "SELECT g.guardian_id, h.hero_id FROM guardians g "
+            "SELECT h.hero_id FROM guardians g "
             + "INNER JOIN inventories i ON g.guardian_id = i.guardian_id "
             + "INNER JOIN heroes_acquired ha ON i.hero_acquired_id = ha.hero_acquired_id "
             + "INNER JOIN heroes h ON ha.hero_id = h.hero_id "
-            + "WHERE g.guardian_id = %s;"
+            + "WHERE g.guardian_id = %s AND h.hero_id = %s;"
         )
-        data = [guardian_id]
+        data = [guardian_id, hero_id]
         self.cursor.execute(query, data)
         hero_obtained = self.cursor.fetchone()
-
-        if isinstance(hero_obtained, tuple):
-            hero_obtained = hero_obtained[0]
 
         if hero_obtained:
             return True
         else:
             return False
 
+    def get_hero_id(self, name):
+        # Get hero_id from heroes table
+        query = "SELECT hero_id FROM heroes WHERE hero_name = %s;"
+        data = [name]
+        self.cursor.execute(query, data)
+
+        hero_id = self.cursor.fetchone()
+
+        if isinstance(hero_id, tuple):
+            hero_id = hero_id[0]
+
+        return hero_id
+
     def store_heroes(self, guardian_id, boxes):
-        name = ""
+        hero_name = ""
 
         for box in boxes:
             if box.startswith("★★★ "):
-                name = box[4:]
+                hero_name = box[4:]
             if box.startswith("★★ "):
-                name = box[3:]
+                hero_name = box[3:]
             if box.startswith("★ "):
-                name = box[2:]
+                hero_name = box[2:]
 
-            if not self.hero_obtained(guardian_id):
-                # Get hero_id from heroes table
-                query = "SELECT hero_id FROM heroes WHERE hero_name = %s;"
-                data = [name]
-                self.cursor.execute(query, data)
+            # Get hero ID
+            hero_id = self.get_hero_id(hero_name)
 
-                hero_id = self.cursor.fetchone()
-
-                if isinstance(hero_id, tuple):
-                    hero_id = hero_id[0]
-
+            if not self.hero_obtained(guardian_id, hero_id):
                 # Enter hero_id in heroes_acquired table
                 query = "INSERT INTO heroes_acquired (hero_id) VALUES (%s);"
                 data = [hero_id]
