@@ -38,19 +38,8 @@ class DatabaseAilie:
             initialized = False
 
         if not initialized:
-            inventory_check = True
-            inventory_id = 0
-
-            while inventory_check:
-                inventory_id = random.randint(pow(10, 14), (pow(10, 15) - 1))
-                inventory_check = self.inventory_exists(inventory_id)
-
-            query = "INSERT INTO inventories (inventory_id) VALUES (%s);"
-            data = [inventory_id]
-            self.cursor.execute(query, data)
-
-            query = "INSERT INTO guardians (guardian_id, inventory_id) VALUES (%s, %s);"
-            data = [guardian_id, inventory_id]
+            query = "INSERT INTO guardians (guardian_id) VALUES (%s);"
+            data = [guardian_id]
             self.cursor.execute(query, data)
 
             self.connection.commit()
@@ -382,26 +371,69 @@ class DatabaseAilie:
 
         return pool
 
-    def inventory_exists(self, inventory_id):
-        query = "SELECT inventory_id FROM guardians WHERE inventory_id = %s;"
-        data = [inventory_id]
+    def hero_obtained(self, guardian_id):
+        query = (
+            "SELECT g.guardian_id, h.hero_id FROM guardians g "
+            + "INNER JOIN inventories i ON g.guardian_id = i.guardian_id "
+            + "INNER JOIN heroes_acquired ha ON i.hero_acquired_id = ha.hero_acquired_id "
+            + "INNER JOIN heroes h ON ha.hero_id = h.hero_id "
+            + "WHERE g.guardian_id = %s;"
+        )
+        data = [guardian_id]
         self.cursor.execute(query, data)
+        hero_obtained = self.cursor.fetchone()
 
-        row = self.cursor.fetchone()
+        if isinstance(hero_obtained, tuple):
+            hero_obtained = hero_obtained[0]
 
-        if isinstance(row, tuple):
-            row = row[0]
-
-        if row:
+        if hero_obtained:
             return True
         else:
             return False
 
-    # def store_heroes(self, inventory_id, boxes):
+    def store_heroes(self, guardian_id, boxes):
+        name = ""
 
-    #     for box in boxes:
+        for box in boxes:
+            if box.startswith("★★★ "):
+                name = box[4:]
+            if box.startswith("★★ "):
+                name = box[3:]
+            if box.startswith("★ "):
+                name = box[2:]
 
-    #     return
+            if not self.hero_obtained(guardian_id):
+                # Get hero_id from heroes table
+                query = "SELECT hero_id FROM heroes WHERE hero_name = %s;"
+                data = [name]
+                self.cursor.execute(query, data)
+
+                hero_id = self.cursor.fetchone()
+
+                if isinstance(hero_id, tuple):
+                    hero_id = hero_id[0]
+
+                # Enter hero_id in heroes_acquired table
+                query = "INSERT INTO heroes_acquired (hero_id) VALUES (%s);"
+                data = [hero_id]
+                self.cursor.execute(query, data)
+                self.connection.commit()
+
+                # Get the hero_acquired_id
+                query = "SELECT hero_acquired_id FROM heroes_acquired WHERE hero_id = %s;"
+                data = [hero_id]
+                self.cursor.execute(query, data)
+
+                hero_acquired_id = self.cursor.fetchone()
+
+                if isinstance(hero_id, tuple):
+                    hero_acquired_id = hero_acquired_id[0]
+
+                # Enter hero_acquired_id in inventories table
+                query = "INSERT INTO inventories (hero_acquired_id, guardian_id) VALUES (%s, %s);"
+                data = [hero_acquired_id, guardian_id]
+                self.cursor.execute(query, data)
+                self.connection.commit()
 
     # Disconnect database
     def disconnect(self):
