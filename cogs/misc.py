@@ -17,10 +17,12 @@ class Misc(commands.Cog):
         # Check if user is initialized first
         db_ailie = DatabaseAilie()
         if not db_ailie.is_initialized(ctx.author.id):
-            await ctx.send("Do `ailie;initialize` or `a;initialize` first before anything!")
+            await ctx.send(
+                "Do `ailie;initialize` or `a;initialize` first before anything!"
+            )
             db_ailie.disconnect()
             return
-        
+
         db_ailie.disconnect()
 
         reply = [
@@ -49,10 +51,12 @@ class Misc(commands.Cog):
         # Check if user is initialized first
         db_ailie = DatabaseAilie()
         if not db_ailie.is_initialized(ctx.author.id):
-            await ctx.send("Do `ailie;initialize` or `a;initialize` first before anything!")
+            await ctx.send(
+                "Do `ailie;initialize` or `a;initialize` first before anything!"
+            )
             db_ailie.disconnect()
             return
-        
+
         db_ailie.disconnect()
 
         reply = [

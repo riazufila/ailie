@@ -295,13 +295,15 @@ class DatabaseAilie:
             return False
         else:
             # Query to update gems amount
-            query = "UPDATE guardians SET guardian_gems = %s WHERE guardian_id = %s;"
+            query = (
+                "UPDATE guardians SET guardian_gems = %s "
+                + "WHERE guardian_id = %s;"
+            )
             data = [balance_gems, guardian_id]
             self.cursor.execute(query, data)
             self.connection.commit()
-            
-            return True
 
+            return True
 
     # Summons related query
     def get_pool(self, type, pickup, stars):
@@ -361,7 +363,8 @@ class DatabaseAilie:
         query = (
             "SELECT h.hero_id FROM guardians g "
             + "INNER JOIN inventories i ON g.guardian_id = i.guardian_id "
-            + "INNER JOIN heroes_acquired ha ON i.hero_acquired_id = ha.hero_acquired_id "
+            + "INNER JOIN heroes_acquired ha "
+            + "ON i.hero_acquired_id = ha.hero_acquired_id "
             + "INNER JOIN heroes h ON ha.hero_id = h.hero_id "
             + "WHERE g.guardian_id = %s AND h.hero_id = %s;"
         )
@@ -378,7 +381,8 @@ class DatabaseAilie:
         query = (
             "SELECT h.hero_star, h.hero_name FROM guardians g "
             + "INNER JOIN inventories i ON g.guardian_id = i.guardian_id "
-            + "INNER JOIN heroes_acquired ha ON i.hero_acquired_id = ha.hero_acquired_id "
+            + "INNER JOIN heroes_acquired ha "
+            + "ON i.hero_acquired_id = ha.hero_acquired_id "
             + "INNER JOIN heroes h ON ha.hero_id = h.hero_id "
             + "WHERE g.guardian_id = %s ORDER BY h.hero_star DESC;"
         )
@@ -389,11 +393,11 @@ class DatabaseAilie:
 
         for hero in hero_inventory:
             if hero[0] == 3:
-                hero_buffer[2].append("★★★ "+ hero[1])
+                hero_buffer[2].append("★★★ " + hero[1])
             if hero[0] == 2:
-                hero_buffer[1].append("★★ "+ hero[1])
+                hero_buffer[1].append("★★ " + hero[1])
             if hero[0] == 1:
-                hero_buffer[0].append("★ "+ hero[1])
+                hero_buffer[0].append("★ " + hero[1])
 
         return hero_buffer
 
@@ -432,7 +436,10 @@ class DatabaseAilie:
                 self.connection.commit()
 
                 # Get the hero_acquired_id
-                query = "SELECT hero_acquired_id FROM heroes_acquired WHERE hero_id = %s;"
+                query = (
+                    "SELECT hero_acquired_id FROM heroes_acquired "
+                    + "WHERE hero_id = %s;"
+                )
                 data = [hero_id]
                 self.cursor.execute(query, data)
 
@@ -442,7 +449,10 @@ class DatabaseAilie:
                     hero_acquired_id = hero_acquired_id[0]
 
                 # Enter hero_acquired_id in inventories table
-                query = "INSERT INTO inventories (hero_acquired_id, guardian_id) VALUES (%s, %s);"
+                query = (
+                    "INSERT INTO inventories (hero_acquired_id, "
+                    + "guardian_id) VALUES (%s, %s);"
+                )
                 data = [hero_acquired_id, guardian_id]
                 self.cursor.execute(query, data)
                 self.connection.commit()
