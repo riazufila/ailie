@@ -30,10 +30,12 @@ class Bot(commands.Cog):
         # Check if user is initialized first
         db_ailie = DatabaseAilie()
         if not db_ailie.is_initialized(ctx.author.id):
-            await ctx.send("Do `ailie;initialize` or `a;initialize` first before anything!")
+            await ctx.send(
+                "Do `ailie;initialize` or `a;initialize` first before anything!"
+            )
             db_ailie.disconnect()
             return
-        
+
         db_ailie.disconnect()
 
         await ctx.send(
@@ -48,10 +50,12 @@ class Bot(commands.Cog):
         # Check if user is initialized first
         db_ailie = DatabaseAilie()
         if not db_ailie.is_initialized(ctx.author.id):
-            await ctx.send("Do `ailie;initialize` or `a;initialize` first before anything!")
+            await ctx.send(
+                "Do `ailie;initialize` or `a;initialize` first before anything!"
+            )
             db_ailie.disconnect()
             return
-        
+
         db_ailie.disconnect()
 
         # Change upon version update
@@ -116,20 +120,25 @@ class Bot(commands.Cog):
             await asyncio.sleep(0.5)
             await msg.edit(content=msg.content + " Will that help?")
         elif isinstance(error, commands.MaxConcurrencyReached):
-            await ctx.send(f"Yo, <@{ctx.author.id}>! CHILL! Let the others do it first?")
+            await ctx.send(
+                f"Yo, <@{ctx.author.id}>! CHILL! Let the others do it first?"
+            )
         else:
             AUTHOR_ID = os.getenv("AUTHOR_ID")
             author = await self.bot.fetch_user(AUTHOR_ID)
 
             embed = discord.Embed(color=discord.Color.purple())
-            embed.set_author(name="Ailie's Error Log", icon_url=ctx.me.avatar_url)
+            embed.set_author(
+                name="Ailie's Error Log", icon_url=ctx.me.avatar_url
+            )
             embed.add_field(name="Command", value=ctx.command, inline=False)
             embed.add_field(name="Error", value=error, inline=False)
 
             await author.send(embed=embed)
 
             await ctx.send(
-                f"An error occured. But no worries, <@{ctx.author.id}>! I've informed my creator."
+                f"An error occured. But no worries, <@{ctx.author.id}>! "
+                + "I've informed my creator."
             )
 
 

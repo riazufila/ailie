@@ -16,32 +16,37 @@ class Guild(commands.Cog):
         # Check if user is initialized first
         db_ailie = DatabaseAilie()
         if not db_ailie.is_initialized(ctx.author.id):
-            await ctx.send("Do `ailie;initialize` or `a;initialize` first before anything!")
+            await ctx.send(
+                "Do `ailie;initialize` or `a;initialize` first before anything!"
+            )
             db_ailie.disconnect()
             return
-        
+
+        # Create a random Guild ID until there is no duplicate
         guild_check = True
         guild_id = 0
 
-        # Create a random Guild ID until there is no duplicate
         while guild_check:
             guild_id = random.randint(pow(10, 14), (pow(10, 15) - 1))
             guild_check = db_ailie.guild_exists(guild_id)
 
         # Guild creation if and only if the user is guildless
-        if db_ailie.is_guildless(ctx.author.id):
-            db_ailie.create_guild(
-                ctx.author.id, "Guild Master", guild_id, guild_name
-            )
-            await ctx.send(
-                f"Congratulations, <@{ctx.author.id}>! You have created "
-                + f"a Guild named, `{guild_name}` with the ID, `{guild_id}`."
-            )
-        else:
+        if not db_ailie.is_guildless(ctx.author.id):
             await ctx.send(
                 "I don't think you should be creating a guild when you "
                 + f"already have one. No, <@{ctx.author.id}>?"
             )
+            db_ailie.disconnect()
+            return
+
+        # Finally, create guild after all checks is done
+        db_ailie.create_guild(
+            ctx.author.id, "Guild Master", guild_id, guild_name
+        )
+        await ctx.send(
+            f"Congratulations, <@{ctx.author.id}>! You have created "
+            + f"a Guild named, `{guild_name}` with the ID, `{guild_id}`."
+        )
 
         db_ailie.disconnect()
 
@@ -50,10 +55,12 @@ class Guild(commands.Cog):
         # Check if user is initialized first
         db_ailie = DatabaseAilie()
         if not db_ailie.is_initialized(ctx.author.id):
-            await ctx.send("Do `ailie;initialize` or `a;initialize` first before anything!")
+            await ctx.send(
+                "Do `ailie;initialize` or `a;initialize` first before anything!"
+            )
             db_ailie.disconnect()
             return
-        
+
         # Get Guild Master
         guild_master = db_ailie.get_guild_master(guild_id)
 
@@ -133,10 +140,13 @@ class Guild(commands.Cog):
         # Check if user is initialized first
         db_ailie = DatabaseAilie()
         if not db_ailie.is_initialized(ctx.author.id):
-            await ctx.send("Do `ailie;initialize` or `a;initialize` first before anything!")
+            await ctx.send(
+                "Do `ailie;initialize` or `a;initialize` first before anything!"
+            )
             db_ailie.disconnect()
             return
-        
+
+        # Condition checks
         if not db_ailie.is_guildless(ctx.author.id):
             guild_id = db_ailie.get_guild_id_of_member(ctx.author.id)
             guild_master = db_ailie.get_guild_master(guild_id)
@@ -171,10 +181,12 @@ class Guild(commands.Cog):
         # Check if user is initialized first
         db_ailie = DatabaseAilie()
         if not db_ailie.is_initialized(ctx.author.id):
-            await ctx.send("Do `ailie;initialize` or `a;initialize` first before anything!")
+            await ctx.send(
+                "Do `ailie;initialize` or `a;initialize` first before anything!"
+            )
             db_ailie.disconnect()
             return
-        
+
         # Initialize variables
         position = " ".join(position)
         position = position.title()
@@ -264,15 +276,19 @@ class Guild(commands.Cog):
 
         db_ailie.disconnect()
 
-    @commands.command(name="members", help="List Guild members.")
+    @commands.command(
+        name="members", help="List Guild members.", aliases=["member"]
+    )
     async def members(self, ctx):
         # Check if user is initialized first
         db_ailie = DatabaseAilie()
         if not db_ailie.is_initialized(ctx.author.id):
-            await ctx.send("Do `ailie;initialize` or `a;initialize` first before anything!")
+            await ctx.send(
+                "Do `ailie;initialize` or `a;initialize` first before anything!"
+            )
             db_ailie.disconnect()
             return
-        
+
         if not db_ailie.is_guildless(ctx.author.id):
             # Get guild name to present in output
             guild_name = db_ailie.get_guild_name_of_member(ctx.author.id)

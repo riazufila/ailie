@@ -298,7 +298,6 @@ class Summon(commands.Cog):
         if not enough_balance:
             reply = f"You don't have enough gems, <@{ctx.author.id}>."
 
-
         # If the value is valid, then the statements here is executed
         if (one_or_ten == 10 or one_or_ten == 1) and enough_balance:
             # Variables used as a counter to check what is being summoned
@@ -439,10 +438,13 @@ class Summon(commands.Cog):
         # Check if user is initialized first
         db_ailie = DatabaseAilie()
         if not db_ailie.is_initialized(ctx.author.id):
-            await ctx.send("Do `ailie;initialize` or `a;initialize` first before anything!")
+            await ctx.send(
+                    "Do `ailie;initialize` or `a;initialize` first "
+                    + "before anything!"
+                )
             db_ailie.disconnect()
             return
-        
+
         db_ailie.disconnect()
 
         embed = discord.Embed(
@@ -481,10 +483,13 @@ class Summon(commands.Cog):
         # Check if user is initialized first
         db_ailie = DatabaseAilie()
         if not db_ailie.is_initialized(ctx.author.id):
-            await ctx.send("Do `ailie;initialize` or `a;initialize` first before anything!")
+            await ctx.send(
+                    "Do `ailie;initialize` or `a;initialize` first before "
+                    + "anything!"
+                )
             db_ailie.disconnect()
             return
-        
+
         db_ailie.disconnect()
 
         # Initialize variables to return for display
@@ -507,7 +512,10 @@ class Summon(commands.Cog):
                 last_slot_weightage = self.equipments_last_slot_weights
 
                 # Block equipment pulls for now
-                await ctx.send(f"Sorry, <@{ctx.author.id}>. For now, equipment pulls are being maintained.")
+                await ctx.send(
+                        f"Sorry, <@{ctx.author.id}>. For now, equipment "
+                        + "pulls are being maintained."
+                    )
                 return
             else:
                 await ctx.send(
@@ -524,7 +532,10 @@ class Summon(commands.Cog):
                 last_slot_weightage = self.equipments_last_slot_weights
 
                 # Block equipment pulls for now
-                await ctx.send(f"Sorry, <@{ctx.author.id}>. For now, equipment pulls are being maintained.")
+                await ctx.send(
+                        f"Sorry, <@{ctx.author.id}>. For now, equipment pulls "
+                        + "are being maintained."
+                    )
                 return
             else:
                 await ctx.send(

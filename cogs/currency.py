@@ -15,10 +15,13 @@ class Currency(commands.Cog):
         # Check if user is initialized first
         db_ailie = DatabaseAilie()
         if not db_ailie.is_initialized(ctx.author.id):
-            await ctx.send("Do `ailie;initialize` or `a;initialize` first before anything!")
+            await ctx.send(
+                "Do `ailie;initialize` or `a;initialize` "
+                + "first before anything!"
+            )
             db_ailie.disconnect()
             return
-        
+
         # Variables initialized
         gems_to_obtain = []
         counter = 0
@@ -60,10 +63,12 @@ class Currency(commands.Cog):
         # Check if user is initialized first
         db_ailie = DatabaseAilie()
         if not db_ailie.is_initialized(ctx.author.id):
-            await ctx.send("Do `ailie;initialize` or `a;initialize` first before anything!")
+            await ctx.send(
+                "Do `ailie;initialize` or `a;initialize` first before anything!"
+            )
             db_ailie.disconnect()
             return
-        
+
         # Variables initialized
         gems_to_obtain = []
         counter = 0
@@ -85,7 +90,7 @@ class Currency(commands.Cog):
         reply = [
             f"Little Princess found you {gems} gems, <@{ctx.author.id}>!",
             "Little Princess did all the hard work for you and got you, "
-            + f" {gems} gems. Good one, <@{ctx.author.id}>?",
+            + f"{gems} gems. Good one, <@{ctx.author.id}>?",
             f"{gems} gems obtained! You get that by being nice to "
             + f"Little Princess, <@{ctx.author.id}>!",
             f"Don't you ever get tired of Little Princess, <@{ctx.author.id}>? "
@@ -103,10 +108,12 @@ class Currency(commands.Cog):
         # Check if user is initialized first
         db_ailie = DatabaseAilie()
         if not db_ailie.is_initialized(ctx.author.id):
-            await ctx.send("Do `ailie;initialize` or `a;initialize` first before anything!")
+            await ctx.send(
+                "Do `ailie;initialize` or `a;initialize` first before anything!"
+            )
             db_ailie.disconnect()
             return
-        
+
         # Disallow negative numbers as input
         if gems <= 0:
             await ctx.send(f"Are you okay, <@{ctx.author.id}>?")
