@@ -4,7 +4,7 @@ import os
 import asyncio
 import discord
 from discord.ext import commands
-from helpers.db_ailie import DatabaseAilie
+from helpers.database import Database
 
 
 class Bot(commands.Cog):
@@ -28,7 +28,7 @@ class Bot(commands.Cog):
     @commands.cooldown(1, 10, commands.BucketType.user)
     async def ping(self, ctx):
         # Check if user is initialized first
-        db_ailie = DatabaseAilie()
+        db_ailie = Database()
         if not db_ailie.is_initialized(ctx.author.id):
             await ctx.send(
                 "Do `ailie;initialize` or `a;initialize` first before anything!"
@@ -48,7 +48,7 @@ class Bot(commands.Cog):
     @commands.cooldown(1, 10, commands.BucketType.user)
     async def version(self, ctx):
         # Check if user is initialized first
-        db_ailie = DatabaseAilie()
+        db_ailie = Database()
         if not db_ailie.is_initialized(ctx.author.id):
             await ctx.send(
                 "Do `ailie;initialize` or `a;initialize` first before anything!"

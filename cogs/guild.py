@@ -3,7 +3,7 @@
 import random
 import discord
 from discord.ext import commands
-from helpers.db_ailie import DatabaseAilie
+from helpers.database import Database
 
 
 class Guild(commands.Cog):
@@ -14,7 +14,7 @@ class Guild(commands.Cog):
     @commands.command(name="create", help="Create guild.")
     async def create(self, ctx, guild_name):
         # Check if user is initialized first
-        db_ailie = DatabaseAilie()
+        db_ailie = Database()
         if not db_ailie.is_initialized(ctx.author.id):
             await ctx.send(
                 "Do `ailie;initialize` or `a;initialize` first before anything!"
@@ -53,7 +53,7 @@ class Guild(commands.Cog):
     @commands.command(name="join", help="Join guild.")
     async def join(self, ctx, guild_id: int):
         # Check if user is initialized first
-        db_ailie = DatabaseAilie()
+        db_ailie = Database()
         if not db_ailie.is_initialized(ctx.author.id):
             await ctx.send(
                 "Do `ailie;initialize` or `a;initialize` first before anything!"
@@ -138,7 +138,7 @@ class Guild(commands.Cog):
     @commands.command(name="quit", help="Quit current Guild.")
     async def quit(self, ctx):
         # Check if user is initialized first
-        db_ailie = DatabaseAilie()
+        db_ailie = Database()
         if not db_ailie.is_initialized(ctx.author.id):
             await ctx.send(
                 "Do `ailie;initialize` or `a;initialize` first before anything!"
@@ -179,7 +179,7 @@ class Guild(commands.Cog):
     @commands.command(name="promote", help="Change members' position.")
     async def promote(self, ctx, member: discord.Member, *position):
         # Check if user is initialized first
-        db_ailie = DatabaseAilie()
+        db_ailie = Database()
         if not db_ailie.is_initialized(ctx.author.id):
             await ctx.send(
                 "Do `ailie;initialize` or `a;initialize` first before anything!"
@@ -281,7 +281,7 @@ class Guild(commands.Cog):
     )
     async def members(self, ctx):
         # Check if user is initialized first
-        db_ailie = DatabaseAilie()
+        db_ailie = Database()
         if not db_ailie.is_initialized(ctx.author.id):
             await ctx.send(
                 "Do `ailie;initialize` or `a;initialize` first before anything!"

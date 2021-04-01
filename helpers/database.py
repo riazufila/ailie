@@ -4,7 +4,7 @@ import os
 import psycopg2
 
 
-class DatabaseAilie:
+class Database():
     def __init__(self):
         DATABASE_URL = os.environ["DATABASE_URL"]
         self.connection = psycopg2.connect(DATABASE_URL, sslmode="require")
