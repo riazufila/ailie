@@ -10,5 +10,5 @@ venv/
 # Vim
 .vim/
 
-# Migrate scripts
-migrate-script.py
+# Migration helpers
+migrate/
