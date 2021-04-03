@@ -5,7 +5,7 @@
 -- Dumped from database version 13.2
 -- Dumped by pg_dump version 13.2
 
--- Started on 2021-04-03 16:48:52 +08
+-- Started on 2021-04-03 18:22:17 +08
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -323,7 +323,7 @@ ALTER TABLE ONLY public.equipments_acquired
     ADD CONSTRAINT inventories_inventory_id_fkey FOREIGN KEY (inventory_id) REFERENCES public.inventories(inventory_id) NOT VALID;
 
 
--- Completed on 2021-04-03 16:48:53 +08
+-- Completed on 2021-04-03 18:22:17 +08
 
 --
 -- PostgreSQL database dump complete
