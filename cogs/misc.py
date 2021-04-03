@@ -3,7 +3,7 @@
 import random
 import discord
 from discord.ext import commands
-from helpers.db_ailie import DatabaseAilie
+from helpers.database import Database
 
 
 class Misc(commands.Cog):
@@ -15,7 +15,7 @@ class Misc(commands.Cog):
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def pourSalt(self, ctx, mention: discord.Member):
         # Check if user is initialized first
-        db_ailie = DatabaseAilie()
+        db_ailie = Database()
         if not db_ailie.is_initialized(ctx.author.id):
             await ctx.send(
                 "Do `ailie;initialize` or `a;initialize` first before anything!"
@@ -49,7 +49,7 @@ class Misc(commands.Cog):
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def pressF(self, ctx, mention: discord.Member):
         # Check if user is initialized first
-        db_ailie = DatabaseAilie()
+        db_ailie = Database()
         if not db_ailie.is_initialized(ctx.author.id):
             await ctx.send(
                 "Do `ailie;initialize` or `a;initialize` first before anything!"

@@ -2,7 +2,7 @@
 
 import random
 from discord.ext import commands
-from helpers.db_ailie import DatabaseAilie
+from helpers.database import Database
 
 
 class Currency(commands.Cog):
@@ -13,7 +13,7 @@ class Currency(commands.Cog):
     @commands.cooldown(1, 20, commands.BucketType.user)
     async def race(self, ctx):
         # Check if user is initialized first
-        db_ailie = DatabaseAilie()
+        db_ailie = Database()
         if not db_ailie.is_initialized(ctx.author.id):
             await ctx.send(
                 "Do `ailie;initialize` or `a;initialize` "
@@ -61,7 +61,7 @@ class Currency(commands.Cog):
     @commands.cooldown(1, 30, commands.BucketType.user)
     async def pat(self, ctx):
         # Check if user is initialized first
-        db_ailie = DatabaseAilie()
+        db_ailie = Database()
         if not db_ailie.is_initialized(ctx.author.id):
             await ctx.send(
                 "Do `ailie;initialize` or `a;initialize` first before anything!"
@@ -106,7 +106,7 @@ class Currency(commands.Cog):
     @commands.cooldown(1, 15, commands.BucketType.user)
     async def gamble(self, ctx, gems: int):
         # Check if user is initialized first
-        db_ailie = DatabaseAilie()
+        db_ailie = Database()
         if not db_ailie.is_initialized(ctx.author.id):
             await ctx.send(
                 "Do `ailie;initialize` or `a;initialize` first before anything!"
@@ -121,7 +121,7 @@ class Currency(commands.Cog):
             return
 
         # Check if gems is available to gamble
-        db_ailie = DatabaseAilie()
+        db_ailie = Database()
         current_gems = db_ailie.get_gems(ctx.author.id)
         balance = current_gems - gems
         if balance < 0:

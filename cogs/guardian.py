@@ -2,7 +2,7 @@
 
 import discord
 from discord.ext import commands
-from helpers.db_ailie import DatabaseAilie
+from helpers.database import Database
 
 
 class Guardian(commands.Cog):
@@ -13,7 +13,7 @@ class Guardian(commands.Cog):
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def profile(self, ctx):
         # Check if user is initialized first
-        db_ailie = DatabaseAilie()
+        db_ailie = Database()
         if not db_ailie.is_initialized(ctx.author.id):
             await ctx.send(
                 "Do `ailie;initialize` or `a;initialize` first before anything!"
@@ -45,7 +45,7 @@ class Guardian(commands.Cog):
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def inventory(self, ctx, type, grade):
         # Check if user is initialized first
-        db_ailie = DatabaseAilie()
+        db_ailie = Database()
         if not db_ailie.is_initialized(ctx.author.id):
             await ctx.send(
                 "Do `ailie;initialize` or `a;initialize` first before anything!"
@@ -120,7 +120,7 @@ class Guardian(commands.Cog):
     @commands.cooldown(1, 60, commands.BucketType.user)
     async def username(self, ctx, username):
         # Check if user is initialized first
-        db_ailie = DatabaseAilie()
+        db_ailie = Database()
         if not db_ailie.is_initialized(ctx.author.id):
             await ctx.send(
                 "Do `ailie;initialize` or `a;initialize` first before anything!"
@@ -138,7 +138,7 @@ class Guardian(commands.Cog):
     @commands.command(name="initialize", help="Initialize user.")
     @commands.cooldown(1, 60, commands.BucketType.user)
     async def initialize(self, ctx):
-        db_ailie = DatabaseAilie()
+        db_ailie = Database()
 
         if db_ailie.initialize_user(ctx.author.id):
             await ctx.send(

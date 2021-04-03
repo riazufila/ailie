@@ -4,7 +4,7 @@ import asyncio
 import random
 import discord
 from discord.ext import commands
-from helpers.db_ailie import DatabaseAilie
+from helpers.database import Database
 
 
 class Summon(commands.Cog):
@@ -13,7 +13,7 @@ class Summon(commands.Cog):
         self.bot = bot
 
         # Initialize database for Ailie
-        db_ailie = DatabaseAilie()
+        db_ailie = Database()
 
         # Get all the data for heroes and pick up heroes
         self.heroes = db_ailie.get_pool("heroes", "normal", [[], [], []])
@@ -291,7 +291,7 @@ class Summon(commands.Cog):
             gems = 300
 
         # Reduce gems in database after checking if balance is enough
-        db_ailie = DatabaseAilie()
+        db_ailie = Database()
         enough_balance = db_ailie.spend_gems(ctx.author.id, gems)
         db_ailie.disconnect()
 
@@ -398,7 +398,7 @@ class Summon(commands.Cog):
                 ctx, target, not_easter_eggs, easter_eggs)
 
         # Record obtained units
-        db_ailie = DatabaseAilie()
+        db_ailie = Database()
         db_ailie.store_heroes(ctx.author.id, boxes)
         db_ailie.disconnect()
 
@@ -436,7 +436,7 @@ class Summon(commands.Cog):
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def banner(self, ctx):
         # Check if user is initialized first
-        db_ailie = DatabaseAilie()
+        db_ailie = Database()
         if not db_ailie.is_initialized(ctx.author.id):
             await ctx.send(
                     "Do `ailie;initialize` or `a;initialize` first "
@@ -481,7 +481,7 @@ class Summon(commands.Cog):
     @commands.max_concurrency(1, per=commands.BucketType.channel, wait=False)
     async def summon(self, ctx, type, count: int, *target):
         # Check if user is initialized first
-        db_ailie = DatabaseAilie()
+        db_ailie = Database()
         if not db_ailie.is_initialized(ctx.author.id):
             await ctx.send(
                     "Do `ailie;initialize` or `a;initialize` first before "

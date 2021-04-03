@@ -4,7 +4,7 @@ import os
 import psycopg2
 
 
-class DatabaseAilie:
+class Database():
     def __init__(self):
         DATABASE_URL = os.environ["DATABASE_URL"]
         self.connection = psycopg2.connect(DATABASE_URL, sslmode="require")
@@ -25,6 +25,10 @@ class DatabaseAilie:
 
         if not initialized:
             query = "INSERT INTO guardians (guardian_id) VALUES (%s);"
+            data = [guardian_id]
+            self.cursor.execute(query, data)
+
+            query = "INSERT INTO inventories (guardian_id) VALUES (%s);"
             data = [guardian_id]
             self.cursor.execute(query, data)
 
@@ -361,12 +365,13 @@ class DatabaseAilie:
 
     def is_hero_obtained(self, guardian_id, hero_id):
         query = (
-            "SELECT h.hero_id FROM guardians g "
-            + "INNER JOIN inventories i ON g.guardian_id = i.guardian_id "
-            + "INNER JOIN heroes_acquired ha "
-            + "ON i.hero_acquired_id = ha.hero_acquired_id "
-            + "INNER JOIN heroes h ON ha.hero_id = h.hero_id "
-            + "WHERE g.guardian_id = %s AND h.hero_id = %s;"
+            "SELECT he.hero_id "
+            + "FROM inventories i "
+            + "INNER JOIN heroes_acquired h "
+            + "ON i.inventory_id = h.inventory_id "
+            + "INNER JOIN heroes he "
+            + "ON h.hero_id = he.hero_id "
+            + "WHERE i.guardian_id = 782869639344160768 AND he.hero_id = 69;"
         )
         data = [guardian_id, hero_id]
         self.cursor.execute(query, data)
@@ -382,7 +387,7 @@ class DatabaseAilie:
             "SELECT h.hero_star, h.hero_name FROM guardians g "
             + "INNER JOIN inventories i ON g.guardian_id = i.guardian_id "
             + "INNER JOIN heroes_acquired ha "
-            + "ON i.hero_acquired_id = ha.hero_acquired_id "
+            + "ON i.inventory_id = ha.inventory_id "
             + "INNER JOIN heroes h ON ha.hero_id = h.hero_id "
             + "WHERE g.guardian_id = %s ORDER BY h.hero_star DESC;"
         )
@@ -414,6 +419,18 @@ class DatabaseAilie:
 
         return hero_id
 
+    def get_inventory_id(self, guardian_id):
+        query = "SELECT inventory_id FROM inventories WHERE guardian_id = %s;"
+        data = [guardian_id]
+        self.cursor.execute(query, data)
+
+        inventory_id = self.cursor.fetchone()
+
+        if isinstance(inventory_id, tuple):
+            inventory_id = inventory_id[0]
+
+        return inventory_id
+
     def store_heroes(self, guardian_id, boxes):
         hero_name = ""
 
@@ -428,32 +445,16 @@ class DatabaseAilie:
             # Get hero ID
             hero_id = self.get_hero_id(hero_name)
 
+            # Get inventory ID
+            inventory_id = self.get_inventory_id(guardian_id)
+
             if not self.is_hero_obtained(guardian_id, hero_id):
                 # Enter hero_id in heroes_acquired table
-                query = "INSERT INTO heroes_acquired (hero_id) VALUES (%s);"
-                data = [hero_id]
-                self.cursor.execute(query, data)
-                self.connection.commit()
-
-                # Get the hero_acquired_id
                 query = (
-                    "SELECT hero_acquired_id FROM heroes_acquired "
-                    + "WHERE hero_id = %s;"
+                    "INSERT INTO heroes_acquired (hero_id, inventory_id) "
+                    + "VALUES (%s, %s);"
                 )
-                data = [hero_id]
-                self.cursor.execute(query, data)
-
-                hero_acquired_id = self.cursor.fetchone()
-
-                if isinstance(hero_id, tuple):
-                    hero_acquired_id = hero_acquired_id[0]
-
-                # Enter hero_acquired_id in inventories table
-                query = (
-                    "INSERT INTO inventories (hero_acquired_id, "
-                    + "guardian_id) VALUES (%s, %s);"
-                )
-                data = [hero_acquired_id, guardian_id]
+                data = [hero_id, inventory_id]
                 self.cursor.execute(query, data)
                 self.connection.commit()
 
