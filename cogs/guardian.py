@@ -97,13 +97,29 @@ class Guardian(commands.Cog):
             db_ailie.disconnect()
             return
 
+        # Check if person mentioned is initialized
+        if mention:
+            if not db_ailie.is_initialized(mention.id):
+                await ctx.send(f"{mention.mention} is not initialized yet!")
+                db_ailie.disconnect()
+                return
+
+        if mention is None:
+            guardian_id = ctx.author.id
+            guardian_name = ctx.author.name
+            guardian_avatar = ctx.author.avatar_url
+        else:
+            guardian_id = mention.id
+            guardian_name = mention.name
+            guardian_avatar = mention.avatar_url
+
         # Determine inventory to check
         if type.lower() in ["heroes", "hero", "h"]:
-            inventory = db_ailie.hero_inventory(ctx.author.id)
+            inventory = db_ailie.hero_inventory(guardian_id)
             if len(inventory[len(inventory) - 1]) > 1:
-                header = "Heroes"
+                header = "Unique Heroes"
             else:
-                header = "Hero"
+                header = "Unique Hero"
         elif type.lower() in [
             "equipments",
             "equipment",
@@ -111,11 +127,11 @@ class Guardian(commands.Cog):
             "equip",
             "e",
         ]:
-            inventory = db_ailie.equip_inventory(ctx.author.id)
+            inventory = db_ailie.equip_inventory(guardian_id)
             if len(inventory[len(inventory) - 1]) > 1:
-                header = "Equipments"
+                header = "Epic Exclusive Equipments"
             else:
-                header = "Equipment"
+                header = "Epic Exclusive Equipment"
         else:
             await ctx.send(
                 "There's only inventories for heroes and equipments, "
@@ -126,8 +142,8 @@ class Guardian(commands.Cog):
 
         embed = discord.Embed(color=discord.Color.purple())
         embed.set_author(
-            name=ctx.author.name + "'s Inventory",
-            icon_url=ctx.author.avatar_url,
+            name=guardian_name + "'s Inventory",
+            icon_url=guardian_avatar,
         )
         if len(inventory[len(inventory) - 1]) == 0:
             data = "None"
