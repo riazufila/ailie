@@ -9,7 +9,9 @@ class Guardian(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(name="profile", help="View profile.")
+    @commands.command(
+        name="profile", help="View profile.", aliases=["prof", "pro", "pr"]
+    )
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def profile(self, ctx):
         # Check if user is initialized first
@@ -101,8 +103,8 @@ class Guardian(commands.Cog):
 
         db_ailie.disconnect()
 
-    @commands.command(name="username", help="Set username.")
-    @commands.cooldown(1, 60, commands.BucketType.user)
+    @commands.command(name="username", help="Set username.", aliases=["name"])
+    @commands.cooldown(1, 5, commands.BucketType.user)
     async def username(self, ctx, username):
         # Check if user is initialized first
         db_ailie = Database()
@@ -120,8 +122,10 @@ class Guardian(commands.Cog):
 
         db_ailie.disconnect()
 
-    @commands.command(name="initialize", help="Initialize user.")
-    @commands.cooldown(1, 60, commands.BucketType.user)
+    @commands.command(
+        name="initialize", help="Initialize user.", aliases=["init"]
+    )
+    @commands.cooldown(1, 5, commands.BucketType.user)
     async def initialize(self, ctx):
         db_ailie = Database()
 
@@ -132,7 +136,8 @@ class Guardian(commands.Cog):
             )
         else:
             await ctx.send(
-                f"You are already initialized, <@{ctx.author.id}>. Have fun!"
+                f"You are already initialized, <@{ctx.author.id}>. "
+                + "No need to initialize for the second time. Have fun!"
             )
 
 
