@@ -108,7 +108,7 @@ class Currency(commands.Cog):
     @commands.command(
         name="gamble",
         help="Gamble gems.",
-        aliases=["gamb", "gam", "gbl", "bet"],
+        aliases=["gamb", "gam", "bet"],
     )
     @commands.cooldown(1, 15, commands.BucketType.user)
     async def gamble(self, ctx, gems: int):
@@ -248,6 +248,15 @@ class Currency(commands.Cog):
                     gems = db_ailie.get_gems(member.id)
                     buffer = [gems, member, member.id]
                     guardian_with_gems.append(buffer)
+        elif scope.lower() in ["global", "glob", "g"]:
+            logical_whereabouts = "Global"
+            for guild in self.bot.guilds:
+                async for member in guild.fetch_members(limit=None):
+                    if db_ailie.is_initialized(member.id):
+                        gems = db_ailie.get_gems(member.id)
+                        buffer = [gems, member, member.id]
+                        if buffer not in guardian_with_gems:
+                            guardian_with_gems.append(buffer)
         else:
             await ctx.send(
                 "Dear, <@{ctx.author.id}>. You can only specify `server` "
@@ -255,6 +264,7 @@ class Currency(commands.Cog):
             )
 
         # Display richest user in discord server
+        guardian_with_gems = guardian_with_gems[:10]
         guardian_with_gems.sort(reverse=True)
         counter = 1
         for whales in guardian_with_gems:
