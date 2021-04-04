@@ -23,6 +23,12 @@ class Misc(commands.Cog):
             db_ailie.disconnect()
             return
 
+        # Check if receiver is initialized
+        if not db_ailie.is_initialized(mention.id):
+            await ctx.send(f"{mention.mention} haven't initialized yet.")
+            db_ailie.disconnect()
+            return
+
         db_ailie.disconnect()
 
         reply = [
@@ -57,7 +63,11 @@ class Misc(commands.Cog):
             db_ailie.disconnect()
             return
 
-        db_ailie.disconnect()
+        # Check if receiver is initialized
+        if not db_ailie.is_initialized(mention.id):
+            await ctx.send(f"Tell {mention.mention} to initialize first!")
+            db_ailie.disconnect()
+            return
 
         reply = [
             f"Pay respect to the fallen member, {mention.mention}..",
@@ -69,6 +79,8 @@ class Misc(commands.Cog):
             + f"<@{ctx.author.id}>.",
         ]
         msg = await ctx.send(random.choice(reply))
+
+        db_ailie.disconnect()
 
         # Bot reacts with 'F'
         await msg.add_reaction("🇫")

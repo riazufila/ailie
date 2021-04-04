@@ -49,6 +49,23 @@ class Database():
         else:
             return False
 
+    def get_username(self, guardian_id):
+        query = (
+            "SELECT guardian_username FROM guardians "
+            + "WHERE guardian_id = %s;"
+        )
+        data = [guardian_id]
+        self.cursor.execute(query, data)
+        guardian_username = self.cursor.fetchone()
+
+        if isinstance(guardian_username, tuple):
+            guardian_username = guardian_username[0]
+
+        if guardian_username:
+            return guardian_username
+        else:
+            return None
+
     def get_guardian_info(self, guardian_id):
         query = (
             "SELECT guardian_username, guild_id, guardian_gems FROM guardians "

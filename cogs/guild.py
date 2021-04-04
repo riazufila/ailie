@@ -177,7 +177,7 @@ class Guild(commands.Cog):
         db_ailie.disconnect()
 
     @commands.command(name="promote", help="Change members' position.")
-    async def promote(self, ctx, member: discord.Member, *position):
+    async def promote(self, ctx, mention: discord.Member, *position):
         # Check if user is initialized first
         db_ailie = Database()
         if not db_ailie.is_initialized(ctx.author.id):
@@ -209,7 +209,7 @@ class Guild(commands.Cog):
             return
 
         # Abort command upon changing own position
-        if guild_master == member.id:
+        if guild_master == mention.id:
             await ctx.send(
                 f"Can't change your own position, <@{ctx.author.id}>!"
             )
@@ -226,14 +226,14 @@ class Guild(commands.Cog):
             return
         else:
             # Check if in the same guild
-            guardian_one = db_ailie.get_guild_id_of_member(member.id)
+            guardian_one = db_ailie.get_guild_id_of_member(mention.id)
             guardian_two = db_ailie.get_guild_id_of_member(ctx.author.id)
             if guardian_one == guardian_two:
                 if position.lower() == "guild master":
                     # Ask for confirmation to change Guild Master
                     await ctx.send(
                         "Are you sure you want to transfer "
-                        + f"Guild Master to {member}? Reply with "
+                        + f"Guild Master to {mention.mention}? Reply with "
                         + "`Y` or `N` to confirm."
                     )
 
@@ -254,9 +254,10 @@ class Guild(commands.Cog):
                                 "Transferring Guild Master position now.."
                             )
                             db_ailie.change_position(guild_master, "Member")
-                            db_ailie.change_position(member.id, position)
+                            db_ailie.change_position(mention.id, position)
                             await ctx.send(
-                                f"Changed position of {member} to {position}."
+                                f"Changed position of {mention.mention} to "
+                                + f"{position}."
                             )
                         else:
                             await ctx.send("Aborting Guild Master transfer!")
@@ -265,9 +266,9 @@ class Guild(commands.Cog):
                         db_ailie.disconnect()
                         return
                 else:
-                    db_ailie.change_position(member.id, position)
+                    db_ailie.change_position(mention.id, position)
                     await ctx.send(
-                        f"Changed position of {member} to {position}."
+                        f"Changed position of {mention.mention} to {position}."
                     )
             else:
                 await ctx.send(
@@ -277,9 +278,11 @@ class Guild(commands.Cog):
         db_ailie.disconnect()
 
     @commands.command(
-        name="members", help="List Guild members.", aliases=["member"]
+        name="guild",
+        help="Show Guild details.",
+        aliases=["members", "member", "mem"],
     )
-    async def members(self, ctx):
+    async def guild(self, ctx):
         # Check if user is initialized first
         db_ailie = Database()
         if not db_ailie.is_initialized(ctx.author.id):
@@ -292,14 +295,12 @@ class Guild(commands.Cog):
         if not db_ailie.is_guildless(ctx.author.id):
             # Get guild name to present in output
             guild_name = db_ailie.get_guild_name_of_member(ctx.author.id)
-            members_output = []
+            members_output = [[], [], []]
 
             # Get all the members
             members = db_ailie.get_members_list(ctx.author.id)
             structured_member = ""
-            counter = 1
             for member in members:
-                structured_member = structured_member + f"{counter}. "
                 structured_member = (
                     structured_member + f"`{self.bot.get_user(member[0])}` "
                 )
@@ -307,19 +308,42 @@ class Guild(commands.Cog):
                     structured_member = (
                         structured_member + f" a.k.a. `{member[1]}` "
                     )
-                structured_member = structured_member + f"({member[2]})"
-                members_output.append(structured_member)
+
+                if member[2] == "Guild Master":
+                    members_output[0].append(structured_member)
+                elif member[2] == "Elder":
+                    members_output[1].append(structured_member)
+                else:
+                    members_output[0].append(structured_member)
+
                 structured_member = ""
-                counter += 1
 
             # Finally send the list
             embed = discord.Embed(
                 color=discord.Color.purple(),
             )
-            embed.set_author(icon_url=self.bot.user.avatar_url, name="Ailie")
+            embed.set_author(icon_url=self.bot.user.avatar_url, name=guild_name)
             embed.add_field(
-                name=f"**{guild_name}'s Members**",
-                value="\n".join(members_output),
+                name="Guild Master 🎓",
+                value="".join(members_output[0]),
+                inline=False,
+            )
+
+            if len(members_output[1]) == 0:
+                members_output[1].append("None")
+
+            if len(members_output[2]) == 0:
+                members_output[2].append("None")
+
+            embed.add_field(
+                name="Elders 👴",
+                value="\n".join(members_output[1]),
+                inline=False,
+            )
+            embed.add_field(
+                name="Members 🧍",
+                value="\n".join(members_output[2]),
+                inline=False,
             )
             await ctx.send(embed=embed)
         else:

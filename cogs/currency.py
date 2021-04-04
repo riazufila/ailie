@@ -108,7 +108,7 @@ class Currency(commands.Cog):
     @commands.command(
         name="gamble",
         help="Gamble gems.",
-        aliases=["gamb", "gam", "gbl", "bet"],
+        aliases=["gamb", "gam", "bet"],
     )
     @commands.cooldown(1, 15, commands.BucketType.user)
     async def gamble(self, ctx, gems: int):
@@ -219,6 +219,103 @@ class Currency(commands.Cog):
             f"<@{ctx.author.id}> shared {gems} gem(s) to {mention.mention}. "
             + "SWEET!"
         )
+
+    @commands.command(name="rich", help="Show whales.", aliases=["rch", "rh"])
+    @commands.cooldown(1, 10, commands.BucketType.user)
+    async def rich(self, ctx, scope="server"):
+        # Check if user is initialized first
+        db_ailie = Database()
+        if not db_ailie.is_initialized(ctx.author.id):
+            await ctx.send(
+                "Do `ailie;initialize` or `a;initialize` "
+                + "first before anything!"
+            )
+            db_ailie.disconnect()
+            return
+
+        # Get members in discord server that is initialized
+        guardian_with_gems = []
+        logical_whereabouts = ""
+        output = ""
+
+        if scope.lower() in ["server", "svr", "s"]:
+            logical_whereabouts = ctx.guild.name
+            async for member in ctx.guild.fetch_members(limit=None):
+                if db_ailie.is_initialized(member.id):
+                    gems = db_ailie.get_gems(member.id)
+                    buffer = [gems, member, member.id]
+                    guardian_with_gems.append(buffer)
+        elif scope.lower() in ["global", "glob", "g"]:
+            logical_whereabouts = "Global"
+            for guild in self.bot.guilds:
+                async for member in guild.fetch_members(limit=None):
+                    if db_ailie.is_initialized(member.id):
+                        gems = db_ailie.get_gems(member.id)
+                        buffer = [gems, member, member.id]
+                        if buffer not in guardian_with_gems:
+                            guardian_with_gems.append(buffer)
+        else:
+            await ctx.send(
+                "Dear, <@{ctx.author.id}>. You can only specify `server` "
+                + "or `global`."
+            )
+
+        # Display richest user in discord server
+        guardian_with_gems = guardian_with_gems[:10]
+        guardian_with_gems.sort(reverse=True)
+        counter = 1
+        for whales in guardian_with_gems:
+            if counter == 1:
+                output = output + f"{counter}. {whales[0]} 💎 - `{whales[1]}`"
+            else:
+                output = output + f"\n{counter}. {whales[0]} 💎 - `{whales[1]}`"
+
+            # Get username if any
+            username = db_ailie.get_username(whales[2])
+            if username is not None:
+                output = output + f" a.k.a. `{username}`"
+
+            counter += 1
+
+        embed = discord.Embed(color=discord.Color.purple())
+        embed.set_author(name="Ailie", icon_url=ctx.me.avatar_url)
+        embed.add_field(name=f"Whales in {logical_whereabouts}!", value=output)
+
+        db_ailie.disconnect()
+
+        await ctx.send(embed=embed)
+
+    @commands.command(
+        name="gems", help="Check gems.", aliases=["gem", "gm", "g", "bal"]
+    )
+    @commands.cooldown(1, 10, commands.BucketType.user)
+    async def gems(self, ctx, mention: discord.Member = None):
+        # Check if user is initialized first
+        db_ailie = Database()
+        if not db_ailie.is_initialized(ctx.author.id):
+            await ctx.send(
+                "Do `ailie;initialize` or `a;initialize` "
+                + "first before anything!"
+            )
+            db_ailie.disconnect()
+            return
+
+        # Check if person mentioned is initialized
+        if mention:
+            if not db_ailie.is_initialized(mention.id):
+                await ctx.send(f"{mention.mention} is not initialized yet!")
+                db_ailie.disconnect()
+                return
+
+        if mention is None:
+            guardian_id = ctx.author.id
+        else:
+            guardian_id = mention.id
+
+        # Display gems balance
+        gems = db_ailie.get_gems(guardian_id)
+        db_ailie.disconnect()
+        await ctx.send(f"<@{guardian_id}> has {gems} 💎 total.")
 
 
 def setup(bot):
