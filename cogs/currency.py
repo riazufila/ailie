@@ -220,6 +220,62 @@ class Currency(commands.Cog):
             + "SWEET!"
         )
 
+    @commands.command(name="rich", help="Show whales.", aliases=["rch", "rh"])
+    @commands.cooldown(1, 10, commands.BucketType.user)
+    async def rich(self, ctx, scope="server"):
+        # Check if user is initialized first
+        db_ailie = Database()
+        if not db_ailie.is_initialized(ctx.author.id):
+            await ctx.send(
+                "Do `ailie;initialize` or `a;initialize` "
+                + "first before anything!"
+            )
+            db_ailie.disconnect()
+            return
+
+        # initialize database
+        db_ailie = Database()
+
+        # Get members in discord server that is initialized
+        guardian_with_gems = []
+        logical_whereabouts = ""
+        output = ""
+
+        if scope.lower() in ["server", "svr", "s"]:
+            logical_whereabouts = ctx.guild.name
+            async for member in ctx.guild.fetch_members(limit=None):
+                if db_ailie.is_initialized(member.id):
+                    gems = db_ailie.get_gems(member.id)
+                    buffer = [gems, member, member.id]
+                    guardian_with_gems.append(buffer)
+        else:
+            await ctx.send(
+                "Dear, <@{ctx.author.id}>. You can only specify `server` "
+                + "or `global`."
+            )
+
+        # Display richest user in discord server
+        guardian_with_gems.sort(reverse=True)
+        counter = 1
+        for whales in guardian_with_gems:
+            if counter == 1:
+                output = output + f"{counter}. {whales[0]} 💎 - `{whales[1]}`"
+            else:
+                output = output + f"\n{counter}. {whales[0]} 💎 - `{whales[1]}`"
+
+            # Get username if any
+            username = db_ailie.get_username(whales[2])
+            if username is not None:
+                output = output + f" a.k.a. `{username}`"
+
+            counter += 1
+
+        embed = discord.Embed(color=discord.Color.purple())
+        embed.set_author(name="Ailie", icon_url=ctx.me.avatar_url)
+        embed.add_field(name=f"Whales in {logical_whereabouts}!", value=output)
+
+        await ctx.send(embed=embed)
+
 
 def setup(bot):
     bot.add_cog(Currency(bot))
