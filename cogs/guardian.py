@@ -13,7 +13,7 @@ class Guardian(commands.Cog):
         name="profile", help="View profile.", aliases=["prof", "pro", "pr"]
     )
     @commands.cooldown(1, 5, commands.BucketType.user)
-    async def profile(self, ctx):
+    async def profile(self, ctx, mention: discord.Member = None):
         # Check if user is initialized first
         db_ailie = Database()
         if not db_ailie.is_initialized(ctx.author.id):
@@ -23,21 +23,56 @@ class Guardian(commands.Cog):
             db_ailie.disconnect()
             return
 
+        # Check if person mentioned is initialized
+        if mention:
+            if not db_ailie.is_initialized(mention.id):
+                await ctx.send(f"{mention.mention} is not initialized yet!")
+                db_ailie.disconnect()
+                return
+
+        if mention is None:
+            guardian = ctx.author.id
+        else:
+            guardian = mention.id
+
+        # Get all information needed for a profile show off
         username, guild_name, position, gems = db_ailie.get_guardian_info(
-            ctx.author.id
+            guardian
         )
-        guild_id = db_ailie.get_guild_id_of_member(ctx.author.id)
+        guild_id = db_ailie.get_guild_id_of_member(guardian)
+        heroes_obtained = db_ailie.hero_inventory(guardian)
+        equips_obtained = db_ailie.equip_inventory(guardian)
 
-        output = (
-            f"**Username**: `{username}`"
-            + f"\n**Gems**: `{gems}` 💎"
-            + f"\n**Guild**: `{guild_name}`#`{guild_id}`"
-            + f"\n**Position**: `{position}`"
-        )
-
+        # Set embed baseline
         embed = discord.Embed(color=discord.Color.purple())
-        embed.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
-        embed.add_field(name="Guardian's Profile", value=output)
+        embed.set_author(
+            name=f"{ctx.author.name}'s Profile", icon_url=ctx.author.avatar_url
+        )
+
+        # Username and gems
+        embed.add_field(name="Username 📝", value=username)
+        embed.add_field(name="Gems 💎", value=gems)
+
+        # Total unique and epic exclusive
+        heroes_equips_count = (
+            f"Unique Heroes: {len(heroes_obtained[len(heroes_obtained) - 1])}"
+            + f"\nEpic Exclusive Equips: {len(equips_obtained[len(equips_obtained) - 1])}"
+        )
+        embed.add_field(
+            name="Unit Counts 🗡️", value=heroes_equips_count, inline=False
+        )
+
+        # Guild details
+        guild_detail = (
+            f"Guild Name: {guild_name}"
+            + f"\nGuild ID: {guild_id}"
+            + f"\nPosition: {position}"
+        )
+        embed.add_field(
+            name="Guild Details 🏠",
+            value=guild_detail,
+            inline=False,
+        )
 
         db_ailie.disconnect()
 
