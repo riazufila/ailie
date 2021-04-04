@@ -427,6 +427,39 @@ class Database():
 
         return hero_buffer
 
+    def equip_inventory(self, guardian_id):
+        query = (
+            "SELECT eq.equip_star, eq.equip_exclusive, eq.equip_name "
+            + "FROM guardians g "
+            + "INNER JOIN inventories i ON g.guardian_id = i.guardian_id "
+            + "INNER JOIN equipments_acquired ea "
+            + "ON i.inventory_id = ea.inventory_id "
+            + "INNER JOIN equipments eq ON ea.equip_id = eq.equip_id "
+            + "WHERE g.guardian_id = %s ORDER BY eq.equip_star DESC;"
+        )
+        data = [guardian_id]
+        self.cursor.execute(query, data)
+        equip_inventory = self.cursor.fetchall()
+        equip_buffer = [[], [], [], [], [], []]
+
+        for equip in equip_inventory:
+            if equip[1]:
+                if equip[0] == 5:
+                    equip_buffer[5].append("★★★★★ [Ex] " + equip[2])
+                if equip[0] == 4:
+                    equip_buffer[4].append("★★★★ [Ex] " + equip[2])
+            else:
+                if equip[0] == 5:
+                    equip_buffer[3].append("★★★★★ " + equip[2])
+                if equip[0] == 4:
+                    equip_buffer[2].append("★★★★ " + equip[2])
+                if equip[0] == 3:
+                    equip_buffer[1].append("★★★ " + equip[2])
+                if equip[0] == 2:
+                    equip_buffer[0].append("★★ " + equip[2])
+
+        return equip_buffer
+
     def get_hero_id(self, name):
         # Get hero_id from heroes table
         query = "SELECT hero_id FROM heroes WHERE hero_name = %s;"

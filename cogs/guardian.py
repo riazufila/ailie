@@ -41,9 +41,11 @@ class Guardian(commands.Cog):
 
         await ctx.send(embed=embed)
 
-    @commands.command(name="inventory", help="View profile.")
+    @commands.command(
+        name="inventory", help="View profile.", aliases=["inv", "i"]
+    )
     @commands.cooldown(1, 5, commands.BucketType.user)
-    async def inventory(self, ctx, type, grade):
+    async def inventory(self, ctx, type):
         # Check if user is initialized first
         db_ailie = Database()
         if not db_ailie.is_initialized(ctx.author.id):
@@ -53,53 +55,13 @@ class Guardian(commands.Cog):
             db_ailie.disconnect()
             return
 
+        # Determine inventory to check
         if type.lower() in ["heroes", "hero", "h"]:
-            hero_inventory = db_ailie.hero_inventory(ctx.author.id)
-
-            embed = discord.Embed(color=discord.Color.purple())
-            embed.set_author(
-                name=ctx.author.name + "'s Inventory",
-                icon_url=ctx.author.avatar_url,
-            )
-
-            if grade.lower() in ["unique", "u"]:
-                if hero_inventory[2]:
-                    embed.add_field(
-                        name="Unique Heroes",
-                        value="\n".join(hero_inventory[2]),
-                        inline=False,
-                    )
-                else:
-                    embed.add_field(
-                        name="Unique Heroes", value="None", inline=False
-                    )
-            elif grade.lower() in ["rare", "r"]:
-                if hero_inventory[1]:
-                    embed.add_field(
-                        name="Rare Heroes",
-                        value="\n".join(hero_inventory[1]),
-                        inline=False,
-                    )
-                else:
-                    embed.add_field(
-                        name="Rare Heroes", value="None", inline=False
-                    )
-            elif grade.lower() in ["normal", "n"]:
-                if hero_inventory[0]:
-                    embed.add_field(
-                        name="Normal Heroes",
-                        value="\n".join(hero_inventory[0]),
-                        inline=False,
-                    )
-                else:
-                    embed.add_field(
-                        name="Normal Heroes", value="None", inline=False
-                    )
+            inventory = db_ailie.hero_inventory(ctx.author.id)
+            if len(inventory[len(inventory) - 1]) > 1:
+                header = "Heroes"
             else:
-                db_ailie.disconnect()
-                return
-
-            await ctx.send(embed=embed)
+                header = "Hero"
         elif type.lower() in [
             "equipments",
             "equipment",
@@ -107,12 +69,35 @@ class Guardian(commands.Cog):
             "equip",
             "e",
         ]:
-            await ctx.send(
-                f"Sorry, <@{ctx.author.id}>. Equipments is still being "
-                + "maintained."
-            )
+            inventory = db_ailie.equip_inventory(ctx.author.id)
+            if len(inventory[len(inventory) - 1]) > 1:
+                header = "Equipments"
+            else:
+                header = "Equipment"
         else:
-            await ctx.send(f"<@{ctx.author.id}>, that is not a valid option.")
+            await ctx.send(
+                "There's only inventories for heroes and equipments, "
+                + f"<@{ctx.author.id}>."
+            )
+            db_ailie.disconnect()
+            return
+
+        embed = discord.Embed(color=discord.Color.purple())
+        embed.set_author(
+            name=ctx.author.name + "'s Inventory",
+            icon_url=ctx.author.avatar_url,
+        )
+        if len(inventory[len(inventory) - 1]) == 0:
+            data = "None"
+        else:
+            data = "\n".join(inventory[len(inventory) - 1])
+
+        embed.add_field(
+            name=header,
+            value=data,
+            inline=False,
+        )
+        await ctx.send(embed=embed)
 
         db_ailie.disconnect()
 
