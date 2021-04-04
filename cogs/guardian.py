@@ -31,22 +31,26 @@ class Guardian(commands.Cog):
                 return
 
         if mention is None:
-            guardian = ctx.author.id
+            guardian_id = ctx.author.id
+            guardian_name = ctx.author.name
+            guardian_avatar = ctx.author.avatar_url
         else:
-            guardian = mention.id
+            guardian_id = mention.id
+            guardian_name = mention.name
+            guardian_avatar = mention.avatar_url
 
         # Get all information needed for a profile show off
         username, guild_name, position, gems = db_ailie.get_guardian_info(
-            guardian
+            guardian_id
         )
-        guild_id = db_ailie.get_guild_id_of_member(guardian)
-        heroes_obtained = db_ailie.hero_inventory(guardian)
-        equips_obtained = db_ailie.equip_inventory(guardian)
+        guild_id = db_ailie.get_guild_id_of_member(guardian_id)
+        heroes_obtained = db_ailie.hero_inventory(guardian_id)
+        equips_obtained = db_ailie.equip_inventory(guardian_id)
 
         # Set embed baseline
         embed = discord.Embed(color=discord.Color.purple())
         embed.set_author(
-            name=f"{ctx.author.name}'s Profile", icon_url=ctx.author.avatar_url
+            name=f"{guardian_name}'s Profile", icon_url=guardian_avatar
         )
 
         # Username and gems
@@ -56,7 +60,8 @@ class Guardian(commands.Cog):
         # Total unique and epic exclusive
         heroes_equips_count = (
             f"Unique Heroes: {len(heroes_obtained[len(heroes_obtained) - 1])}"
-            + f"\nEpic Exclusive Equips: {len(equips_obtained[len(equips_obtained) - 1])}"
+            + "\nEpic Exclusive Equips: "
+            + f"{len(equips_obtained[len(equips_obtained) - 1])}"
         )
         embed.add_field(
             name="Unit Counts 🗡️", value=heroes_equips_count, inline=False
@@ -82,7 +87,7 @@ class Guardian(commands.Cog):
         name="inventory", help="View inventory.", aliases=["inv", "i"]
     )
     @commands.cooldown(1, 5, commands.BucketType.user)
-    async def inventory(self, ctx, type):
+    async def inventory(self, ctx, type, mention: discord.Member = None):
         # Check if user is initialized first
         db_ailie = Database()
         if not db_ailie.is_initialized(ctx.author.id):
