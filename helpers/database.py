@@ -344,6 +344,8 @@ class Database():
                     if type == "equipments":
                         if record[2] is True:
                             name = "★ [Ex] " + name
+                        else:
+                            name = "★ " + name
                     else:
                         name = "★ " + name
                 else:
@@ -371,13 +373,32 @@ class Database():
             + "ON i.inventory_id = h.inventory_id "
             + "INNER JOIN heroes he "
             + "ON h.hero_id = he.hero_id "
-            + "WHERE i.guardian_id = 782869639344160768 AND he.hero_id = 69;"
+            + "WHERE i.guardian_id = %s AND he.hero_id = %s;"
         )
         data = [guardian_id, hero_id]
         self.cursor.execute(query, data)
         hero_obtained = self.cursor.fetchone()
 
         if hero_obtained:
+            return True
+        else:
+            return False
+
+    def is_equip_obtained(self, guardian_id, equip_id):
+        query = (
+            "SELECT eq.equip_id "
+            + "FROM inventories i "
+            + "INNER JOIN equipments_acquired ea "
+            + "ON i.inventory_id = ea.inventory_id "
+            + "INNER JOIN equipments eq "
+            + "ON ea.equip_id = eq.equip_id "
+            + "WHERE i.guardian_id = %s AND eq.equip_id = %s;"
+        )
+        data = [guardian_id, equip_id]
+        self.cursor.execute(query, data)
+        equip_obtained = self.cursor.fetchone()
+
+        if equip_obtained:
             return True
         else:
             return False
@@ -419,6 +440,19 @@ class Database():
 
         return hero_id
 
+    def get_equip_id(self, name):
+        # Get hero_id from heroes table
+        query = "SELECT equip_id FROM equipments WHERE equip_name = %s;"
+        data = [name]
+        self.cursor.execute(query, data)
+
+        equip_id = self.cursor.fetchone()
+
+        if isinstance(equip_id, tuple):
+            equip_id = equip_id[0]
+
+        return equip_id
+
     def get_inventory_id(self, guardian_id):
         query = "SELECT inventory_id FROM inventories WHERE guardian_id = %s;"
         data = [guardian_id]
@@ -455,6 +489,39 @@ class Database():
                     + "VALUES (%s, %s);"
                 )
                 data = [hero_id, inventory_id]
+                self.cursor.execute(query, data)
+                self.connection.commit()
+
+    def store_equipments(self, guardian_id, boxes):
+        equip_name = ""
+
+        for box in boxes:
+            if box.startswith("★★★★★ [Ex] "):
+                equip_name = box[11:]
+            elif box.startswith("★★★★ [Ex] "):
+                equip_name = box[10:]
+            elif box.startswith("★★★★★ "):
+                equip_name = box[6:]
+            elif box.startswith("★★★★ "):
+                equip_name = box[5:]
+            elif box.startswith("★★★ "):
+                equip_name = box[4:]
+            else:
+                equip_name = box[3:]
+
+            # Get equip ID
+            equip_id = self.get_equip_id(equip_name)
+
+            # Get inventory ID
+            inventory_id = self.get_inventory_id(guardian_id)
+
+            if not self.is_equip_obtained(guardian_id, equip_id):
+                # Enter equip_id in equipments_acquired table
+                query = (
+                    "INSERT INTO equipments_acquired (equip_id, inventory_id) "
+                    + "VALUES (%s, %s);"
+                )
+                data = [equip_id, inventory_id]
                 self.cursor.execute(query, data)
                 self.connection.commit()
 
