@@ -177,12 +177,22 @@ class Guild(commands.Cog):
         db_ailie.disconnect()
 
     @commands.command(name="promote", help="Change members' position.")
-    async def promote(self, ctx, member: discord.Member, *position):
+    async def promote(self, ctx, mention: discord.Member, *position):
         # Check if user is initialized first
         db_ailie = Database()
         if not db_ailie.is_initialized(ctx.author.id):
             await ctx.send(
                 "Do `ailie;initialize` or `a;initialize` first before anything!"
+            )
+            db_ailie.disconnect()
+            return
+
+        # Check if user mentioned is initialized
+        if not db_ailie.is_initialized(mention.id):
+            await ctx.send(
+                f"Poor thing.. {mention.mention} haven't initialized yet. "
+                + f"Tell {mention.mention} to initialize so you can share "
+                + "your precious gems!"
             )
             db_ailie.disconnect()
             return
@@ -209,7 +219,7 @@ class Guild(commands.Cog):
             return
 
         # Abort command upon changing own position
-        if guild_master == member.id:
+        if guild_master == mention.id:
             await ctx.send(
                 f"Can't change your own position, <@{ctx.author.id}>!"
             )
@@ -226,14 +236,14 @@ class Guild(commands.Cog):
             return
         else:
             # Check if in the same guild
-            guardian_one = db_ailie.get_guild_id_of_member(member.id)
+            guardian_one = db_ailie.get_guild_id_of_member(mention.id)
             guardian_two = db_ailie.get_guild_id_of_member(ctx.author.id)
             if guardian_one == guardian_two:
                 if position.lower() == "guild master":
                     # Ask for confirmation to change Guild Master
                     await ctx.send(
                         "Are you sure you want to transfer "
-                        + f"Guild Master to {member}? Reply with "
+                        + f"Guild Master to {mention.mention}? Reply with "
                         + "`Y` or `N` to confirm."
                     )
 
@@ -254,9 +264,10 @@ class Guild(commands.Cog):
                                 "Transferring Guild Master position now.."
                             )
                             db_ailie.change_position(guild_master, "Member")
-                            db_ailie.change_position(member.id, position)
+                            db_ailie.change_position(mention.id, position)
                             await ctx.send(
-                                f"Changed position of {member} to {position}."
+                                f"Changed position of {mention.mention} to "
+                                + f"{position}."
                             )
                         else:
                             await ctx.send("Aborting Guild Master transfer!")
@@ -265,9 +276,9 @@ class Guild(commands.Cog):
                         db_ailie.disconnect()
                         return
                 else:
-                    db_ailie.change_position(member.id, position)
+                    db_ailie.change_position(mention.id, position)
                     await ctx.send(
-                        f"Changed position of {member} to {position}."
+                        f"Changed position of {mention.mention} to {position}."
                     )
             else:
                 await ctx.send(
