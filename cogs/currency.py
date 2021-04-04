@@ -233,9 +233,6 @@ class Currency(commands.Cog):
             db_ailie.disconnect()
             return
 
-        # initialize database
-        db_ailie = Database()
-
         # Get members in discord server that is initialized
         guardian_with_gems = []
         logical_whereabouts = ""
@@ -284,7 +281,41 @@ class Currency(commands.Cog):
         embed.set_author(name="Ailie", icon_url=ctx.me.avatar_url)
         embed.add_field(name=f"Whales in {logical_whereabouts}!", value=output)
 
+        db_ailie.disconnect()
+
         await ctx.send(embed=embed)
+
+    @commands.command(
+        name="gems", help="Check gems.", aliases=["gem", "gm", "g", "bal"]
+    )
+    @commands.cooldown(1, 10, commands.BucketType.user)
+    async def gems(self, ctx, mention: discord.Member = None):
+        # Check if user is initialized first
+        db_ailie = Database()
+        if not db_ailie.is_initialized(ctx.author.id):
+            await ctx.send(
+                "Do `ailie;initialize` or `a;initialize` "
+                + "first before anything!"
+            )
+            db_ailie.disconnect()
+            return
+
+        # Check if person mentioned is initialized
+        if mention:
+            if not db_ailie.is_initialized(mention.id):
+                await ctx.send(f"{mention.mention} is not initialized yet!")
+                db_ailie.disconnect()
+                return
+
+        if mention is None:
+            guardian_id = ctx.author.id
+        else:
+            guardian_id = mention.id
+
+        # Display gems balance
+        gems = db_ailie.get_gems(guardian_id)
+        db_ailie.disconnect()
+        await ctx.send(f"<@{guardian_id}> has {gems} 💎 total.")
 
 
 def setup(bot):
