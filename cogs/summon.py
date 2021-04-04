@@ -397,9 +397,17 @@ class Summon(commands.Cog):
             reply = self.getRepliesForSpecificSummons(
                 ctx, target, not_easter_eggs, easter_eggs)
 
+        # Check if summon is for heroes or equipments
+        its_heroes = False
+        if w == self.heroes_weights or w == self.heroes_pick_up_weights:
+            its_heroes = True
+
         # Record obtained units
         db_ailie = Database()
-        db_ailie.store_heroes(ctx.author.id, boxes)
+        if its_heroes:
+            db_ailie.store_heroes(ctx.author.id, boxes)
+        else:
+            db_ailie.store_equipments(ctx.author.id, boxes)
         db_ailie.disconnect()
 
         return boxes, reply
@@ -510,13 +518,6 @@ class Summon(commands.Cog):
                 pool = self.equipments
                 weightage = self.equipments_weights
                 last_slot_weightage = self.equipments_last_slot_weights
-
-                # Block equipment pulls for now
-                await ctx.send(
-                        f"Sorry, <@{ctx.author.id}>. For now, equipment "
-                        + "pulls are being maintained."
-                    )
-                return
             else:
                 await ctx.send(
                         f"Use the command properly please, <@{ctx.author.id}>?")
@@ -530,13 +531,6 @@ class Summon(commands.Cog):
                 pool = self.equipments
                 pick_up_weightage = self.equipments_pick_up_weights
                 last_slot_weightage = self.equipments_last_slot_weights
-
-                # Block equipment pulls for now
-                await ctx.send(
-                        f"Sorry, <@{ctx.author.id}>. For now, equipment pulls "
-                        + "are being maintained."
-                    )
-                return
             else:
                 await ctx.send(
                         f"Use the command properly please, <@{ctx.author.id}>?")
