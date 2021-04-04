@@ -187,16 +187,6 @@ class Guild(commands.Cog):
             db_ailie.disconnect()
             return
 
-        # Check if user mentioned is initialized
-        if not db_ailie.is_initialized(mention.id):
-            await ctx.send(
-                f"Poor thing.. {mention.mention} haven't initialized yet. "
-                + f"Tell {mention.mention} to initialize so you can share "
-                + "your precious gems!"
-            )
-            db_ailie.disconnect()
-            return
-
         # Initialize variables
         position = " ".join(position)
         position = position.title()
