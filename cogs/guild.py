@@ -278,9 +278,11 @@ class Guild(commands.Cog):
         db_ailie.disconnect()
 
     @commands.command(
-        name="members", help="List Guild members.", aliases=["member"]
+        name="guild",
+        help="Show Guild details.",
+        aliases=["members", "member", "mem"],
     )
-    async def members(self, ctx):
+    async def guild(self, ctx):
         # Check if user is initialized first
         db_ailie = Database()
         if not db_ailie.is_initialized(ctx.author.id):
@@ -293,14 +295,12 @@ class Guild(commands.Cog):
         if not db_ailie.is_guildless(ctx.author.id):
             # Get guild name to present in output
             guild_name = db_ailie.get_guild_name_of_member(ctx.author.id)
-            members_output = []
+            members_output = [[], [], []]
 
             # Get all the members
             members = db_ailie.get_members_list(ctx.author.id)
             structured_member = ""
-            counter = 1
             for member in members:
-                structured_member = structured_member + f"{counter}. "
                 structured_member = (
                     structured_member + f"`{self.bot.get_user(member[0])}` "
                 )
@@ -308,19 +308,42 @@ class Guild(commands.Cog):
                     structured_member = (
                         structured_member + f" a.k.a. `{member[1]}` "
                     )
-                structured_member = structured_member + f"({member[2]})"
-                members_output.append(structured_member)
+
+                if member[2] == "Guild Master":
+                    members_output[0].append(structured_member)
+                elif member[2] == "Elder":
+                    members_output[1].append(structured_member)
+                else:
+                    members_output[0].append(structured_member)
+
                 structured_member = ""
-                counter += 1
 
             # Finally send the list
             embed = discord.Embed(
                 color=discord.Color.purple(),
             )
-            embed.set_author(icon_url=self.bot.user.avatar_url, name="Ailie")
+            embed.set_author(icon_url=self.bot.user.avatar_url, name=guild_name)
             embed.add_field(
-                name=f"**{guild_name}'s Members**",
-                value="\n".join(members_output),
+                name="Guild Master 🎓",
+                value="".join(members_output[0]),
+                inline=False,
+            )
+
+            if len(members_output[1]) == 0:
+                members_output[1].append("None")
+
+            if len(members_output[2]) == 0:
+                members_output[2].append("None")
+
+            embed.add_field(
+                name="Elders 👴",
+                value="\n".join(members_output[1]),
+                inline=False,
+            )
+            embed.add_field(
+                name="Members 🧍",
+                value="\n".join(members_output[2]),
+                inline=False,
             )
             await ctx.send(embed=embed)
         else:
