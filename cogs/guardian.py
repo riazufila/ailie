@@ -9,9 +9,11 @@ class Guardian(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(name="profile", help="View profile.")
+    @commands.command(
+        name="profile", help="View profile.", aliases=["prof", "pro", "pr"]
+    )
     @commands.cooldown(1, 5, commands.BucketType.user)
-    async def profile(self, ctx):
+    async def profile(self, ctx, mention: discord.Member = None):
         # Check if user is initialized first
         db_ailie = Database()
         if not db_ailie.is_initialized(ctx.author.id):
@@ -21,31 +23,71 @@ class Guardian(commands.Cog):
             db_ailie.disconnect()
             return
 
+        # Check if person mentioned is initialized
+        if mention:
+            if not db_ailie.is_initialized(mention.id):
+                await ctx.send(f"{mention.mention} is not initialized yet!")
+                db_ailie.disconnect()
+                return
+
+        if mention is None:
+            guardian_id = ctx.author.id
+            guardian_name = ctx.author.name
+            guardian_avatar = ctx.author.avatar_url
+        else:
+            guardian_id = mention.id
+            guardian_name = mention.name
+            guardian_avatar = mention.avatar_url
+
+        # Get all information needed for a profile show off
         username, guild_name, position, gems = db_ailie.get_guardian_info(
-            ctx.author.id
+            guardian_id
         )
-        guild_id = db_ailie.get_guild_id_of_member(ctx.author.id)
+        guild_id = db_ailie.get_guild_id_of_member(guardian_id)
+        heroes_obtained = db_ailie.hero_inventory(guardian_id)
+        equips_obtained = db_ailie.equip_inventory(guardian_id)
 
-        output = (
-            f"**Username**: `{username}`"
-            + f"\n**Gems**: `{gems}` 💎"
-            + f"\n**Guild**: `{guild_name}`#`{guild_id}`"
-            + f"\n**Position**: `{position}`"
-        )
-
+        # Set embed baseline
         embed = discord.Embed(color=discord.Color.purple())
-        embed.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
-        embed.add_field(name="Guardian's Profile", value=output)
+        embed.set_author(
+            name=f"{guardian_name}'s Profile", icon_url=guardian_avatar
+        )
+
+        # Username and gems
+        embed.add_field(name="Username 📝", value=username)
+        embed.add_field(name="Gems 💎", value=gems)
+
+        # Total unique and epic exclusive
+        heroes_equips_count = (
+            f"Unique Heroes: {len(heroes_obtained[len(heroes_obtained) - 1])}"
+            + "\nEpic Exclusive Equipments: "
+            + f"{len(equips_obtained[len(equips_obtained) - 1])}"
+        )
+        embed.add_field(
+            name="Unit Counts 🗡️", value=heroes_equips_count, inline=False
+        )
+
+        # Guild details
+        guild_detail = (
+            f"Guild Name: {guild_name}"
+            + f"\nGuild ID: {guild_id}"
+            + f"\nPosition: {position}"
+        )
+        embed.add_field(
+            name="Guild Details 🏠",
+            value=guild_detail,
+            inline=False,
+        )
 
         db_ailie.disconnect()
 
         await ctx.send(embed=embed)
 
     @commands.command(
-        name="inventory", help="View profile.", aliases=["inv", "i"]
+        name="inventory", help="View inventory.", aliases=["inv", "i"]
     )
     @commands.cooldown(1, 5, commands.BucketType.user)
-    async def inventory(self, ctx, type):
+    async def inventory(self, ctx, type, mention: discord.Member = None):
         # Check if user is initialized first
         db_ailie = Database()
         if not db_ailie.is_initialized(ctx.author.id):
@@ -55,13 +97,29 @@ class Guardian(commands.Cog):
             db_ailie.disconnect()
             return
 
+        # Check if person mentioned is initialized
+        if mention:
+            if not db_ailie.is_initialized(mention.id):
+                await ctx.send(f"{mention.mention} is not initialized yet!")
+                db_ailie.disconnect()
+                return
+
+        if mention is None:
+            guardian_id = ctx.author.id
+            guardian_name = ctx.author.name
+            guardian_avatar = ctx.author.avatar_url
+        else:
+            guardian_id = mention.id
+            guardian_name = mention.name
+            guardian_avatar = mention.avatar_url
+
         # Determine inventory to check
         if type.lower() in ["heroes", "hero", "h"]:
-            inventory = db_ailie.hero_inventory(ctx.author.id)
+            inventory = db_ailie.hero_inventory(guardian_id)
             if len(inventory[len(inventory) - 1]) > 1:
-                header = "Heroes"
+                header = "Unique Heroes"
             else:
-                header = "Hero"
+                header = "Unique Hero"
         elif type.lower() in [
             "equipments",
             "equipment",
@@ -69,11 +127,11 @@ class Guardian(commands.Cog):
             "equip",
             "e",
         ]:
-            inventory = db_ailie.equip_inventory(ctx.author.id)
+            inventory = db_ailie.equip_inventory(guardian_id)
             if len(inventory[len(inventory) - 1]) > 1:
-                header = "Equipments"
+                header = "Epic Exclusive Equipments"
             else:
-                header = "Equipment"
+                header = "Epic Exclusive Equipment"
         else:
             await ctx.send(
                 "There's only inventories for heroes and equipments, "
@@ -84,8 +142,8 @@ class Guardian(commands.Cog):
 
         embed = discord.Embed(color=discord.Color.purple())
         embed.set_author(
-            name=ctx.author.name + "'s Inventory",
-            icon_url=ctx.author.avatar_url,
+            name=guardian_name + "'s Inventory",
+            icon_url=guardian_avatar,
         )
         if len(inventory[len(inventory) - 1]) == 0:
             data = "None"
@@ -101,8 +159,8 @@ class Guardian(commands.Cog):
 
         db_ailie.disconnect()
 
-    @commands.command(name="username", help="Set username.")
-    @commands.cooldown(1, 60, commands.BucketType.user)
+    @commands.command(name="username", help="Set username.", aliases=["name"])
+    @commands.cooldown(1, 5, commands.BucketType.user)
     async def username(self, ctx, username):
         # Check if user is initialized first
         db_ailie = Database()
@@ -120,8 +178,10 @@ class Guardian(commands.Cog):
 
         db_ailie.disconnect()
 
-    @commands.command(name="initialize", help="Initialize user.")
-    @commands.cooldown(1, 60, commands.BucketType.user)
+    @commands.command(
+        name="initialize", help="Initialize user.", aliases=["init"]
+    )
+    @commands.cooldown(1, 5, commands.BucketType.user)
     async def initialize(self, ctx):
         db_ailie = Database()
 
@@ -132,7 +192,8 @@ class Guardian(commands.Cog):
             )
         else:
             await ctx.send(
-                f"You are already initialized, <@{ctx.author.id}>. Have fun!"
+                f"You are already initialized, <@{ctx.author.id}>. "
+                + "No need to initialize for the second time. Have fun!"
             )
 
 
