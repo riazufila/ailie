@@ -60,7 +60,7 @@ class Guardian(commands.Cog):
         # Total unique and epic exclusive
         heroes_equips_count = (
             f"Unique Heroes: {len(heroes_obtained[len(heroes_obtained) - 1])}"
-            + "\nEpic Exclusive Equips: "
+            + "\nEpic Exclusive Equipments: "
             + f"{len(equips_obtained[len(equips_obtained) - 1])}"
         )
         embed.add_field(
