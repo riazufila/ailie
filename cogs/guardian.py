@@ -42,7 +42,7 @@ class Guardian(commands.Cog):
         await ctx.send(embed=embed)
 
     @commands.command(
-        name="inventory", help="View profile.", aliases=["inv", "i"]
+        name="inventory", help="View inventory.", aliases=["inv", "i"]
     )
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def inventory(self, ctx, type):
