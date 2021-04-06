@@ -30,7 +30,7 @@ class Currency(commands.Cog):
 
         # Fill gems to obtain list with many random increasing numbers
         while counter < 500:
-            gems_to_obtain.append(random.randint(counter, counter + 100))
+            gems_to_obtain.append(random.randint(counter + 10, counter + 100))
             counter += 100
 
         # Choose gems from list with weights
@@ -79,7 +79,7 @@ class Currency(commands.Cog):
 
         # Fill gems to obtain list with many random increasing numbers
         while counter < 1500:
-            gems_to_obtain.append(random.randint(counter, counter + 500))
+            gems_to_obtain.append(random.randint(counter + 10, counter + 500))
             counter += 500
 
         # Choose gems from list with weights
@@ -195,7 +195,7 @@ class Currency(commands.Cog):
             return
 
         # Disallow negative numbers as input
-        if gems <= 0:
+        if gems < 0:
             await ctx.send(f"Are you high, <@{ctx.author.id}>?")
             db_ailie.disconnect()
             return
