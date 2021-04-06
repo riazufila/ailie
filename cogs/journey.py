@@ -6,7 +6,7 @@ from discord.ext import commands
 from helpers.database import Database
 
 
-class Currency(commands.Cog):
+class Journey(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
@@ -319,4 +319,4 @@ class Currency(commands.Cog):
 
 
 def setup(bot):
-    bot.add_cog(Currency(bot))
+    bot.add_cog(Journey(bot))
