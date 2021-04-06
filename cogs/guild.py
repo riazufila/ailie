@@ -314,7 +314,7 @@ class Guild(commands.Cog):
                 elif member[2] == "Elder":
                     members_output[1].append(structured_member)
                 else:
-                    members_output[0].append(structured_member)
+                    members_output[2].append(structured_member)
 
                 structured_member = ""
 
