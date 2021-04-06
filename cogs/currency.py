@@ -246,6 +246,10 @@ class Currency(commands.Cog):
                     buffer = [gems, member, member.id]
                     guardian_with_gems.append(buffer)
         elif scope.lower() in ["global", "glob", "g"]:
+            await ctx.send(
+                "Global rank will take a while to produce.. "
+                + f"Please wait, <@{ctx.author.id}>."
+            )
             logical_whereabouts = "Global"
             for guild in self.bot.guilds:
                 async for member in guild.fetch_members(limit=None):
