@@ -207,9 +207,9 @@ class Summon(commands.Cog):
         target_banner = ""
         heroes_check = False
 
-        # Check if the parameter send is lesser than 5 characters
+        # Check if the parameter send is lesser than 4 characters
         # If its lesser, then return error message
-        if len(target) < 5:
+        if len(target) < 4:
             invalid = True
 
         # Check if the summon is for heroes or equipments
