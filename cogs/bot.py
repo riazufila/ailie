@@ -137,8 +137,11 @@ class Bot(commands.Cog):
             await author.send(embed=embed)
 
             await ctx.send(
-                f"An error occured. But no worries, <@{ctx.author.id}>! "
-                + "I've informed my creator."
+                "I encountered a bug. Don't worry. "
+                + "I've logged the bug. However, "
+                + "if it still happens, you might "
+                + "wanna send a feedback with "
+                + "the `feedback` command."
             )
 
 
