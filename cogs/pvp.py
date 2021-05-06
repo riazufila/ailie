@@ -11,6 +11,26 @@ class PvP(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
+    def translateToReadableFormat(self, non_readable_format):
+        buffer_for_res = non_readable_format[::-1]
+        if buffer_for_res[3:4] == "_":
+            buffer_list = []
+            split = non_readable_format.split("_")
+
+            for s in split:
+                if s == "res":
+                    buffer_list.append("Resistance")
+                else:
+                    buffer_list.append(s.capitalize())
+
+            readable_format = " ".join(buffer_list)
+        elif non_readable_format.lower() in ["wsrs", "dr", "hp", "cc", 'aoe']:
+            readable_format = non_readable_format.upper()
+        else:
+            readable_format = non_readable_format.capitalize()
+
+        return readable_format
+
     async def onNormal(self, ctx, participants, enemy_counter):
         # Get hero counter
         if enemy_counter == 1:
@@ -279,6 +299,8 @@ class PvP(commands.Cog):
 
         multipliers[h] = skill_stats[skill]
 
+        h = self.translateToReadableFormat(h)
+
         await ctx.send(f"{color} **{hero_name}**'s {h} is buffed!")
         await asyncio.sleep(1)
 
@@ -296,9 +318,12 @@ class PvP(commands.Cog):
             d = skill
 
         debuffs[d] = -1 * skill_stats[skill]
+
+        d = self.translateToReadableFormat(d)
+
         await ctx.send(
             f"{color} Debuffed **{enemy_hero_name}**'s "
-            + f"{skill}!"
+            + f"{d}!"
         )
         await asyncio.sleep(1)
 
@@ -1348,12 +1373,6 @@ class PvP(commands.Cog):
 
                     for debuff_count in p["debuffs"]:
                         debuff_count["count"] = debuff_count["count"] - 1
-
-                    await self.displayHeroStats(
-                        ctx, p["hero_stats"], p["hero_acquired"],
-                        p["guardian_name"], p["guardian_avatar"],
-                        p["hero_name"]
-                    )
 
 
 def setup(bot):
