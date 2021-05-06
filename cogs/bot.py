@@ -13,13 +13,20 @@ class Bot(commands.Cog):
         # Assign help command to Info category
         self.bot.help_command.cog = self
 
-    async def notifyOwner(self, ctx, error):
+    async def notifyOwner(self, ctx, error, agreement=None):
         AUTHOR_ID = os.getenv("AUTHOR_ID")
         author = await self.bot.fetch_user(AUTHOR_ID)
 
         embed = discord.Embed(color=discord.Color.purple())
         embed.set_author(name="Ailie's Log", icon_url=ctx.me.avatar_url)
         embed.add_field(name=ctx.command, value=error, inline=False)
+
+        if agreement:
+            embed.add_field(
+                name=f"by {ctx.author.name}",
+                value=f"`{ctx.author.id}`",
+                inline=False,
+            )
 
         await author.send(embed=embed)
 
@@ -87,7 +94,13 @@ class Bot(commands.Cog):
     # Send feedback or issue to owner
     @commands.command(
         name="feedback",
-        help="Sends feedback.",
+        brief="Sends feedback.",
+        description=(
+            "Sends feedback, issue, complaint. "
+            + "Basically anything that requires assistance. "
+            + "Do note that along with the feedback, "
+            + "your User ID will also be sent."
+        ),
         aliases=["issue", "report", "problem", "complaint"],
     )
     async def feedback(self, ctx, *feedback):
@@ -104,11 +117,11 @@ class Bot(commands.Cog):
 
         # Process complain
         feedback = " ".join(feedback)
-        await self.notifyOwner(ctx, feedback)
+        await self.notifyOwner(ctx, feedback, "agree")
 
         # Mimic loading animation
         await ctx.send(
-            f"Ding Dong, <@{ctx.author.id}>! " + "Your message has been logged."
+            f"Ding dong, <@{ctx.author.id}>! " + "Your message has been logged."
         )
 
     # Send error message upon spamming commands
