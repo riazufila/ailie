@@ -11,6 +11,14 @@ class PvP(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
+    def calcWeapSkillCooldown(self, current_cd, wsrs, over=None):
+        if over == "over":
+            new_cd = round(current_cd * ((100 + wsrs) / 100))
+        else:
+            new_cd = round(current_cd * (100 / (100 + wsrs)))
+
+        return new_cd
+
     def translateToReadableFormat(self, non_readable_format):
         buffer_for_res = non_readable_format[::-1]
         if buffer_for_res[3:4] == "_":
@@ -48,26 +56,33 @@ class PvP(commands.Cog):
         hero_multipliers = participants[hero_counter]["multipliers"]
         hero_debuffs = participants[hero_counter]["debuffs"]
         hero_max_hp = participants[hero_counter]["max_hp"]
+        hero_ws_cd = \
+            participants[hero_counter]["current_state"]["weapon_skill_cd"]
 
         color = participants[enemy_counter]["color"]
         hero_name = participants[enemy_counter]["hero_name"]
         stats = participants[enemy_counter]["hero_stats"]
         multipliers = participants[enemy_counter]["multipliers"]
         debuffs = participants[enemy_counter]["debuffs"]
+        ws_cd = \
+            participants[enemy_counter]["current_state"]["weapon_skill_cd"]
+        stunned = participants[enemy_counter]["current_state"]["stunned"]
 
         not_enemy = {
             "stats": hero_stats,
             "multipliers": hero_multipliers,
-            "debuffs": hero_debuffs
+            "debuffs": hero_debuffs,
+            "ws_cd": hero_ws_cd
         }
 
         enemy = {
             "stats": stats,
             "multipliers": multipliers,
-            "debuffs": debuffs
+            "debuffs": debuffs,
+            "ws_cd": ws_cd
         }
 
-        if hero_on_trigger_cd == 0:
+        if hero_on_trigger_cd == 0 and stunned != 0:
             hero_on_trigger_cd = 5
             multipliers_buffer = {}
             debuffs_buffer = {}
@@ -111,30 +126,35 @@ class PvP(commands.Cog):
 
             # Update stats after multipliers and debuffs
             if multi_debuff_check:
-                hero_stats, hero_multipliers, hero_debuffs = \
+                hero_stats, hero_multipliers, \
+                    hero_debuffs, hero_ws_cd = \
                     self.updateStatsAfterMultiplierDebuff(
                         hero_stats,
                         hero_multipliers,
-                        hero_debuffs
+                        hero_debuffs,
+                        hero_ws_cd
                     )
-                stats, multipliers, debuffs = \
+                stats, multipliers, debuffs, ws_cd = \
                     self.updateStatsAfterMultiplierDebuff(
                         stats,
                         multipliers,
-                        debuffs
+                        debuffs,
+                        ws_cd
                     )
 
             # Return enemy and not_enemy
             not_enemy = {
                 "stats": hero_stats,
                 "multipliers": hero_multipliers,
-                "debuffs": hero_debuffs
+                "debuffs": hero_debuffs,
+                "ws_cd": hero_ws_cd
             }
 
             enemy = {
                 "stats": stats,
                 "multipliers": multipliers,
-                "debuffs": debuffs
+                "debuffs": debuffs,
+                "ws_cd": ws_cd
             }
 
         return enemy, not_enemy, hero_on_trigger_cd
@@ -156,26 +176,33 @@ class PvP(commands.Cog):
         enemy_multipliers = participants[enemy_counter]["multipliers"]
         enemy_debuffs = participants[enemy_counter]["debuffs"]
         enemy_max_hp = participants[enemy_counter]["max_hp"]
+        enemy_ws_cd = \
+            participants[enemy_counter]["current_state"]["weapon_skill_cd"]
 
         color = participants[hero_counter]["color"]
         hero_name = participants[hero_counter]["hero_name"]
         stats = participants[hero_counter]["hero_stats"]
         multipliers = participants[hero_counter]["multipliers"]
         debuffs = participants[hero_counter]["debuffs"]
+        ws_cd = \
+            participants[hero_counter]["current_state"]["weapon_skill_cd"]
+        stunned = participants[enemy_counter]["current_state"]["stunned"]
 
         enemy = {
             "stats": enemy_stats,
             "multipliers": enemy_multipliers,
-            "debuffs": enemy_debuffs
+            "debuffs": enemy_debuffs,
+            "ws_cd": enemy_ws_cd
         }
 
         not_enemy = {
             "stats": stats,
             "multipliers": multipliers,
-            "debuffs": debuffs
+            "debuffs": debuffs,
+            "ws_cd": ws_cd
         }
 
-        if enemy_on_trigger_cd == 0:
+        if enemy_on_trigger_cd == 0 and stunned != 0:
             enemy_on_trigger_cd = 5
             multipliers_buffer = {}
             debuffs_buffer = {}
@@ -219,35 +246,41 @@ class PvP(commands.Cog):
 
             # Update stats after multipliers and debuffs
             if multi_debuff_check:
-                enemy_stats, enemy_multipliers, enemy_debuffs = \
+                enemy_stats, enemy_multipliers, \
+                    enemy_debuffs, enemy_ws_cd = \
                     self.updateStatsAfterMultiplierDebuff(
                         enemy_stats,
                         enemy_multipliers,
-                        enemy_debuffs
+                        enemy_debuffs,
+                        enemy_ws_cd
                     )
-                stats, multipliers, debuffs = \
+                stats, multipliers, debuffs, ws_cd = \
                     self.updateStatsAfterMultiplierDebuff(
                         stats,
                         multipliers,
-                        debuffs
+                        debuffs,
+                        ws_cd
                     )
 
             # Return enemy and not_enemy
             enemy = {
                 "stats": enemy_stats,
                 "multipliers": enemy_multipliers,
-                "debuffs": enemy_debuffs
+                "debuffs": enemy_debuffs,
+                "ws_cd": enemy_ws_cd
             }
 
             not_enemy = {
                 "stats": stats,
                 "multipliers": multipliers,
-                "debuffs": debuffs
+                "debuffs": debuffs,
+                "ws_cd": ws_cd
             }
 
         return enemy, not_enemy, enemy_on_trigger_cd
 
-    def updateStatsAfterMultiplierDebuff(self, stats, multipliers, debuffs):
+    def updateStatsAfterMultiplierDebuff(
+            self, stats, multipliers, debuffs, ws_cd):
         buffers = [multipliers, debuffs][:]
 
         for buffer in buffers:
@@ -265,6 +298,13 @@ class PvP(commands.Cog):
                                 stats[stat_buffer] = \
                                     stats[stat_buffer] \
                                     + stats_buffer[stat_buffer]
+                                # If wsrs, then calculate the new cd.
+                                if stat_buffer == "wsrs":
+                                    # Get new weapon skill CD
+                                    ws_cd = self.calcWeapSkillCooldown(
+                                            ws_cd,
+                                            stats["wsrs"]
+                                        )
 
                     stats_buffer["check"] = True
                 elif stats_buffer["count"] == 1 and stats_buffer["check"]:
@@ -288,7 +328,7 @@ class PvP(commands.Cog):
         multipliers = buffers[0][:]
         debuffs = buffers[1][:]
 
-        return stats, multipliers, debuffs
+        return stats, multipliers, debuffs, ws_cd
 
     async def multiplier(self, ctx, skill, skill_stats, color, hero_name):
         multipliers = self.resetMultiplier()
@@ -366,8 +406,9 @@ class PvP(commands.Cog):
         return stats["hp"]
 
     async def weaponSkill(
-                self, ctx, weapon_skill_cd, color,
-                hero_name, enemy_stats, enemy_hero_name, stunned, enemy_stunned
+                self, ctx, weapon_skill_cd, color, hero_name,
+                enemy_stats, enemy_hero_name, stunned, enemy_stunned,
+                wsrs
             ):
         attack_type = "used weapon skill"
         if stunned != 0:
@@ -381,7 +422,7 @@ class PvP(commands.Cog):
             )
             await asyncio.sleep(1)
         else:
-            weapon_skill_cd = 5
+            weapon_skill_cd = self.calcWeapSkillCooldown(5, wsrs)
             enemy_speed = enemy_stats[
                 "speed"
             ]
@@ -678,6 +719,11 @@ class PvP(commands.Cog):
         db_ailie = Database()
         inventory_id = db_ailie.get_inventory_id(guardian_id)
         hero_name = db_ailie.get_hero_full_name(hero)
+
+        if hero_name is None:
+            await ctx.send("What hero is that? *annoyed*")
+            return []
+
         hero_id = db_ailie.get_hero_id(hero_name)
         hero_acquired = db_ailie.get_hero_acquired_details(
             inventory_id, hero_id
@@ -947,6 +993,14 @@ class PvP(commands.Cog):
             p["hero_stats"] = self.heroStatsBuffs(
                 p["hero_stats"], p["hero_buffs"])
 
+        # Get new weapon skill CD
+        for p in participants:
+            p["current_state"]["weapon_skill_cd"] = \
+                self.calcWeapSkillCooldown(
+                    p["current_state"]["weapon_skill_cd"],
+                    p["hero_stats"]["wsrs"]
+                )
+
         # Display participants' heroes
         for p in participants:
             await self.displayHeroStats(
@@ -1015,6 +1069,7 @@ class PvP(commands.Cog):
                         if move.upper() in ["ATTACK", "A"]:
                             ec = enemy_counter
                             cs = "current_state"
+                            wscd = "weapon_skill_cd"
                             # On hit buffs
                             if participants[ec][cs]["on_hit_skill_cd"] == 0 \
                                     and "on_hit" in \
@@ -1028,6 +1083,7 @@ class PvP(commands.Cog):
                                 p["hero_stats"] = not_enemy["stats"]
                                 p["multipliers"] = not_enemy["multipliers"]
                                 p["debuffs"] = not_enemy["debuffs"]
+                                p[cs][wscd] = not_enemy["ws_cd"]
 
                                 participants[enemy_counter]["hero_stats"] = \
                                     enemy["stats"]
@@ -1035,6 +1091,8 @@ class PvP(commands.Cog):
                                     enemy["multipliers"]
                                 participants[enemy_counter]["debuffs"] = \
                                     enemy["debuffs"]
+                                participants[enemy_counter][cs][wscd] = \
+                                    enemy["ws_cd"]
 
                                 participants[ec][cs]["on_hit_skill_cd"] = \
                                     on_hit_skill_cd
@@ -1048,10 +1106,13 @@ class PvP(commands.Cog):
                                         ctx, participants,
                                         enemy_counter
                                     )
+                                cs = "current_state"
+                                wscd = 'weapon_skill_cd'
 
                                 p["hero_stats"] = not_enemy["stats"]
                                 p["multipliers"] = not_enemy["multipliers"]
                                 p["debuffs"] = not_enemy["debuffs"]
+                                p[cs][wscd] = not_enemy["ws_cd"]
 
                                 participants[enemy_counter]["hero_stats"] = \
                                     enemy["stats"]
@@ -1059,6 +1120,8 @@ class PvP(commands.Cog):
                                     enemy["multipliers"]
                                 participants[enemy_counter]["debuffs"] = \
                                     enemy["debuffs"]
+                                participants[enemy_counter][cs][wscd] = \
+                                    enemy["ws_cd"]
 
                                 p[cs]["on_normal_skill_cd"] = \
                                     on_normal_skill_cd
@@ -1093,12 +1156,14 @@ class PvP(commands.Cog):
                                     participants[enemy_counter]["hero_name"],
                                     p["current_state"]["stunned"],
                                     participants[enemy_counter]
-                                    ["current_state"]["stunned"]
+                                    ["current_state"]["stunned"],
+                                    p["hero_stats"]["wsrs"]
                                 )
 
                             if enemy_stunned == 3:
                                 ec = enemy_counter
                                 cs = "current_state"
+                                wscd = "weapon_skill_cd"
                                 # On hit buffs
                                 if participants[ec][cs]["on_hit_skill_cd"] \
                                         == 0 and "on_hit" in \
@@ -1112,6 +1177,7 @@ class PvP(commands.Cog):
                                     p["hero_stats"] = not_enemy["stats"]
                                     p["multipliers"] = not_enemy["multipliers"]
                                     p["debuffs"] = not_enemy["debuffs"]
+                                    p[cs][wscd] = not_enemy["ws_cd"]
 
                                     participants[enemy_counter]["hero_stats"] \
                                         = enemy["stats"]
@@ -1119,6 +1185,8 @@ class PvP(commands.Cog):
                                         = enemy["multipliers"]
                                     participants[enemy_counter]["debuffs"] = \
                                         enemy["debuffs"]
+                                    participants[enemy_counter][cs][wscd] = \
+                                        enemy["ws_cd"]
 
                                     participants[ec][cs]["on_hit_skill_cd"] = \
                                         on_hit_skill_cd
@@ -1132,10 +1200,13 @@ class PvP(commands.Cog):
                                             ctx, participants,
                                             enemy_counter
                                         )
+                                    cs = "current_state"
+                                    wscd = 'weapon_skill_cd'
 
                                     p["hero_stats"] = not_enemy["stats"]
                                     p["multipliers"] = not_enemy["multipliers"]
                                     p["debuffs"] = not_enemy["debuffs"]
+                                    p[cs][wscd] = not_enemy["ws_cd"]
 
                                     participants[enemy_counter]["hero_stats"] \
                                         = enemy["stats"]
@@ -1143,6 +1214,8 @@ class PvP(commands.Cog):
                                         = enemy["multipliers"]
                                     participants[enemy_counter]["debuffs"] = \
                                         enemy["debuffs"]
+                                    participants[enemy_counter][cs][wscd] = \
+                                        enemy["ws_cd"]
 
                                     p[cs]["on_normal_skill_cd"] \
                                         = on_normal_skill_cd
@@ -1169,6 +1242,7 @@ class PvP(commands.Cog):
                                         hs = "hero_stats"
                                         m = "multipliers"
                                         d = "debuffs"
+                                        wscd = "weapon_skill_cd"
                                         # On hit buffs
                                         if participants[ec][cs][ohsc] == 0 \
                                                 and "on_hit" in \
@@ -1181,16 +1255,18 @@ class PvP(commands.Cog):
                                                 )
 
                                             p["hero_stats"] = not_enemy["stats"]
-                                            p["multipliers"] = \
-                                                not_enemy["multipliers"]
-                                            p["debuffs"] = not_enemy["debuffs"]
+                                            p["multipliers"] = not_enemy[m]
+                                            p["debuffs"] = not_enemy[d]
+                                            p[cs][wscd] = not_enemy["ws_cd"]
 
-                                            participants[enemy_counter][hs] = \
-                                                enemy["stats"]
-                                            participants[enemy_counter][m] = \
-                                                enemy[m]
+                                            participants[enemy_counter][hs] \
+                                                = enemy["stats"]
+                                            participants[enemy_counter][m] \
+                                                = enemy["multipliers"]
                                             participants[enemy_counter][d] = \
                                                 enemy["debuffs"]
+                                            participants[ec][cs][wscd] \
+                                                = enemy["ws_cd"]
 
                                             participants[ec][cs][ohsc] = \
                                                 on_hit_skill_cd
@@ -1206,11 +1282,14 @@ class PvP(commands.Cog):
                                                     ctx, participants,
                                                     enemy_counter
                                                 )
+                                            cs = "current_state"
+                                            wscd = 'weapon_skill_cd'
 
                                             p["hero_stats"] = not_enemy["stats"]
                                             p["multipliers"] = \
                                                 not_enemy["multipliers"]
                                             p["debuffs"] = not_enemy["debuffs"]
+                                            p[cs][wscd] = not_enemy["ws_cd"]
 
                                             participants[enemy_counter][hs] = \
                                                 enemy["stats"]
@@ -1218,6 +1297,8 @@ class PvP(commands.Cog):
                                                 enemy[m]
                                             participants[enemy_counter][d] = \
                                                 enemy["debuffs"]
+                                            participants[ec][cs][wscd] = \
+                                                enemy["ws_cd"]
 
                                             p[cs][onsc] = \
                                                 on_normal_skill_cd
@@ -1267,14 +1348,18 @@ class PvP(commands.Cog):
 
                                         # Update stats after debuffs
                                         ec = enemy_counter
+                                        cs = "current_state"
+                                        wscd = "weapon_skill_cd"
                                         participants[ec]["hero_stats"], \
                                             participants[ec]["multipliers"], \
-                                            participants[ec]["debuffs"] = \
+                                            participants[ec]["debuffs"], \
+                                            participants[ec][cs][wscd] = \
                                             self.\
                                             updateStatsAfterMultiplierDebuff(
                                                 participants[ec]["hero_stats"],
                                                 participants[ec]["multipliers"],
-                                                participants[ec]["debuffs"]
+                                                participants[ec]["debuffs"],
+                                                participants[ec][cs][wscd]
                                             )
 
                                     elif p["hero_skill"] in \
@@ -1294,13 +1379,16 @@ class PvP(commands.Cog):
                                         p["multipliers"].append(multipliers)
 
                                         # Update stats after multipliers
+                                        cs = "current_state"
+                                        wscd = "weapon_skill_cd"
                                         p["hero_stats"], p["multipliers"], \
-                                            p["debuffs"] = \
+                                            p["debuffs"], p[cs][wscd] = \
                                             self.\
                                             updateStatsAfterMultiplierDebuff(
                                                 p["hero_stats"],
                                                 p["multipliers"],
-                                                p["debuffs"]
+                                                p["debuffs"],
+                                                p[cs][wscd]
                                             )
                             else:
                                 ec = enemy_counter
@@ -1379,17 +1467,24 @@ class PvP(commands.Cog):
                             p["current_state"]["on_hit_skill_cd"] - 1
 
                     # Update stats after debuffs and multiplier
-                    p["hero_stats"], p["multipliers"], p["debuffs"] = \
+                    cs = "current_state"
+                    wscd = "weapon_skill_cd"
+
+                    p["hero_stats"], p["multipliers"], \
+                        p["debuffs"], p[cs][wscd] = \
                         self.updateStatsAfterMultiplierDebuff(
-                            p["hero_stats"], p["multipliers"], p["debuffs"]
+                            p["hero_stats"], p["multipliers"], p["debuffs"],
+                            p["current_state"]["weapon_skill_cd"]
                         )
                     participants[enemy_counter]["hero_stats"], \
                         participants[enemy_counter]["multipliers"], \
-                        participants[enemy_counter]["debuffs"] = \
+                        participants[enemy_counter]["debuffs"], \
+                        participants[enemy_counter][cs][wscd] = \
                         self.updateStatsAfterMultiplierDebuff(
                             participants[enemy_counter]["hero_stats"],
                             participants[enemy_counter]["multipliers"],
-                            participants[enemy_counter]["debuffs"]
+                            participants[enemy_counter]["debuffs"],
+                            participants[enemy_counter][cs][wscd]
                         )
 
                     # Multiplier and debuff count
