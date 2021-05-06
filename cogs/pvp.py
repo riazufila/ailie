@@ -599,9 +599,9 @@ class PvP(commands.Cog):
     def resetCurrentState(self):
         return {
             "on_hit_by_any": False,
-            "weapon_skill_cd": 0,
-            "on_normal_skill_cd": 0,
-            "on_hit_skill_cd": 0,
+            "weapon_skill_cd": 5,
+            "on_normal_skill_cd": 5,
+            "on_hit_skill_cd": 5,
             "stunned": 0,
             "done_normal": False,
         }
