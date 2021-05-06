@@ -6,7 +6,7 @@ from discord.ext import commands
 from helpers.database import Database
 
 
-class Journey(commands.Cog):
+class Currency(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
@@ -256,7 +256,7 @@ class Journey(commands.Cog):
                             guardian_with_gems.append(buffer)
         else:
             await ctx.send(
-                "Dear, <@{ctx.author.id}>. You can only specify `server` "
+                f"Dear, <@{ctx.author.id}>. You can only specify `server` "
                 + "or `global`."
             )
 
@@ -319,4 +319,4 @@ class Journey(commands.Cog):
 
 
 def setup(bot):
-    bot.add_cog(Journey(bot))
+    bot.add_cog(Currency(bot))

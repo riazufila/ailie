@@ -28,6 +28,7 @@ if __name__ == "__main__":
         "cogs.guild",
         "cogs.guardian",
         "cogs.currency",
+        "cogs.pvp",
         "cogs.misc",
     ]
 

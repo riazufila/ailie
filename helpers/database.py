@@ -10,7 +10,6 @@ class Database():
         self.connection = psycopg2.connect(DATABASE_URL, sslmode="require")
         self.cursor = self.connection.cursor()
 
-    # Guardians related query
     def initialize_user(self, guardian_id):
         initialized = False
 
@@ -104,7 +103,6 @@ class Database():
         self.cursor.execute(query, data)
         self.connection.commit()
 
-    # Guilds related query
     def create_guild(
         self, guardian_id, guardian_position, guild_id, guild_name
     ):
@@ -271,7 +269,6 @@ class Database():
         self.cursor.execute(query, data)
         self.connection.commit()
 
-    # Currency related query
     def store_gems(self, guardian_id, gems):
         # Get already existing gems
         query = "SELECT guardian_gems FROM guardians WHERE guardian_id = %s;"
@@ -326,7 +323,6 @@ class Database():
 
             return True
 
-    # Summons related query
     def get_pool(self, type, pickup, stars):
         pool = stars[:]
 
@@ -574,6 +570,60 @@ class Database():
                 data = [equip_id, inventory_id]
                 self.cursor.execute(query, data)
                 self.connection.commit()
+
+    def get_hero_acquired_details(self, inventory_id, hero_id):
+        query = (
+            "SELECT hero_acquired_level, hero_acquired_exp "
+            + "FROM heroes_acquired "
+            + "WHERE hero_id = %s and inventory_id = %s;"
+        )
+        data = [hero_id, inventory_id]
+        self.cursor.execute(query, data)
+
+        heroes_acquired_stats = self.cursor.fetchone()
+
+        if heroes_acquired_stats:
+            hero_acquired = {
+                "level": heroes_acquired_stats[0],
+                "exp": heroes_acquired_stats[1],
+            }
+            return hero_acquired
+        else:
+            return None
+
+    def get_hero_stats(self, hero_id):
+        query = (
+            "SELECT hero_stats, hero_buffs, hero_skill, hero_triggers "
+            + "FROM heroes WHERE hero_id = %s;"
+        )
+        data = [hero_id]
+        self.cursor.execute(query, data)
+        hero_char = self.cursor.fetchone()
+
+        return hero_char[0], hero_char[1], hero_char[2], hero_char[3]
+
+    def get_hero_full_name(self, name):
+        heroes = self.get_pool("heroes", "normal", [[], [], []])
+
+        for hero in heroes[2]:
+            if name.lower() in hero.lower():
+                return hero[4:]
+
+    def has_ewp(self, guardian_id, hero_name):
+        hero_id = self.get_hero_id(hero_name)
+
+        query = "SELECT equip_id FROM heroes WHERE hero_id = %s;"
+        data = [hero_id]
+        self.cursor.execute(query, data)
+        ewp = self.cursor.fetchone()
+
+        if isinstance(ewp, tuple):
+            ewp = ewp[0]
+
+        if self.is_equip_obtained(guardian_id, ewp):
+            return True
+        else:
+            return False
 
     # Disconnect database
     def disconnect(self):
