@@ -10,7 +10,14 @@ class Currency(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(name="race", help="Race against Lana.")
+    @commands.command(
+        name="race",
+        brief="Race against Lana.",
+        description=(
+            "Participate in racing Lana where a random amount "
+            + "of gems from roughly 10 to 500 can be obtained."
+        ),
+    )
     @commands.cooldown(1, 20, commands.BucketType.user)
     async def race(self, ctx):
         # Check if user is initialized first
@@ -58,7 +65,14 @@ class Currency(commands.Cog):
 
         await ctx.send(random.choice(reply))
 
-    @commands.command(name="pat", help="Pats Little Princess's head.")
+    @commands.command(
+        name="pat",
+        brief="Pats Little Princess's head.",
+        description=(
+            "Obtain roughly 10 to 1500 gems depending on "
+            + "how much Little Princess likes you."
+        ),
+    )
     @commands.cooldown(1, 30, commands.BucketType.user)
     async def pat(self, ctx):
         # Check if user is initialized first
@@ -103,7 +117,15 @@ class Currency(commands.Cog):
 
         await ctx.send(random.choice(reply))
 
-    @commands.command(name="gamble", help="Gamble gems.")
+    @commands.command(
+        name="gamble",
+        brief="Gamble gems.",
+        description=(
+            "Gamble any amount of gems (of course you can't gamble 0 gems "
+            + "or less) to gain the exact amount back in return. That. "
+            + "Or you lose the gems gambled."
+        ),
+    )
     async def gamble(self, ctx, gems: int):
         # Check if user is initialized first
         db_ailie = Database()
@@ -163,7 +185,12 @@ class Currency(commands.Cog):
         await ctx.send(random.choice(reply))
 
     @commands.command(
-        name="share", help="Share gems.", aliases=["give", "gift"]
+        name="share",
+        brief="Share gems.",
+        description=(
+            "Give a certain amount of gems that you obtain to someone else."
+        ),
+        aliases=["give", "gift"],
     )
     @commands.cooldown(1, 10, commands.BucketType.user)
     async def share(self, ctx, gems: int, mention: discord.Member):
@@ -213,7 +240,16 @@ class Currency(commands.Cog):
             + "SWEET!"
         )
 
-    @commands.command(name="rich", help="Show whales.")
+    @commands.command(
+        name="rich",
+        brief="Show whales.",
+        description=(
+            "Rank users based on the server you're in or globally. "
+            + "To rank based on the server you're in, put `server` as "
+            + "the scope (default). To rank based on global, "
+            + "put `global` as the scope."
+        ),
+    )
     async def rich(self, ctx, scope="server"):
         # Check if user is initialized first
         db_ailie = Database()
@@ -264,9 +300,10 @@ class Currency(commands.Cog):
         counter = 1
         for whales in guardian_with_gems:
             if counter == 1:
-                output = output + f"{counter}. {whales[0]} 💎 - `{whales[1]}`"
+                output = output + f"{counter}. {whales[0]:,d} 💎 - `{whales[1]}`"
             else:
-                output = output + f"\n{counter}. {whales[0]} 💎 - `{whales[1]}`"
+                output = output + \
+                    f"\n{counter}. {whales[0]:,d} 💎 - `{whales[1]}`"
 
             # Get username if any
             username = db_ailie.get_username(whales[2])
@@ -283,7 +320,11 @@ class Currency(commands.Cog):
 
         await ctx.send(embed=embed)
 
-    @commands.command(name="gems", help="Check gems.")
+    @commands.command(
+        name="gems",
+        brief="Check gems.",
+        description="Check the amount of your current gems."
+    )
     async def gems(self, ctx, mention: discord.Member = None):
         # Check if user is initialized first
         db_ailie = Database()
@@ -310,7 +351,7 @@ class Currency(commands.Cog):
         # Display gems balance
         gems = db_ailie.get_gems(guardian_id)
         db_ailie.disconnect()
-        await ctx.send(f"<@{guardian_id}> has {gems} 💎 total.")
+        await ctx.send(f"<@{guardian_id}> has {gems:,d} 💎 total.")
 
 
 def setup(bot):

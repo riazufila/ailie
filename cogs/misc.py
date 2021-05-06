@@ -11,7 +11,11 @@ class Misc(commands.Cog):
         self.bot = bot
 
     # Pours salt to those lucky people
-    @commands.command(name="salt", help="Pour salt.")
+    @commands.command(
+        name="salt",
+        brief="Pour salt.",
+        description="Someone is too lucky? Pour some salt.",
+    )
     async def pourSalt(self, ctx, mention: discord.Member):
         # Check if user is initialized first
         db_ailie = Database()
@@ -50,7 +54,11 @@ class Misc(commands.Cog):
         await msg.add_reaction("🧂")
 
     # Press F
-    @commands.command(name="f", help="Pay respect.")
+    @commands.command(
+        name="f",
+        brief="Pay respect.",
+        description="Someone is too unlucky? Press lots of F.",
+    )
     async def pressF(self, ctx, mention: discord.Member):
         # Check if user is initialized first
         db_ailie = Database()

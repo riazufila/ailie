@@ -816,7 +816,11 @@ class PvP(commands.Cog):
         return hero_stats
 
     @commands.command(
-        name="arena", help="Play arena."
+        name="arena",
+        brief="Play arena.",
+        description=(
+            "Turn-Based arena where you go againts someone else."
+        )
     )
     @commands.max_concurrency(1, per=commands.BucketType.channel, wait=False)
     async def arena(self, ctx, mention: discord.Member = None, *hero):

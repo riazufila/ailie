@@ -441,7 +441,14 @@ class Summon(commands.Cog):
 
     # Lists the current pickup banner
     @commands.command(
-        name="banner", help="List current pickup banner.", aliases=["pickup"])
+        name="banner",
+        brief="List current pickup banner.",
+        description=(
+            "Check the current pickup heroes and equipments. "
+            + "This changes every two weeks or so."
+            ),
+        aliases=["pickup"]
+    )
     async def banner(self, ctx):
         # Check if user is initialized first
         db_ailie = Database()
@@ -484,7 +491,18 @@ class Summon(commands.Cog):
 
     # Summon heroes or equipments either on the normal or pick up banne.
     @commands.command(
-            name="summon", help="Summon heroes or equipments.", aliases=["s"])
+        name="summon",
+        brief="Summon heroes or equipments.",
+        description=(
+            "Summon heroes or equipments on a pickup banner or "
+            + "non-pickup banner. The type can be either `hero` or `equip`. "
+            + "The count can be `10` or `1`. The target should be any "
+            + "heroes or equipments that are currently in the pickup banner. "
+            + "If target is not specified, then the summon will be done "
+            + "on a non-pickup banner."
+        ),
+        aliases=["s"]
+    )
     @commands.cooldown(1, 20, commands.BucketType.user)
     @commands.max_concurrency(1, per=commands.BucketType.channel, wait=False)
     async def summon(self, ctx, type, count: int, *target):
