@@ -92,9 +92,6 @@ class PvP(commands.Cog):
                 multi_debuff_check = True
 
             # Update stats after multipliers and debuffs
-            # print(f"hero_multi: {hero_multipliers}")
-            # print("##########################################################")
-            # print(f"enemy_multi: {multipliers}")
             if multi_debuff_check:
                 hero_stats, hero_multipliers, hero_debuffs = \
                     self.updateStatsAfterMultiplierDebuff(
@@ -109,18 +106,6 @@ class PvP(commands.Cog):
                         debuffs
                     )
 
-            # print(f"hero_multi: {hero_multipliers}")
-            # print("##########################################################")
-            # print(f"enemy_multi: {multipliers}")
-
-            print(f"hero_debuff: {hero_debuffs}")
-            print("##########################################################")
-            print(f"enemy_debuff: {debuffs}")
-
-            # print(f"hero_stats: {hero_stats}")
-            # print("##########################################################")
-            # print(f"enemy_stats: {stats}")
-
             # Return enemy and not_enemy
             not_enemy = {
                 "stats": hero_stats,
@@ -133,9 +118,6 @@ class PvP(commands.Cog):
                 "multipliers": multipliers,
                 "debuffs": debuffs
             }
-
-            # print(f"enemy: {enemy}")
-            # print(f"hero: {enemy}")
 
         return enemy, not_enemy, hero_on_trigger_cd
 
@@ -299,7 +281,6 @@ class PvP(commands.Cog):
         else:
             h = skill
 
-        print(f"{hero_name}'s skill stats: {skill_stats}")
         multipliers[h] = skill_stats[skill]
 
         await ctx.send(f"{color} **{hero_name}**'s {h} is buffed!")
@@ -541,9 +522,9 @@ class PvP(commands.Cog):
     def resetCurrentState(self):
         return {
             "on_hit_by_any": False,
-            "weapon_skill_cd": 0,
-            "on_normal_skill_cd": 0,
-            "on_hit_skill_cd": 0,
+            "weapon_skill_cd": 5,
+            "on_normal_skill_cd": 5,
+            "on_hit_skill_cd": 5,
             "stunned": 0,
             "done_normal": False,
         }
@@ -697,7 +678,7 @@ class PvP(commands.Cog):
         # Function to confirm challenge
         def confirm_application(message):
             return (
-                message.author.id == ctx.author.id
+                message.author.id == guardian_id
                 and message.content.upper() in ["YES", "Y", "NO", "N"]
             )
 
@@ -726,7 +707,7 @@ class PvP(commands.Cog):
             return
 
         def confirm_hero(message):
-            return message.author.id == ctx.author.id
+            return message.author.id == guardian_id
 
         # Wait for hero chosen
         try:
@@ -962,7 +943,7 @@ class PvP(commands.Cog):
 
                     def confirm_move(message):
                         return (
-                            message.author.id == ctx.author.id
+                            message.author.id == p["guardian_id"]
                             and message.content.upper()
                             in [
                                 "ATTACK",
