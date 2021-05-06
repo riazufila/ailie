@@ -322,8 +322,8 @@ class PvP(commands.Cog):
         d = self.translateToReadableFormat(d)
 
         await ctx.send(
-            f"{color} Debuffed **{enemy_hero_name}**'s "
-            + f"{d}!"
+            f"{color} **{enemy_hero_name}**'s "
+            + f"{d} is debuffed!"
         )
         await asyncio.sleep(1)
 
@@ -353,7 +353,7 @@ class PvP(commands.Cog):
             stats["hp"] = total_health
 
         await ctx.send(
-            f"{color} Healed `{heal}` HP to "
+            f"{color} `{heal}` HP healed to "
             + f"**{hero_name}**.\n"
         )
         await asyncio.sleep(1)
