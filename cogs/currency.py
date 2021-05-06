@@ -260,7 +260,7 @@ class Currency(commands.Cog):
                             guardian_with_gems.append(buffer)
         else:
             await ctx.send(
-                "Dear, <@{ctx.author.id}>. You can only specify `server` "
+                f"Dear, <@{ctx.author.id}>. You can only specify `server` "
                 + "or `global`."
             )
 
