@@ -9,10 +9,7 @@ class Guardian(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(
-        name="profile", help="View profile.", aliases=["prof", "pro", "pr"]
-    )
-    @commands.cooldown(1, 5, commands.BucketType.user)
+    @commands.command(name="profile", help="View profile.")
     async def profile(self, ctx, mention: discord.Member = None):
         # Check if user is initialized first
         db_ailie = Database()
@@ -84,9 +81,8 @@ class Guardian(commands.Cog):
         await ctx.send(embed=embed)
 
     @commands.command(
-        name="inventory", help="View inventory.", aliases=["inv", "i"]
+        name="inventory", help="View inventory.", aliases=["inv", "bag"]
     )
-    @commands.cooldown(1, 5, commands.BucketType.user)
     async def inventory(self, ctx, type, mention: discord.Member = None):
         # Check if user is initialized first
         db_ailie = Database()
@@ -159,8 +155,9 @@ class Guardian(commands.Cog):
 
         db_ailie.disconnect()
 
-    @commands.command(name="username", help="Set username.", aliases=["name"])
-    @commands.cooldown(1, 5, commands.BucketType.user)
+    @commands.command(
+        name="username", help="Set username.", aliases=["name", "ign"]
+    )
     async def username(self, ctx, username):
         # Check if user is initialized first
         db_ailie = Database()
@@ -181,7 +178,6 @@ class Guardian(commands.Cog):
     @commands.command(
         name="initialize", help="Initialize user.", aliases=["init"]
     )
-    @commands.cooldown(1, 5, commands.BucketType.user)
     async def initialize(self, ctx):
         db_ailie = Database()
 

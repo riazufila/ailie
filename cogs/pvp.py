@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import os
 import asyncio
 import random
 import discord
@@ -1441,7 +1442,26 @@ class PvP(commands.Cog):
                             db_ailie.disconnect()
                             return
                         else:
-                            await ctx.send(f"I bugged; {error}.")
+                            AUTHOR_ID = os.getenv("AUTHOR_ID")
+                            author = await self.bot.fetch_user(AUTHOR_ID)
+
+                            embed = discord.Embed(color=discord.Color.purple())
+                            embed.set_author(
+                                name="Ailie's Log",
+                                icon_url=ctx.me.avatar_url
+                            )
+                            embed.add_field(
+                                name=ctx.command, value=error, inline=False)
+
+                            await author.send(embed=embed)
+
+                            await ctx.send(
+                                "I encountered a bug. Don't worry. "
+                                + "I've logged the bug. However, "
+                                + "if it still happens, you might "
+                                + "wanna send a feedback with "
+                                + "the `feedback` command."
+                            )
 
                     # Interchange enemy counter
                     if enemy_counter == 1:

@@ -280,7 +280,7 @@ class Guild(commands.Cog):
     @commands.command(
         name="guild",
         help="Show Guild details.",
-        aliases=["members", "member", "mem"],
+        aliases=["member"],
     )
     async def guild(self, ctx):
         # Check if user is initialized first

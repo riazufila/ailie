@@ -13,6 +13,23 @@ class Bot(commands.Cog):
         # Assign help command to Info category
         self.bot.help_command.cog = self
 
+    async def notifyOwner(self, ctx, error, agreement=None):
+        AUTHOR_ID = os.getenv("AUTHOR_ID")
+        author = await self.bot.fetch_user(AUTHOR_ID)
+
+        embed = discord.Embed(color=discord.Color.purple())
+        embed.set_author(name="Ailie's Log", icon_url=ctx.me.avatar_url)
+        embed.add_field(name=ctx.command, value=error, inline=False)
+
+        if agreement:
+            embed.add_field(
+                name=f"by {ctx.author.name}",
+                value=f"`{ctx.author.id}`",
+                inline=False,
+            )
+
+        await author.send(embed=embed)
+
     # Execute when bot is ready
     @commands.Cog.listener()
     async def on_ready(self):
@@ -25,7 +42,6 @@ class Bot(commands.Cog):
 
     # Check bot's latency
     @commands.command(name="ping", help="Check latency.")
-    @commands.cooldown(1, 10, commands.BucketType.user)
     async def ping(self, ctx):
         # Check if user is initialized first
         db_ailie = Database()
@@ -45,7 +61,7 @@ class Bot(commands.Cog):
 
     # Retrieve Ailie's version
     @commands.command(name="version", help="Shows version.")
-    @commands.cooldown(1, 10, commands.BucketType.user)
+    @commands.cooldown(1, 5, commands.BucketType.user)
     async def version(self, ctx):
         # Check if user is initialized first
         db_ailie = Database()
@@ -75,19 +91,49 @@ class Bot(commands.Cog):
         await msg.edit(content=msg.content + f" {version}!")
         await asyncio.sleep(0.5)
 
+    # Send feedback or issue to owner
+    @commands.command(
+        name="feedback",
+        brief="Sends feedback.",
+        description=(
+            "Sends feedback, issue, complaint. "
+            + "Basically anything that requires assistance. "
+            + "Do note that along with the feedback, "
+            + "your User ID will also be sent."
+        ),
+        aliases=["issue", "report", "problem", "complaint"],
+    )
+    async def feedback(self, ctx, *feedback):
+        # Check if user is initialized first
+        db_ailie = Database()
+        if not db_ailie.is_initialized(ctx.author.id):
+            await ctx.send(
+                "Do `ailie;initialize` or `a;initialize` first before anything!"
+            )
+            db_ailie.disconnect()
+            return
+
+        db_ailie.disconnect()
+
+        # Process complain
+        feedback = " ".join(feedback)
+        await self.notifyOwner(ctx, feedback, "agree")
+
+        # Mimic loading animation
+        await ctx.send(
+            f"Ding dong, <@{ctx.author.id}>! " + "Your message has been logged."
+        )
+
     # Send error message upon spamming commands
     @commands.Cog.listener()
     async def on_command_error(self, ctx, error):
         if isinstance(error, commands.CommandOnCooldown):
             await ctx.send(f"Hey, <@{ctx.author.id}>.. {error}!")
         elif isinstance(error, commands.CommandNotFound):
-            msg = await ctx.send(
-                f"Yo, <@{ctx.author.id}>..There's no such commands. "
-                + "Try again. But properly."
+            await ctx.send(
+                f"Yo, <@{ctx.author.id}>.. There's no such commands. "
+                + "Try checking `a;help`!"
             )
-            await ctx.send_help()
-            await asyncio.sleep(0.5)
-            await msg.edit(content=msg.content + " Hope this helps!")
         elif isinstance(error, commands.MissingRequiredArgument):
             msg = await ctx.send(
                 "Not to be rude. But you've got "
@@ -121,24 +167,18 @@ class Bot(commands.Cog):
             await msg.edit(content=msg.content + " Will that help?")
         elif isinstance(error, commands.MaxConcurrencyReached):
             await ctx.send(
-                f"Yo, <@{ctx.author.id}>! CHILL! Let the others do it first?"
+                f"Yo, <@{ctx.author.id}>! CHILL? "
+                + "Someone is already doing that command!"
             )
         else:
-            AUTHOR_ID = os.getenv("AUTHOR_ID")
-            author = await self.bot.fetch_user(AUTHOR_ID)
-
-            embed = discord.Embed(color=discord.Color.purple())
-            embed.set_author(
-                name="Ailie's Error Log", icon_url=ctx.me.avatar_url
-            )
-            embed.add_field(name="Command", value=ctx.command, inline=False)
-            embed.add_field(name="Error", value=error, inline=False)
-
-            await author.send(embed=embed)
+            await self.notifyOwner(ctx, error)
 
             await ctx.send(
-                f"An error occured. But no worries, <@{ctx.author.id}>! "
-                + "I've informed my creator."
+                "I encountered a bug. Don't worry. "
+                + "I've logged the bug. However, "
+                + "if it still happens, you might "
+                + "wanna send a feedback with "
+                + "the `feedback` command."
             )
 
 

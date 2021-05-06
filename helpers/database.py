@@ -253,7 +253,10 @@ class Database():
         return len(row)
 
     def disband_guild(self, guild_id):
-        query = "UPDATE guardians SET guild_id = NULL WHERE guild_id = %s;"
+        query = (
+            "UPDATE guardians SET guardian_position = NULL, "
+            + "guild_id = NULL WHERE guild_id = %s;"
+        )
         data = [guild_id]
         self.cursor.execute(query, data)
 
