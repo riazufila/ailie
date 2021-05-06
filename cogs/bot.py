@@ -130,13 +130,10 @@ class Bot(commands.Cog):
         if isinstance(error, commands.CommandOnCooldown):
             await ctx.send(f"Hey, <@{ctx.author.id}>.. {error}!")
         elif isinstance(error, commands.CommandNotFound):
-            msg = await ctx.send(
-                f"Yo, <@{ctx.author.id}>..There's no such commands. "
-                + "Try again. But properly."
+            await ctx.send(
+                f"Yo, <@{ctx.author.id}>.. There's no such commands. "
+                + "Try checking `a;help`!"
             )
-            await ctx.send_help()
-            await asyncio.sleep(0.5)
-            await msg.edit(content=msg.content + " Hope this helps!")
         elif isinstance(error, commands.MissingRequiredArgument):
             msg = await ctx.send(
                 "Not to be rude. But you've got "
@@ -170,7 +167,8 @@ class Bot(commands.Cog):
             await msg.edit(content=msg.content + " Will that help?")
         elif isinstance(error, commands.MaxConcurrencyReached):
             await ctx.send(
-                f"Yo, <@{ctx.author.id}>! CHILL! Let the others do it first?"
+                f"Yo, <@{ctx.author.id}>! CHILL? "
+                + "Someone is already doing that command!"
             )
         else:
             await self.notifyOwner(ctx, error)
