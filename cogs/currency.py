@@ -259,8 +259,8 @@ class Currency(commands.Cog):
             )
 
         # Display richest user in discord server
-        guardian_with_gems.sort(reverse=True)
-        guardian_with_gems = guardian_with_gems[:10]
+        guardian_with_gems_sorted = sorted(guardian_with_gems)[::-1]
+        guardian_with_gems = guardian_with_gems_sorted[:10]
         counter = 1
         for whales in guardian_with_gems:
             if counter == 1:
