@@ -75,6 +75,9 @@ class PvP(commands.Cog):
                         color,
                         hero_name
                     )
+
+                    debuffs.append(debuffs_buffer)
+                    multi_debuff_check = True
                 else:
                     multipliers_buffer = await self.multiplier(
                         ctx, on_normal_buff,
@@ -83,13 +86,8 @@ class PvP(commands.Cog):
                         hero_hero_name
                     )
 
-            # Append multiplier and debuff to each list
-            if multipliers_buffer:
-                hero_multipliers.append(multipliers_buffer)
-                multi_debuff_check = True
-            if debuffs_buffer:
-                debuffs.append(debuffs_buffer)
-                multi_debuff_check = True
+                    hero_multipliers.append(multipliers_buffer)
+                    multi_debuff_check = True
 
             # Update stats after multipliers and debuffs
             if multi_debuff_check:
@@ -185,6 +183,9 @@ class PvP(commands.Cog):
                         color,
                         hero_name
                     )
+
+                    debuffs.append(debuffs_buffer)
+                    multi_debuff_check = True
                 else:
                     multipliers_buffer = await self.multiplier(
                         ctx, on_hit_buff,
@@ -193,13 +194,8 @@ class PvP(commands.Cog):
                         enemy_hero_name
                     )
 
-            # Append multiplier and debuff to each list
-            if multipliers_buffer:
-                enemy_multipliers.append(multipliers_buffer)
-                multi_debuff_check = True
-            if debuffs_buffer:
-                debuffs.append(debuffs_buffer)
-                multi_debuff_check = True
+                    enemy_multipliers.append(multipliers_buffer)
+                    multi_debuff_check = True
 
             # Update stats after multipliers and debuffs
             if multi_debuff_check:
@@ -1054,8 +1050,8 @@ class PvP(commands.Cog):
                                 ec = enemy_counter
                                 cs = "current_state"
                                 # On hit buffs
-                                if participants[ec][cs]["on_normal_skill_cd"] \
-                                        == 0 and "on_normal" in \
+                                if participants[ec][cs]["on_hit_skill_cd"] \
+                                        == 0 and "on_hit" in \
                                         participants[ec]["hero_triggers"]:
                                     enemy, not_enemy, on_hit_skill_cd = \
                                         await self.onHit(
