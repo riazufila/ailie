@@ -501,23 +501,37 @@ class PvP(commands.Cog):
 
         return end, enemy_stats["hp"]
 
-    async def displayHeroStats(self, ctx, stats, levels, name, avatar, hero):
-        output = ""
-        for s in stats:
-            if not output:
-                output = f"{s}: {stats[s]}"
-            else:
-                output = output + f"\n{s}: {stats[s]}"
-
+    async def displayHeroStats(
+            self, ctx, stats, levels, name, avatar, hero, participants, p):
         # Set embed baseline
-        embed = discord.Embed(color=discord.Color.purple())
+        if participants.index(p) == 1:
+            color = discord.Color.blue()
+            await ctx.send("**Opponent**:")
+        else:
+            color = discord.Color.red()
+            await ctx.send("**Challenger**:")
+
+        embed = discord.Embed(color=color)
         embed.set_author(name=name, icon_url=avatar)
 
         # Set output
+        stats_output = ""
+        for s in stats:
+            if s.lower() in [
+                    "attack", "def", "hp", "cc",
+                    "dr", "wsrs", "element", "skill"
+                    ]:
+                stat_proper = self.translateToReadableFormat(s)
+                if stats_output == "":
+                    stats_output = f"\n**{stat_proper}**: `{stats[s]}`"
+                else:
+                    stats_output = stats_output \
+                        + f"\n**{stat_proper}**: `{stats[s]}`"
+
         embed.add_field(
-            name="Hero", value=f"Lvl {levels['level']} - {hero}", inline=False
+            name=f"Lvl {levels['level']} {hero}",
+            value=stats_output
         )
-        embed.add_field(name="output", value=output, inline=False)
 
         # Send embed
         await ctx.send(embed=embed)
@@ -591,7 +605,6 @@ class PvP(commands.Cog):
             "wsrs": 0,
             "speed": 0,
             "skill": 0,
-            "armor": 0,
             "normal": 20
         }
 
@@ -857,6 +870,14 @@ class PvP(commands.Cog):
                 + f"you fight yourself eh, <@{challenger_id}>?"
             )
             return
+        else:
+            msg = await ctx.send(
+                "An arena fight is about to begin between "
+                + f"<@{challenger_id}> and <@{opponent_id}>.."
+            )
+            await asyncio.sleep(1)
+            await msg.edit(content=msg.content + " May the best guardian win!")
+            await asyncio.sleep(1)
 
         # If both parties have chosen heroes, get the raw stats.
         hero_stats_challenger_buffer = hero_stats_challenger
@@ -931,8 +952,12 @@ class PvP(commands.Cog):
             await self.displayHeroStats(
                 ctx, p["hero_stats"], p["hero_acquired"],
                 p["guardian_name"], p["guardian_avatar"],
-                p["hero_name"]
+                p["hero_name"], participants, p
             )
+            if participants.index(p) == 0:
+                await asyncio.sleep(1)
+                await ctx.send("**VS**")
+                await asyncio.sleep(1)
 
         enemy_counter = 1
         participants = participants[::-1]
