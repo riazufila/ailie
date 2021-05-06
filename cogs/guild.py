@@ -11,7 +11,11 @@ class Guild(commands.Cog):
         self.bot = bot
 
     # Create guild
-    @commands.command(name="create", help="Create guild.")
+    @commands.command(
+        name="create",
+        brief="Create a Guild.",
+        description="Creates a Guild which can be joined by up to 30 members."
+    )
     async def create(self, ctx, guild_name):
         # Check if user is initialized first
         db_ailie = Database()
@@ -50,7 +54,15 @@ class Guild(commands.Cog):
 
         db_ailie.disconnect()
 
-    @commands.command(name="join", help="Join guild.")
+    @commands.command(
+        name="join",
+        brief="Join a Guild.",
+        description=(
+            "Join a Guild using its Guild ID. You can get the Guild ID "
+            + "of a Guild you want to join by asking the Guild Master to "
+            + "share the Guild ID with you. It can be obtained when "
+            + "using `a;profile`, `a;guild`, and maybe more.")
+        )
     async def join(self, ctx, guild_id: int):
         # Check if user is initialized first
         db_ailie = Database()
@@ -135,7 +147,14 @@ class Guild(commands.Cog):
 
         db_ailie.disconnect()
 
-    @commands.command(name="quit", help="Quit current Guild.")
+    @commands.command(
+        name="quit",
+        brief="Quit current Guild.",
+        description=(
+            "Quit the Guild you're currently at. If you're alone "
+            + "in the said Guild, the Guild will be banished."
+        )
+    )
     async def quit(self, ctx):
         # Check if user is initialized first
         db_ailie = Database()
@@ -176,7 +195,14 @@ class Guild(commands.Cog):
 
         db_ailie.disconnect()
 
-    @commands.command(name="promote", help="Change members' position.")
+    @commands.command(
+        name="promote",
+        brief="Change members' position.",
+        description=(
+            "Promote or demote a member to a certain position. "
+            + "Currently, there are only `Guild Master`, `Elder`, and `Member`."
+        )
+    )
     async def promote(self, ctx, mention: discord.Member, *position):
         # Check if user is initialized first
         db_ailie = Database()
@@ -279,7 +305,8 @@ class Guild(commands.Cog):
 
     @commands.command(
         name="guild",
-        help="Show Guild details.",
+        brief="Show Guild details.",
+        description="Display all the members in your Guild.",
         aliases=["member"],
     )
     async def guild(self, ctx):

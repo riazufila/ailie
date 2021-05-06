@@ -41,7 +41,14 @@ class Bot(commands.Cog):
         )
 
     # Check bot's latency
-    @commands.command(name="ping", help="Check latency.")
+    @commands.command(
+        name="ping",
+        brief="Check latency.",
+        description=(
+            "Check how many milliseconds is Ailie taking to respond. "
+            + "This can be used to check if Ailie is responsive."
+        ),
+    )
     async def ping(self, ctx):
         # Check if user is initialized first
         db_ailie = Database()
@@ -60,7 +67,15 @@ class Bot(commands.Cog):
         )
 
     # Retrieve Ailie's version
-    @commands.command(name="version", help="Shows version.")
+    @commands.command(
+        name="version",
+        brief="Shows version.",
+        description=(
+            "Shows the version Ailie is currently bearing. "
+            + "The version uses the format x.y.z where x is for major updates, "
+            + "y is for minor updates, and z is for bug fixes."
+        ),
+    )
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def version(self, ctx):
         # Check if user is initialized first

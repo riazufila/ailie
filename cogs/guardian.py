@@ -9,7 +9,12 @@ class Guardian(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(name="profile", help="View profile.")
+    @commands.command(
+        name="profile",
+        brief="View profile.",
+        description="View profile of yourself or someone else's.",
+        aliases=["prof"],
+    )
     async def profile(self, ctx, mention: discord.Member = None):
         # Check if user is initialized first
         db_ailie = Database()
@@ -52,7 +57,7 @@ class Guardian(commands.Cog):
 
         # Username and gems
         embed.add_field(name="Username 📝", value=username)
-        embed.add_field(name="Gems 💎", value=gems)
+        embed.add_field(name="Gems 💎", value=f"{gems:,d}")
 
         # Total unique and epic exclusive
         heroes_equips_count = (
@@ -81,7 +86,15 @@ class Guardian(commands.Cog):
         await ctx.send(embed=embed)
 
     @commands.command(
-        name="inventory", help="View inventory.", aliases=["inv", "bag"]
+        name="inventory",
+        brief="View inventory.",
+        description=(
+            "Open inventory to check what you have collected so far."
+            + "Type can be either `hero` or `equip`. "
+            + "Mention is optional as it can be used to view "
+            + "others' inventories instead."
+        ),
+        aliases=["inv", "bag"],
     )
     async def inventory(self, ctx, type, mention: discord.Member = None):
         # Check if user is initialized first
@@ -156,7 +169,14 @@ class Guardian(commands.Cog):
         db_ailie.disconnect()
 
     @commands.command(
-        name="username", help="Set username.", aliases=["name", "ign"]
+        name="username",
+        brief="Set username.",
+        description=(
+            "Set username that you use in-game or not. "
+            + "This is optional. If you set it, you'll see the "
+            + "username you set in some commands."
+        ),
+        aliases=["name", "ign"],
     )
     async def username(self, ctx, username):
         # Check if user is initialized first
@@ -176,7 +196,13 @@ class Guardian(commands.Cog):
         db_ailie.disconnect()
 
     @commands.command(
-        name="initialize", help="Initialize user.", aliases=["init"]
+        name="initialize",
+        brief="Initialize user.",
+        description=(
+            "This command needs to be issued before most of the other commands "
+            + "can be used. Think of it as a registration process."
+        ),
+        aliases=["init"],
     )
     async def initialize(self, ctx):
         db_ailie = Database()
