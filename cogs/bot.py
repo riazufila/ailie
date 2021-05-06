@@ -13,6 +13,16 @@ class Bot(commands.Cog):
         # Assign help command to Info category
         self.bot.help_command.cog = self
 
+    async def notifyOwner(self, ctx, error):
+        AUTHOR_ID = os.getenv("AUTHOR_ID")
+        author = await self.bot.fetch_user(AUTHOR_ID)
+
+        embed = discord.Embed(color=discord.Color.purple())
+        embed.set_author(name="Ailie's Log", icon_url=ctx.me.avatar_url)
+        embed.add_field(name=ctx.command, value=error, inline=False)
+
+        await author.send(embed=embed)
+
     # Execute when bot is ready
     @commands.Cog.listener()
     async def on_ready(self):
@@ -75,6 +85,34 @@ class Bot(commands.Cog):
         await msg.edit(content=msg.content + f" {version}!")
         await asyncio.sleep(0.5)
 
+    # Send feedback or issue to owner
+    @commands.command(
+        name="feedback",
+        help="Sends feedback.",
+        aliases=["issue", "report", "problem", "complaint"],
+    )
+    @commands.cooldown(1, 10, commands.BucketType.user)
+    async def feedback(self, ctx, *feedback):
+        # Check if user is initialized first
+        db_ailie = Database()
+        if not db_ailie.is_initialized(ctx.author.id):
+            await ctx.send(
+                "Do `ailie;initialize` or `a;initialize` first before anything!"
+            )
+            db_ailie.disconnect()
+            return
+
+        db_ailie.disconnect()
+
+        # Process complain
+        feedback = " ".join(feedback)
+        await self.notifyOwner(ctx, feedback)
+
+        # Mimic loading animation
+        await ctx.send(
+            f"Ding Dong, <@{ctx.author.id}>! " + "Your message has been logged."
+        )
+
     # Send error message upon spamming commands
     @commands.Cog.listener()
     async def on_command_error(self, ctx, error):
@@ -124,17 +162,7 @@ class Bot(commands.Cog):
                 f"Yo, <@{ctx.author.id}>! CHILL! Let the others do it first?"
             )
         else:
-            AUTHOR_ID = os.getenv("AUTHOR_ID")
-            author = await self.bot.fetch_user(AUTHOR_ID)
-
-            embed = discord.Embed(color=discord.Color.purple())
-            embed.set_author(
-                name="Ailie's Error Log", icon_url=ctx.me.avatar_url
-            )
-            embed.add_field(name="Command", value=ctx.command, inline=False)
-            embed.add_field(name="Error", value=error, inline=False)
-
-            await author.send(embed=embed)
+            await self.notifyOwner(ctx, error)
 
             await ctx.send(
                 "I encountered a bug. Don't worry. "
