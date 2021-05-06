@@ -35,7 +35,6 @@ class Bot(commands.Cog):
 
     # Check bot's latency
     @commands.command(name="ping", help="Check latency.")
-    @commands.cooldown(1, 10, commands.BucketType.user)
     async def ping(self, ctx):
         # Check if user is initialized first
         db_ailie = Database()
@@ -55,7 +54,7 @@ class Bot(commands.Cog):
 
     # Retrieve Ailie's version
     @commands.command(name="version", help="Shows version.")
-    @commands.cooldown(1, 10, commands.BucketType.user)
+    @commands.cooldown(1, 5, commands.BucketType.user)
     async def version(self, ctx):
         # Check if user is initialized first
         db_ailie = Database()
@@ -91,7 +90,6 @@ class Bot(commands.Cog):
         help="Sends feedback.",
         aliases=["issue", "report", "problem", "complaint"],
     )
-    @commands.cooldown(1, 10, commands.BucketType.user)
     async def feedback(self, ctx, *feedback):
         # Check if user is initialized first
         db_ailie = Database()

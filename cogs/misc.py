@@ -12,7 +12,6 @@ class Misc(commands.Cog):
 
     # Pours salt to those lucky people
     @commands.command(name="salt", help="Pour salt.")
-    @commands.cooldown(1, 5, commands.BucketType.user)
     async def pourSalt(self, ctx, mention: discord.Member):
         # Check if user is initialized first
         db_ailie = Database()
@@ -52,7 +51,6 @@ class Misc(commands.Cog):
 
     # Press F
     @commands.command(name="f", help="Pay respect.")
-    @commands.cooldown(1, 5, commands.BucketType.user)
     async def pressF(self, ctx, mention: discord.Member):
         # Check if user is initialized first
         db_ailie = Database()

@@ -10,7 +10,7 @@ class Currency(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(name="race", help="Race against Lana.", aliases=["rc"])
+    @commands.command(name="race", help="Race against Lana.")
     @commands.cooldown(1, 20, commands.BucketType.user)
     async def race(self, ctx):
         # Check if user is initialized first
@@ -58,9 +58,7 @@ class Currency(commands.Cog):
 
         await ctx.send(random.choice(reply))
 
-    @commands.command(
-        name="pat", help="Pats Little Princess's head.", aliases=["pt"]
-    )
+    @commands.command(name="pat", help="Pats Little Princess's head.")
     @commands.cooldown(1, 30, commands.BucketType.user)
     async def pat(self, ctx):
         # Check if user is initialized first
@@ -105,12 +103,7 @@ class Currency(commands.Cog):
 
         await ctx.send(random.choice(reply))
 
-    @commands.command(
-        name="gamble",
-        help="Gamble gems.",
-        aliases=["gamb", "gam", "bet"],
-    )
-    @commands.cooldown(1, 15, commands.BucketType.user)
+    @commands.command(name="gamble", help="Gamble gems.")
     async def gamble(self, ctx, gems: int):
         # Check if user is initialized first
         db_ailie = Database()
@@ -170,7 +163,7 @@ class Currency(commands.Cog):
         await ctx.send(random.choice(reply))
 
     @commands.command(
-        name="share", help="Share gems.", aliases=["shr", "sh", "give"]
+        name="share", help="Share gems.", aliases=["give", "gift"]
     )
     @commands.cooldown(1, 10, commands.BucketType.user)
     async def share(self, ctx, gems: int, mention: discord.Member):
@@ -220,8 +213,7 @@ class Currency(commands.Cog):
             + "SWEET!"
         )
 
-    @commands.command(name="rich", help="Show whales.", aliases=["rch", "rh"])
-    @commands.cooldown(1, 10, commands.BucketType.user)
+    @commands.command(name="rich", help="Show whales.")
     async def rich(self, ctx, scope="server"):
         # Check if user is initialized first
         db_ailie = Database()
@@ -289,10 +281,7 @@ class Currency(commands.Cog):
 
         await ctx.send(embed=embed)
 
-    @commands.command(
-        name="gems", help="Check gems.", aliases=["gem", "gm", "g", "bal"]
-    )
-    @commands.cooldown(1, 10, commands.BucketType.user)
+    @commands.command(name="gems", help="Check gems.")
     async def gems(self, ctx, mention: discord.Member = None):
         # Check if user is initialized first
         db_ailie = Database()
