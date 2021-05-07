@@ -881,10 +881,10 @@ class PvP(commands.Cog):
         for barbarian in guardian_with_trophy:
             if counter == 1:
                 output = output \
-                    + f"{counter}. {barbarian[0]:,d} ⚔️ - `{barbarian[1]}`"
+                    + f"{counter}. {barbarian[0]:,d} 🏆 - `{barbarian[1]}`"
             else:
                 output = output + \
-                    f"\n{counter}. {barbarian[0]:,d} ⚔️ - `{barbarian[1]}`"
+                    f"\n{counter}. {barbarian[0]:,d} 🏆 - `{barbarian[1]}`"
 
             # Get username if any
             username = db_ailie.get_username(barbarian[2])
@@ -901,6 +901,39 @@ class PvP(commands.Cog):
         db_ailie.disconnect()
 
         await ctx.send(embed=embed)
+
+    @commands.command(
+        name="trophy",
+        brief="Check trophies.",
+        description="Check the amount of your current trophies."
+    )
+    async def gems(self, ctx, mention: discord.Member = None):
+        # Check if user is initialized first
+        db_ailie = Database()
+        if not db_ailie.is_initialized(ctx.author.id):
+            await ctx.send(
+                "Do `ailie;initialize` or `a;initialize` "
+                + "first before anything!"
+            )
+            db_ailie.disconnect()
+            return
+
+        # Check if person mentioned is initialized
+        if mention:
+            if not db_ailie.is_initialized(mention.id):
+                await ctx.send(f"{mention.mention} is not initialized yet!")
+                db_ailie.disconnect()
+                return
+
+        if mention is None:
+            guardian_id = ctx.author.id
+        else:
+            guardian_id = mention.id
+
+        # Display trophies
+        trophies = db_ailie.get_trophy(guardian_id)
+        db_ailie.disconnect()
+        await ctx.send(f"<@{guardian_id}> has `{trophies}` 🏆.")
 
     @commands.command(
         name="arena",
