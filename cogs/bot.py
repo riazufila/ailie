@@ -72,7 +72,8 @@ class Bot(commands.Cog):
         brief="Shows version.",
         description=(
             "Shows the version Ailie is currently bearing. "
-            + "The version uses the format `x.y.z` where `x` is for major updates, "
+            + "The version uses the format `x.y.z` where "
+            + "`x` is for major updates, "
             + "`y` is for minor updates, and `z` is for bug fixes."
         ),
     )
@@ -90,7 +91,7 @@ class Bot(commands.Cog):
         db_ailie.disconnect()
 
         # Change upon version update
-        version = "1.3.4"
+        version = "1.4.0"
 
         # Mimic loading animation
         msg = await ctx.send(
