@@ -9,6 +9,33 @@ class Guardian(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
+    def heroStatsLevel(self, stats, level):
+        for stat in stats:
+            if stat in ["attack", "hp", "def"]:
+                stats[stat] = stats[stat] * level
+
+        return stats
+
+    def translateToReadableFormat(self, non_readable_format):
+        buffer_for_res = non_readable_format[::-1]
+        if buffer_for_res[3:4] == "_":
+            buffer_list = []
+            split = non_readable_format.split("_")
+
+            for s in split:
+                if s == "res":
+                    buffer_list.append("Resistance")
+                else:
+                    buffer_list.append(s.capitalize())
+
+            readable_format = " ".join(buffer_list)
+        elif non_readable_format.lower() in ["wsrs", "dr", "hp", "cc", "aoe"]:
+            readable_format = non_readable_format.upper()
+        else:
+            readable_format = non_readable_format.capitalize()
+
+        return readable_format
+
     @commands.command(
         name="profile",
         brief="View profile.",
@@ -96,7 +123,8 @@ class Guardian(commands.Cog):
         ),
         aliases=["inv", "bag"],
     )
-    async def inventory(self, ctx, type, mention: discord.Member = None):
+    async def inventory(
+            self, ctx, type, *target):
         # Check if user is initialized first
         db_ailie = Database()
         if not db_ailie.is_initialized(ctx.author.id):
@@ -106,41 +134,77 @@ class Guardian(commands.Cog):
             db_ailie.disconnect()
             return
 
-        # Check if person mentioned is initialized
-        if mention:
-            if not db_ailie.is_initialized(mention.id):
-                await ctx.send(f"{mention.mention} is not initialized yet!")
-                db_ailie.disconnect()
-                return
-
-        if mention is None:
-            guardian_id = ctx.author.id
-            guardian_name = ctx.author.name
-            guardian_avatar = ctx.author.avatar_url
-        else:
-            guardian_id = mention.id
-            guardian_name = mention.name
-            guardian_avatar = mention.avatar_url
+        guardian_id = ctx.author.id
+        guardian_name = ctx.author.name
+        guardian_avatar = ctx.author.avatar_url
+        inventory = []
+        header = ""
+        target = " ".join(target)
+        exists = False
+        hero_name = ""
+        hero_acquired = {}
+        hero_stats = hero_buffs = hero_skill = hero_on_hit = hero_on_normal = {}
 
         # Determine inventory to check
-        if type.lower() in ["heroes", "hero", "h"]:
+        if type.lower() in ["heroes", "hero", "h"] and not target:
             inventory = db_ailie.hero_inventory(guardian_id)
             if len(inventory[len(inventory) - 1]) > 1:
                 header = "Unique Heroes"
             else:
                 header = "Unique Hero"
-        elif type.lower() in [
-            "equipments",
-            "equipment",
-            "equips",
-            "equip",
-            "e",
-        ]:
+        elif (
+            type.lower()
+            in [
+                "equipments",
+                "equipment",
+                "equips",
+                "equip",
+                "e",
+            ]
+            and not target
+        ):
             inventory = db_ailie.equip_inventory(guardian_id)
             if len(inventory[len(inventory) - 1]) > 1:
                 header = "Epic Exclusive Equipments"
             else:
                 header = "Epic Exclusive Equipment"
+        elif type in ["heroes", "hero", "h"] and target:
+            exists = True
+            hero_name = db_ailie.get_hero_full_name(target)
+
+            if not hero_name:
+                exists = False
+            else:
+                hero_id = db_ailie.get_hero_id(hero_name)
+                (
+                    hero_stats,
+                    hero_buffs,
+                    hero_skill,
+                    hero_triggers,
+                ) = db_ailie.get_hero_stats(hero_id)
+
+                for trigger in hero_triggers:
+                    if trigger == "on_hit":
+                        hero_on_hit = hero_triggers[trigger]
+                    else:
+                        hero_on_normal = hero_triggers[trigger]
+
+                inventory_id = db_ailie.get_inventory_id(guardian_id)
+                if db_ailie.is_hero_obtained(guardian_id, hero_id):
+                    hero_acquired = db_ailie.get_hero_acquired_details(
+                        inventory_id, hero_id
+                    )
+                    hero_stats = self.heroStatsLevel(
+                        hero_stats, hero_acquired["level"]
+                    )
+                else:
+                    exists = False
+        elif type in ["equipments", "equips", "equip", "eq", "e"]:
+            await ctx.send(
+                f"Sorry, <@{ctx.author.id}>. Further information on equipments "
+                + "are still under maintenance."
+            )
+            return
         else:
             await ctx.send(
                 "There's only inventories for heroes and equipments, "
@@ -149,22 +213,82 @@ class Guardian(commands.Cog):
             db_ailie.disconnect()
             return
 
-        embed = discord.Embed(color=discord.Color.purple())
-        embed.set_author(
-            name=guardian_name + "'s Inventory",
-            icon_url=guardian_avatar,
-        )
-        if len(inventory[len(inventory) - 1]) == 0:
-            data = "None"
-        else:
-            data = "\n".join(inventory[len(inventory) - 1])
+        if not target:
+            embed = discord.Embed(color=discord.Color.purple())
+            embed.set_author(
+                name=guardian_name + "'s Inventory",
+                icon_url=guardian_avatar,
+            )
+            if len(inventory[len(inventory) - 1]) == 0:
+                data = "None"
+            else:
+                data = "\n".join(inventory[len(inventory) - 1])
 
-        embed.add_field(
-            name=header,
-            value=data,
-            inline=False,
-        )
-        await ctx.send(embed=embed)
+            embed.add_field(
+                name=header,
+                value=data,
+                inline=False,
+            )
+            await ctx.send(embed=embed)
+        elif target and exists:
+            embed = discord.Embed(color=discord.Color.purple())
+            embed.set_author(
+                icon_url=self.bot.user.avatar_url,
+                name=f"Lvl {hero_acquired['level']} {hero_name}",
+            )
+
+            # Set output
+            for info in [
+                hero_stats,
+                hero_buffs,
+                hero_skill,
+                hero_on_hit,
+                hero_on_normal,
+            ]:
+                information = ""
+                info_title = ""
+                for i in info:
+                    all = False
+                    party = ""
+
+                    if info == hero_stats:
+                        info_title = "Stats 📋"
+                    elif info == hero_buffs:
+                        info_title = "Buffs ✨"
+                    elif info == hero_skill:
+                        info_title = "Chain Skill 🔗"
+                    elif info == hero_on_hit:
+                        info_title = "On Hit 🛡️"
+                    else:
+                        info_title = "On Attack ⚔️"
+
+                    if i.startswith("all"):
+                        buffer = i[4:]
+                        all = True
+                    else:
+                        buffer = i
+
+                    info_proper = self.translateToReadableFormat(buffer)
+
+                    if all:
+                        party = " (Party)"
+
+                    if information == "":
+                        information = f"\n**{info_proper}**: `{info[i]}`{party}"
+                    else:
+                        information = (
+                            information
+                            + f"\n**{info_proper}**: `{info[i]}`{party}"
+                        )
+
+                if information:
+                    embed.add_field(
+                        name=info_title, value=information, inline=False
+                    )
+
+            await ctx.send(embed=embed)
+        else:
+            await ctx.send("You don't own the target you stated.")
 
         db_ailie.disconnect()
 

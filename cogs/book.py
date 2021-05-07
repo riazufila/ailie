@@ -134,9 +134,10 @@ class Book(commands.Cog):
                             + f"\n**{info_proper}**: `{info[i]}`{party}"
                         )
 
-                embed.add_field(
-                    name=info_title, value=information, inline=False
-                )
+                if information:
+                    embed.add_field(
+                        name=info_title, value=information, inline=False
+                    )
 
             await ctx.send(embed=embed)
         else:

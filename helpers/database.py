@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import math
 import os
 import psycopg2
 
@@ -576,7 +577,7 @@ class Database():
 
     def get_hero_acquired_details(self, inventory_id, hero_id):
         query = (
-            "SELECT hero_acquired_level, hero_acquired_exp "
+            "SELECT hero_acquired_exp, hero_acquired_limit_break "
             + "FROM heroes_acquired "
             + "WHERE hero_id = %s and inventory_id = %s;"
         )
@@ -585,10 +586,14 @@ class Database():
 
         heroes_acquired_stats = self.cursor.fetchone()
 
+        exp = heroes_acquired_stats[0]
+        level = math.trunc((exp / 100) + 1)
+
         if heroes_acquired_stats:
             hero_acquired = {
-                "level": heroes_acquired_stats[0],
-                "exp": heroes_acquired_stats[1],
+                "level": level,
+                "exp": exp,
+                "limit_break": heroes_acquired_stats[1],
             }
             return hero_acquired
         else:
