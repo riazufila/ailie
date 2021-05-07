@@ -1,7 +1,5 @@
 #!/usr/bin/env python
 
-import os
-import asyncio
 import discord
 from discord.ext import commands
 from helpers.database import Database
@@ -36,7 +34,7 @@ class Book(commands.Cog):
         brief="Open book of everything.",
         description=(
             "Use the book to check information of heroes and equipments. "
-            + "Type can be either `hero` or `equip`. "
+            + "`type` can be either `hero` or `equip`. "
             + "Target can be any heroes or equipments."
         ),
     )
@@ -59,7 +57,9 @@ class Book(commands.Cog):
             exists = True
             hero_name = db_ailie.get_hero_full_name(target)
 
-            if hero_name:
+            if not hero_name:
+                exists = False
+            else:
                 hero_id = db_ailie.get_hero_id(hero_name)
                 (
                     hero_stats,
@@ -75,7 +75,6 @@ class Book(commands.Cog):
                         hero_on_normal = hero_triggers[trigger]
 
         elif type in ["equipments", "equips", "equip", "eq", "e"]:
-            exists = True
             await ctx.send(
                 f"Sorry, <@{ctx.author.id}>. Book on equipments are "
                 + "still under maintenance."
@@ -135,11 +134,14 @@ class Book(commands.Cog):
                             + f"\n**{info_proper}**: `{info[i]}`{party}"
                         )
 
-                embed.add_field(
-                    name=info_title, value=information, inline=False
-                )
+                if information:
+                    embed.add_field(
+                        name=info_title, value=information, inline=False
+                    )
 
             await ctx.send(embed=embed)
+        else:
+            await ctx.send("The target you asked for does not exist.")
 
 
 def setup(bot):

@@ -59,6 +59,7 @@ class PvP(commands.Cog):
         hero_max_hp = participants[hero_counter]["max_hp"]
         hero_ws_cd = \
             participants[hero_counter]["current_state"]["weapon_skill_cd"]
+        hero_stunned = participants[hero_counter]["current_state"]["stunned"]
 
         color = participants[enemy_counter]["color"]
         hero_name = participants[enemy_counter]["hero_name"]
@@ -67,7 +68,6 @@ class PvP(commands.Cog):
         debuffs = participants[enemy_counter]["debuffs"]
         ws_cd = \
             participants[enemy_counter]["current_state"]["weapon_skill_cd"]
-        stunned = participants[enemy_counter]["current_state"]["stunned"]
 
         not_enemy = {
             "stats": hero_stats,
@@ -83,7 +83,7 @@ class PvP(commands.Cog):
             "ws_cd": ws_cd
         }
 
-        if hero_on_trigger_cd == 0 and stunned == 0:
+        if hero_on_trigger_cd == 0 and hero_stunned == 0:
             hero_on_trigger_cd = 5
             multipliers_buffer = {}
             debuffs_buffer = {}
@@ -187,7 +187,7 @@ class PvP(commands.Cog):
         debuffs = participants[hero_counter]["debuffs"]
         ws_cd = \
             participants[hero_counter]["current_state"]["weapon_skill_cd"]
-        stunned = participants[enemy_counter]["current_state"]["stunned"]
+        stunned = participants[hero_counter]["current_state"]["stunned"]
 
         enemy = {
             "stats": enemy_stats,
@@ -726,6 +726,11 @@ class PvP(commands.Cog):
             return []
 
         hero_id = db_ailie.get_hero_id(hero_name)
+
+        if not db_ailie.is_hero_obtained(guardian_id, hero_id):
+            await ctx.send("You don't have that hero!")
+            return []
+
         hero_acquired = db_ailie.get_hero_acquired_details(
             inventory_id, hero_id
         )
@@ -816,10 +821,100 @@ class PvP(commands.Cog):
         return hero_stats
 
     @commands.command(
+        name="rank",
+        brief="Show PvP ranks.",
+        description=(
+            "Rank users based on the server you're in or globally. "
+            + "To rank based on the server you're in, put `server` as "
+            + "the scope (default). To rank based on global, "
+            + "put `global` as the scope."
+        ),
+    )
+    async def rank(self, ctx, scope="server"):
+        # Check if user is initialized first
+        db_ailie = Database()
+        if not db_ailie.is_initialized(ctx.author.id):
+            await ctx.send(
+                "Do `ailie;initialize` or `a;initialize` "
+                + "first before anything!"
+            )
+            db_ailie.disconnect()
+            return
+
+        # Get members in discord server that is initialized
+        guardian_with_trophy = []
+        logical_whereabouts = ""
+        output = ""
+
+        if scope.lower() in ["server"]:
+            logical_whereabouts = ctx.guild.name
+            async for member in ctx.guild.fetch_members(limit=None):
+                if db_ailie.is_initialized(member.id):
+                    trophy = db_ailie.get_trophy(member.id)
+                    if trophy > 0:
+                        buffer = [trophy, member, member.id]
+                        guardian_with_trophy.append(buffer)
+        elif scope.lower() in ["global", "all"]:
+            await ctx.send(
+                "Global rank will take a while to produce.. "
+                + f"Please wait, <@{ctx.author.id}>."
+            )
+            logical_whereabouts = "Global"
+            for guild in self.bot.guilds:
+                async for member in guild.fetch_members(limit=None):
+                    if db_ailie.is_initialized(member.id):
+                        trophy = db_ailie.get_trophy(member.id)
+                        if trophy > 0:
+                            buffer = [trophy, member, member.id]
+                            if buffer not in guardian_with_trophy:
+                                guardian_with_trophy.append(buffer)
+        else:
+            await ctx.send(
+                f"Dear, <@{ctx.author.id}>. You can only specify `server` "
+                + "or `global`."
+            )
+
+        # Display richest user in discord server
+        guardian_with_trophy_sorted = sorted(guardian_with_trophy)[::-1]
+        guardian_with_trophy = guardian_with_trophy_sorted[:10]
+        counter = 1
+        for barbarian in guardian_with_trophy:
+            if counter == 1:
+                output = output \
+                    + f"{counter}. {barbarian[0]:,d} ⚔️ - `{barbarian[1]}`"
+            else:
+                output = output + \
+                    f"\n{counter}. {barbarian[0]:,d} ⚔️ - `{barbarian[1]}`"
+
+            # Get username if any
+            username = db_ailie.get_username(barbarian[2])
+            if username is not None:
+                output = output + f" a.k.a. `{username}`"
+
+            counter += 1
+
+        embed = discord.Embed(color=discord.Color.purple())
+        embed.set_author(name="Ailie", icon_url=ctx.me.avatar_url)
+        embed.add_field(
+            name=f"Barbarians in {logical_whereabouts}!", value=output)
+
+        db_ailie.disconnect()
+
+        await ctx.send(embed=embed)
+
+    @commands.command(
         name="arena",
         brief="Play arena.",
         description=(
-            "Turn-Based arena where you go againts someone else."
+            "Turn-Based arena where you go againts someone else in "
+            + "an attempt to gain trophies, exp for your heroes, and gems."
+            + "\n\n`ATTACK` attacks the enemy."
+            + "\n`WEAPON SKILL` uses your weapon "
+            + "to draw its skill on your opponent and cause them "
+            + "to be `stunned`."
+            + "\n`CHAIN SKILL` can be used only on `stunned` opponents."
+            + "\n`DODGE` is used to increase `speed` which may cause opponent "
+            + "to miss their attacks. `FLEE` is used to surrender."
         )
     )
     @commands.max_concurrency(1, per=commands.BucketType.channel, wait=False)
@@ -1021,6 +1116,10 @@ class PvP(commands.Cog):
         enemy_counter = 1
         participants = participants[::-1]
         end = False
+        winner = None
+        loser = None
+        winner_hero = None
+        loser_hero = None
 
         while not end:
             for p in participants:
@@ -1106,7 +1205,6 @@ class PvP(commands.Cog):
                             if p[cs]["on_normal_skill_cd"] == 0 \
                                     and "on_normal" in \
                                     p["hero_triggers"]:
-                                print("here")
                                 enemy, not_enemy, on_normal_skill_cd = \
                                     await self.onNormal(
                                         ctx, participants,
@@ -1146,6 +1244,12 @@ class PvP(commands.Cog):
                                 p["max_hp"],
                                 p["hero_stats"]["normal"],
                             )
+
+                            if end:
+                                winner = p["guardian_id"]
+                                loser = participants[ec]["guardian_id"]
+                                winner_hero = p["hero_name"]
+                                loser_hero = participants[ec]["hero_name"]
 
                             # Update enemy's hp
                             participants[enemy_counter]["hero_stats"]["hp"] = \
@@ -1326,6 +1430,18 @@ class PvP(commands.Cog):
                                             p["max_hp"],
                                             p["hero_skill"][skill]
                                         )
+
+                                        if end:
+                                            gi = "guardian_id"
+                                            winner = p[gi]
+                                            loser = participants[ec][gi]
+                                            winner_hero = p["hero_name"]
+                                            loser_hero = \
+                                                participants[ec]["hero_name"]
+
+                                        # Update enemy's hp
+                                        participants[enemy_counter][hs]["hp"] \
+                                            = enemy_hp_left
                                     elif skill in ["all_heal", "heal"]:
                                         hp_left = await self.heal(
                                             ctx,
@@ -1429,6 +1545,11 @@ class PvP(commands.Cog):
                         if move.upper() in ["FLEE", "F"]:
                             end = True
                             gi = "guardian_id"
+                            winner = participants[enemy_counter][gi]
+                            loser = p[gi]
+                            winner_hero = \
+                                participants[enemy_counter]["hero_name"]
+                            loser_hero = p["hero_name"]
                             await ctx.send(
                                 f"{p['color']} "
                                 + f"<@{p[gi]}> fled from the battlefield. "
@@ -1474,7 +1595,6 @@ class PvP(commands.Cog):
                     else:
                         enemy_counter = 1
 
-                    print(p["current_state"]["on_normal_skill_cd"])
                     # Countdown for status and skills
                     if p["current_state"]["weapon_skill_cd"] != 0:
                         p["current_state"]["weapon_skill_cd"] = \
@@ -1519,6 +1639,21 @@ class PvP(commands.Cog):
 
                     for debuff_count in p["debuffs"]:
                         debuff_count["count"] = debuff_count["count"] - 1
+
+        # Give out medals, hero exp, and gems.
+        trophy_win = 25
+        trophy_lose = -10
+        hero_exp_win = 50
+        hero_exp_lose = 30
+
+        db_ailie.update_trophy(winner, trophy_win)
+        db_ailie.update_trophy(loser, trophy_lose)
+        db_ailie.update_hero_exp(winner, winner_hero, hero_exp_win)
+        db_ailie.update_hero_exp(loser, loser_hero, hero_exp_lose)
+        db_ailie.store_gems(winner, 500)
+
+        # Disconnect Database
+        db_ailie.disconnect()
 
 
 def setup(bot):
