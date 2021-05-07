@@ -1106,7 +1106,6 @@ class PvP(commands.Cog):
                             if p[cs]["on_normal_skill_cd"] == 0 \
                                     and "on_normal" in \
                                     p["hero_triggers"]:
-                                print("here")
                                 enemy, not_enemy, on_normal_skill_cd = \
                                     await self.onNormal(
                                         ctx, participants,
@@ -1474,7 +1473,6 @@ class PvP(commands.Cog):
                     else:
                         enemy_counter = 1
 
-                    print(p["current_state"]["on_normal_skill_cd"])
                     # Countdown for status and skills
                     if p["current_state"]["weapon_skill_cd"] != 0:
                         p["current_state"]["weapon_skill_cd"] = \
