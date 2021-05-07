@@ -59,6 +59,7 @@ class PvP(commands.Cog):
         hero_max_hp = participants[hero_counter]["max_hp"]
         hero_ws_cd = \
             participants[hero_counter]["current_state"]["weapon_skill_cd"]
+        hero_stunned = participants[hero_counter]["current_state"]["stunned"]
 
         color = participants[enemy_counter]["color"]
         hero_name = participants[enemy_counter]["hero_name"]
@@ -67,7 +68,6 @@ class PvP(commands.Cog):
         debuffs = participants[enemy_counter]["debuffs"]
         ws_cd = \
             participants[enemy_counter]["current_state"]["weapon_skill_cd"]
-        stunned = participants[enemy_counter]["current_state"]["stunned"]
 
         not_enemy = {
             "stats": hero_stats,
@@ -83,7 +83,7 @@ class PvP(commands.Cog):
             "ws_cd": ws_cd
         }
 
-        if hero_on_trigger_cd == 0 and stunned == 0:
+        if hero_on_trigger_cd == 0 and hero_stunned == 0:
             hero_on_trigger_cd = 5
             multipliers_buffer = {}
             debuffs_buffer = {}
@@ -187,7 +187,7 @@ class PvP(commands.Cog):
         debuffs = participants[hero_counter]["debuffs"]
         ws_cd = \
             participants[hero_counter]["current_state"]["weapon_skill_cd"]
-        stunned = participants[enemy_counter]["current_state"]["stunned"]
+        stunned = participants[hero_counter]["current_state"]["stunned"]
 
         enemy = {
             "stats": enemy_stats,
@@ -1026,6 +1026,8 @@ class PvP(commands.Cog):
         enemy_counter = 1
         participants = participants[::-1]
         end = False
+        winner = None
+        loser = None
 
         while not end:
             for p in participants:
@@ -1150,6 +1152,10 @@ class PvP(commands.Cog):
                                 p["max_hp"],
                                 p["hero_stats"]["normal"],
                             )
+
+                            if end:
+                                winner = p["guardian_id"]
+                                loser = participants[ec]["guardian_id"]
 
                             # Update enemy's hp
                             participants[enemy_counter]["hero_stats"]["hp"] = \
@@ -1330,6 +1336,15 @@ class PvP(commands.Cog):
                                             p["max_hp"],
                                             p["hero_skill"][skill]
                                         )
+
+                                        if end:
+                                            gi = "guardian_id"
+                                            winner = p[gi]
+                                            loser = participants[ec][gi]
+
+                                        # Update enemy's hp
+                                        participants[enemy_counter][hs]["hp"] \
+                                            = enemy_hp_left
                                     elif skill in ["all_heal", "heal"]:
                                         hp_left = await self.heal(
                                             ctx,
@@ -1433,6 +1448,8 @@ class PvP(commands.Cog):
                         if move.upper() in ["FLEE", "F"]:
                             end = True
                             gi = "guardian_id"
+                            winner = participants[enemy_counter][gi]
+                            loser = p[gi]
                             await ctx.send(
                                 f"{p['color']} "
                                 + f"<@{p[gi]}> fled from the battlefield. "
