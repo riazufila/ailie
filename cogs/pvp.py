@@ -911,9 +911,10 @@ class PvP(commands.Cog):
     @commands.command(
         name="trophy",
         brief="Check trophies.",
-        description="Check the amount of your current trophies."
+        description="Check the amount of your current trophies.",
+        aliases=["trophies"]
     )
-    async def gems(self, ctx, mention: discord.Member = None):
+    async def trophy(self, ctx, mention: discord.Member = None):
         # Check if user is initialized first
         db_ailie = Database()
         if not db_ailie.is_initialized(ctx.author.id):
@@ -969,7 +970,7 @@ class PvP(commands.Cog):
             return
 
         # Check if person mentioned is initialized
-        if mention:
+        if mention is not None:
             if not db_ailie.is_initialized(mention.id):
                 await ctx.send(
                     f"Can't fight {mention.mention} due to the "
@@ -977,6 +978,10 @@ class PvP(commands.Cog):
                 )
                 db_ailie.disconnect()
                 return
+        else:
+            await ctx.send("You forgot to mention who to fight.")
+            db_ailie.disconnect()
+            return
 
         # Assignment variables
         challenger_id = ctx.author.id
@@ -988,6 +993,11 @@ class PvP(commands.Cog):
 
         # Check min characters for hero mention
         hero = " ".join(hero)
+        if not hero:
+            await ctx.send("You forgot to specify which hero to use.")
+            db_ailie.disconnect()
+            return
+
         if len(hero) < 4:
             await ctx.send(
                 f"Yo, <@{ctx.author.id}>. "
@@ -1163,6 +1173,11 @@ class PvP(commands.Cog):
         while not end:
             for p in participants:
                 if not end:
+                    await self.displayHeroStats(
+                        ctx, p["hero_stats"], p["hero_acquired"],
+                        p["guardian_name"], p["guardian_avatar"],
+                        p["hero_name"], participants, p
+                    )
                     # Ask for move
                     if p["current_state"]["weapon_skill_cd"] == 0:
                         ws_ready = " ✅"
@@ -1280,7 +1295,7 @@ class PvP(commands.Cog):
                                 p["color"],
                                 p["hero_name"],
                                 "used attack",
-                                p["max_hp"],
+                                participants[enemy_counter]["max_hp"],
                                 p["hero_stats"]["normal"],
                             )
 
