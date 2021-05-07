@@ -72,6 +72,7 @@ class Guardian(commands.Cog):
         username, guild_name, position, gems = db_ailie.get_guardian_info(
             guardian_id
         )
+        trophies = db_ailie.get_trophy(guardian_id)
         guild_id = db_ailie.get_guild_id_of_member(guardian_id)
         heroes_obtained = db_ailie.hero_inventory(guardian_id)
         equips_obtained = db_ailie.equip_inventory(guardian_id)
@@ -82,9 +83,10 @@ class Guardian(commands.Cog):
             name=f"{guardian_name}'s Profile", icon_url=guardian_avatar
         )
 
-        # Username and gems
-        embed.add_field(name="Username 📝", value=username)
+        # Username, gems, and trophies
+        embed.add_field(name="Username 📝", value=username, inline=False)
         embed.add_field(name="Gems 💎", value=f"{gems:,d}")
+        embed.add_field(name="Trophies 🏆", value=f"{trophies:,d}")
 
         # Total unique and epic exclusive
         heroes_equips_count = (

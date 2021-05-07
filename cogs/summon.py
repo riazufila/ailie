@@ -495,9 +495,11 @@ class Summon(commands.Cog):
         brief="Summon heroes or equipments.",
         description=(
             "Summon heroes or equipments on a pickup banner or "
-            + "non-pickup banner. `type` can be either `hero` or `equip`. "
-            + "`count` can be `10` or `1`. `target` should be any "
-            + "heroes or equipments that are currently in the pickup banner. "
+            + "non-pickup banner."
+            + "\n\n`type` can be either `hero` or `equip`."
+            + "\n`count` can be `10` or `1`."
+            + "\n`target` should be any heroes or equipments "
+            + "that are currently in the pickup banner. "
             + "If target is not specified, then the summon will be done "
             + "on a non-pickup banner."
         ),
