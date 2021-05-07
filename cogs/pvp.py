@@ -726,6 +726,11 @@ class PvP(commands.Cog):
             return []
 
         hero_id = db_ailie.get_hero_id(hero_name)
+
+        if not db_ailie.is_hero_obtained(guardian_id, hero_id):
+            await ctx.send("You don't have that hero!")
+            return []
+
         hero_acquired = db_ailie.get_hero_acquired_details(
             inventory_id, hero_id
         )
