@@ -851,7 +851,7 @@ class PvP(commands.Cog):
             async for member in ctx.guild.fetch_members(limit=None):
                 if db_ailie.is_initialized(member.id):
                     trophy = db_ailie.get_trophy(member.id)
-                    if trophy != 0:
+                    if trophy > 0:
                         buffer = [trophy, member, member.id]
                         guardian_with_trophy.append(buffer)
         elif scope.lower() in ["global", "all"]:
@@ -864,7 +864,7 @@ class PvP(commands.Cog):
                 async for member in guild.fetch_members(limit=None):
                     if db_ailie.is_initialized(member.id):
                         trophy = db_ailie.get_trophy(member.id)
-                        if trophy != 0:
+                        if trophy > 0:
                             buffer = [trophy, member, member.id]
                             if buffer not in guardian_with_trophy:
                                 guardian_with_trophy.append(buffer)
@@ -878,15 +878,16 @@ class PvP(commands.Cog):
         guardian_with_trophy_sorted = sorted(guardian_with_trophy)[::-1]
         guardian_with_trophy = guardian_with_trophy_sorted[:10]
         counter = 1
-        for whales in guardian_with_trophy:
+        for barbarian in guardian_with_trophy:
             if counter == 1:
-                output = output + f"{counter}. {whales[0]:,d} 💎 - `{whales[1]}`"
+                output = output \
+                    + f"{counter}. {barbarian[0]:,d} ⚔️ - `{barbarian[1]}`"
             else:
                 output = output + \
-                    f"\n{counter}. {whales[0]:,d} 💎 - `{whales[1]}`"
+                    f"\n{counter}. {barbarian[0]:,d} ⚔️ - `{barbarian[1]}`"
 
             # Get username if any
-            username = db_ailie.get_username(whales[2])
+            username = db_ailie.get_username(barbarian[2])
             if username is not None:
                 output = output + f" a.k.a. `{username}`"
 
@@ -894,7 +895,7 @@ class PvP(commands.Cog):
 
         embed = discord.Embed(color=discord.Color.purple())
         embed.set_author(name="Ailie", icon_url=ctx.me.avatar_url)
-        embed.add_field(name=f"Whales in {logical_whereabouts}!", value=output)
+        embed.add_field(name=f"Barbarians in {logical_whereabouts}!", value=output)
 
         db_ailie.disconnect()
 
