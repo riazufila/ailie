@@ -150,10 +150,11 @@ class Bot(commands.Cog):
                 + "Try checking `a;help`!"
             )
         elif isinstance(error, commands.MissingRequiredArgument):
-            msg = await ctx.send(
+            await ctx.send(
                 "Not to be rude. But you've got "
                 + f"the parameters wrong, <@{ctx.author.id}>."
             )
+            await asyncio.sleep(0.5)
             await ctx.send_help(ctx.command)
         elif isinstance(error, commands.MemberNotFound):
             msg = await ctx.send(
@@ -169,6 +170,7 @@ class Bot(commands.Cog):
             msg = await ctx.send(
                 f"<@{ctx.author.id}>, there's too many arguments."
             )
+            await asyncio.sleep(0.5)
             await ctx.send_help(ctx.command)
             await asyncio.sleep(0.5)
             await msg.edit(content=msg.content + " Read that!")
@@ -177,6 +179,7 @@ class Bot(commands.Cog):
                 f"<@{ctx.author.id}>, are you okay? I don't think "
                 + "you're using the command correctly."
             )
+            await asyncio.sleep(0.5)
             await ctx.send_help(ctx.command)
             await asyncio.sleep(0.5)
             await msg.edit(content=msg.content + " Will that help?")
