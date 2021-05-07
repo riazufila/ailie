@@ -1173,11 +1173,6 @@ class PvP(commands.Cog):
         while not end:
             for p in participants:
                 if not end:
-                    await self.displayHeroStats(
-                        ctx, p["hero_stats"], p["hero_acquired"],
-                        p["guardian_name"], p["guardian_avatar"],
-                        p["hero_name"], participants, p
-                    )
                     # Ask for move
                     if p["current_state"]["weapon_skill_cd"] == 0:
                         ws_ready = " ✅"
