@@ -633,6 +633,88 @@ class Database():
         else:
             return False
 
+    def get_trophy(self, guardian_id):
+        query = "SELECT guardian_trophy FROM guardians WHERE guardian_id = %s;"
+        data = [guardian_id]
+        self.cursor.execute(query, data)
+        trophy = self.cursor.fetchone()
+
+        if isinstance(trophy, tuple):
+            trophy = trophy[0]
+
+        return trophy
+
+    def update_trophy(self, guardian_id, trophy):
+        trophy = self.get_trophy(guardian_id) + trophy
+
+        query = (
+            "UPDATE guardians SET guardian_trophy = %s "
+            + "WHERE guardian_id = %s;"
+        )
+        data = [trophy, guardian_id]
+
+        self.cursor.execute(query, data)
+        self.connection.commit()
+
+    def get_hero_exp(self, guardian_id, hero_name):
+        hero_id = self.get_hero_id(hero_name)
+        inventory_id = self.get_inventory_id(guardian_id)
+
+        query = (
+            "SELECT hero_acquired_exp FROM heroes_acquired "
+            + "WHERE inventory_id = %s AND hero_id = %s;"
+        )
+        data = [inventory_id, hero_id]
+        self.cursor.execute(query, data)
+        exp = self.cursor.fetchone()
+
+        if isinstance(exp, tuple):
+            exp = exp[0]
+
+        return exp
+
+    def get_hero_limit_break(self, guardian_id, hero_name):
+        hero_id = self.get_hero_id(hero_name)
+        inventory_id = self.get_inventory_id(guardian_id)
+
+        query = (
+            "SELECT hero_acquired_limit_break FROM heroes_acquired "
+            + "WHERE inventory_id = %s AND hero_id = %s;"
+        )
+        data = [inventory_id, hero_id]
+        self.cursor.execute(query, data)
+        lb = self.cursor.fetchone()
+
+        if isinstance(lb, tuple):
+            lb = lb[0]
+
+        return lb
+
+    def update_hero_exp(self, guardian_id, hero_name, exp):
+        hero_id = self.get_hero_id(hero_name)
+        inventory_id = self.get_inventory_id(guardian_id)
+        exp = self.get_hero_exp(guardian_id, hero_name) + exp
+        lb = self.get_hero_limit_break(guardian_id, hero_name)
+
+        level = math.trunc((exp / 100) + 1)
+        max_level = ((4900 * (lb + 1)) / 100) + (lb + 1)
+
+        if level < max_level:
+            query = (
+                "UPDATE heroes_acquired SET hero_acquired_exp = %s "
+                + "WHERE inventory_id = %s AND hero_id = %s;"
+            )
+            data = [exp, inventory_id, hero_id]
+        else:
+            query = (
+                "UPDATE heroes_acquired SET hero_acquired_exp = %s "
+                + "WHERE inventory_id = %s AND hero_id = %s;"
+            )
+            data = [(4900 * (lb + 1)), inventory_id, hero_id]
+
+        self.cursor.execute(query, data)
+        self.connection.commit()
+
     # Disconnect database
     def disconnect(self):
         self.cursor.close()
