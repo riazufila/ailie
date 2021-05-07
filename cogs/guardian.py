@@ -12,7 +12,9 @@ class Guardian(commands.Cog):
     def heroStatsLevel(self, stats, level):
         for stat in stats:
             if stat in ["attack", "hp", "def"]:
-                stats[stat] = stats[stat] * level
+                stats[stat] = round(
+                    stats[stat] * ((100 + level - 1) / 100)
+                )
 
         return stats
 
