@@ -72,8 +72,8 @@ class Bot(commands.Cog):
         brief="Shows version.",
         description=(
             "Shows the version Ailie is currently bearing. "
-            + "The version uses the format x.y.z where x is for major updates, "
-            + "y is for minor updates, and z is for bug fixes."
+            + "The version uses the format `x.y.z` where `x` is for major updates, "
+            + "`y` is for minor updates, and `z` is for bug fixes."
         ),
     )
     @commands.cooldown(1, 5, commands.BucketType.user)

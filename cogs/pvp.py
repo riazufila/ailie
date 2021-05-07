@@ -394,7 +394,7 @@ class PvP(commands.Cog):
             stats["hp"] = total_health
 
         await ctx.send(
-            f"{color} `{heal}` HP healed to "
+            f"{color} `{heal:,d}` HP healed to "
             + f"**{hero_name}**.\n"
         )
         await asyncio.sleep(1)
@@ -516,7 +516,7 @@ class PvP(commands.Cog):
 
                 await ctx.send(
                     f"{color} **{hero_name}** {attack_type} and "
-                    + f"`dealt {total_damage}` {damage_type}!"
+                    + f"`dealt {total_damage:,d}` {damage_type}!"
                 )
                 await asyncio.sleep(1)
 
