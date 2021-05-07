@@ -131,14 +131,18 @@ class Bot(commands.Cog):
 
         db_ailie.disconnect()
 
-        # Process complain
-        feedback = " ".join(feedback)
-        await self.notifyOwner(ctx, feedback, "agree")
+        if feedback:
+            # Process complain
+            feedback = " ".join(feedback)
+            await self.notifyOwner(ctx, feedback, "agree")
 
-        # Mimic loading animation
-        await ctx.send(
-            f"Ding dong, <@{ctx.author.id}>! " + "Your message has been logged."
-        )
+            # Mimic loading animation
+            await ctx.send(
+                f"Ding dong, <@{ctx.author.id}>! "
+                + "Your message has been logged."
+            )
+        else:
+            await ctx.send("Can't send anything since you put no messages!")
 
     # Send error message upon spamming commands
     @commands.Cog.listener()
