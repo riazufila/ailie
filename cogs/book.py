@@ -36,7 +36,7 @@ class Book(commands.Cog):
         brief="Open book of everything.",
         description=(
             "Use the book to check information of heroes and equipments. "
-            + "Type can be either `hero` or `equip`. "
+            + "`type` can be either `hero` or `equip`. "
             + "Target can be any heroes or equipments."
         ),
     )
