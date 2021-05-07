@@ -90,7 +90,7 @@ class Guardian(commands.Cog):
         brief="View inventory.",
         description=(
             "Open inventory to check what you have collected so far."
-            + "Type can be either `hero` or `equip`. "
+            + "`type` can be either `hero` or `equip`. "
             + "Mention is optional as it can be used to view "
             + "others' inventories instead."
         ),
