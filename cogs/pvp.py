@@ -895,7 +895,8 @@ class PvP(commands.Cog):
 
         embed = discord.Embed(color=discord.Color.purple())
         embed.set_author(name="Ailie", icon_url=ctx.me.avatar_url)
-        embed.add_field(name=f"Barbarians in {logical_whereabouts}!", value=output)
+        embed.add_field(
+            name=f"Barbarians in {logical_whereabouts}!", value=output)
 
         db_ailie.disconnect()
 
@@ -905,7 +906,15 @@ class PvP(commands.Cog):
         name="arena",
         brief="Play arena.",
         description=(
-            "Turn-Based arena where you go againts someone else."
+            "Turn-Based arena where you go againts someone else in "
+            + "an attempt to gain trophies, exp for your heroes, and gems."
+            + "\n\n`ATTACK` attacks the enemy."
+            + "\n`WEAPON SKILL` uses your weapon "
+            + "to draw its skill on your opponent and cause them "
+            + "to be `stunned`."
+            + "\n`CHAIN SKILL` can be used only on `stunned` opponents."
+            + "\n`DODGE` is used to increase `speed` which may cause opponent to "
+            + "miss their attacks. `FLEE` is used to surrender."
         )
     )
     @commands.max_concurrency(1, per=commands.BucketType.channel, wait=False)
