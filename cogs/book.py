@@ -1,7 +1,5 @@
 #!/usr/bin/env python
 
-import os
-import asyncio
 import discord
 from discord.ext import commands
 from helpers.database import Database
@@ -59,7 +57,10 @@ class Book(commands.Cog):
             exists = True
             hero_name = db_ailie.get_hero_full_name(target)
 
-            if hero_name:
+            if not hero_name:
+                exists = False
+                pass
+            else:
                 hero_id = db_ailie.get_hero_id(hero_name)
                 (
                     hero_stats,
@@ -140,6 +141,8 @@ class Book(commands.Cog):
                 )
 
             await ctx.send(embed=embed)
+        else:
+            await ctx.send("The target you asked for does not exist.")
 
 
 def setup(bot):
