@@ -1599,11 +1599,6 @@ class PvP(commands.Cog):
                         if move.upper() in ["FLEE", "F"]:
                             end = True
                             gi = "guardian_id"
-                            winner = participants[enemy_counter][gi]
-                            loser = p[gi]
-                            winner_hero = \
-                                participants[enemy_counter]["hero_name"]
-                            loser_hero = p["hero_name"]
                             await ctx.send(
                                 f"{p['color']} "
                                 + f"<@{p[gi]}> fled from the battlefield. "
@@ -1695,16 +1690,17 @@ class PvP(commands.Cog):
                         debuff_count["count"] = debuff_count["count"] - 1
 
         # Give out medals, hero exp, and gems.
-        trophy_win = 25
-        trophy_lose = -10
-        hero_exp_win = 50
-        hero_exp_lose = 30
+        if winner and loser:
+            trophy_win = 25
+            trophy_lose = -10
+            hero_exp_win = 50
+            hero_exp_lose = 30
 
-        db_ailie.update_trophy(winner, trophy_win)
-        db_ailie.update_trophy(loser, trophy_lose)
-        db_ailie.update_hero_exp(winner, winner_hero, hero_exp_win)
-        db_ailie.update_hero_exp(loser, loser_hero, hero_exp_lose)
-        db_ailie.store_gems(winner, 500)
+            db_ailie.update_trophy(winner, trophy_win)
+            db_ailie.update_trophy(loser, trophy_lose)
+            db_ailie.update_hero_exp(winner, winner_hero, hero_exp_win)
+            db_ailie.update_hero_exp(loser, loser_hero, hero_exp_lose)
+            db_ailie.store_gems(winner, 500)
 
         # Disconnect Database
         db_ailie.disconnect()
