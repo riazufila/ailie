@@ -59,7 +59,6 @@ class Book(commands.Cog):
 
             if not hero_name:
                 exists = False
-                pass
             else:
                 hero_id = db_ailie.get_hero_id(hero_name)
                 (
@@ -76,7 +75,6 @@ class Book(commands.Cog):
                         hero_on_normal = hero_triggers[trigger]
 
         elif type in ["equipments", "equips", "equip", "eq", "e"]:
-            exists = True
             await ctx.send(
                 f"Sorry, <@{ctx.author.id}>. Book on equipments are "
                 + "still under maintenance."
