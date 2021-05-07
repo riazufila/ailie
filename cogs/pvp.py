@@ -970,7 +970,7 @@ class PvP(commands.Cog):
             return
 
         # Check if person mentioned is initialized
-        if mention:
+        if mention is not None:
             if not db_ailie.is_initialized(mention.id):
                 await ctx.send(
                     f"Can't fight {mention.mention} due to the "
@@ -978,6 +978,10 @@ class PvP(commands.Cog):
                 )
                 db_ailie.disconnect()
                 return
+        else:
+            await ctx.send("You forgot to mention who to fight.")
+            db_ailie.disconnect()
+            return
 
         # Assignment variables
         challenger_id = ctx.author.id
@@ -989,6 +993,11 @@ class PvP(commands.Cog):
 
         # Check min characters for hero mention
         hero = " ".join(hero)
+        if not hero:
+            await ctx.send("You forgot to specify which hero to use.")
+            db_ailie.disconnect()
+            return
+
         if len(hero) < 4:
             await ctx.send(
                 f"Yo, <@{ctx.author.id}>. "
