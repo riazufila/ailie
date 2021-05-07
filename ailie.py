@@ -24,6 +24,7 @@ if __name__ == "__main__":
     # Load extensions
     extensions = [
         "cogs.bot",
+        "cogs.book",
         "cogs.summon",
         "cogs.guild",
         "cogs.guardian",
