@@ -715,6 +715,16 @@ class Database():
         self.cursor.execute(query, data)
         self.connection.commit()
 
+    def increase_limit_break_hero(self, inventory_id, hero_id, current_lb):
+        new_lb = current_lb + 1
+        query = (
+            "UPDATE heroes_acquired SET hero_acquired_limit_break = %s "
+            + "WHERE inventory_id = %s AND hero_id = %s"
+        )
+        data = [new_lb, inventory_id, hero_id]
+        self.cursor.execute(query, data)
+        self.connection.commit()
+
     # Disconnect database
     def disconnect(self):
         self.cursor.close()

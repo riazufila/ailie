@@ -913,8 +913,8 @@ class PvP(commands.Cog):
             + "to draw its skill on your opponent and cause them "
             + "to be `stunned`."
             + "\n`CHAIN SKILL` can be used only on `stunned` opponents."
-            + "\n`DODGE` is used to increase `speed` which may cause opponent to "
-            + "miss their attacks. `FLEE` is used to surrender."
+            + "\n`DODGE` is used to increase `speed` which may cause opponent "
+            + "to miss their attacks. `FLEE` is used to surrender."
         )
     )
     @commands.max_concurrency(1, per=commands.BucketType.channel, wait=False)
