@@ -592,7 +592,9 @@ class PvP(commands.Cog):
     def heroStatsLevels(self, stats, levels):
         for stat in stats:
             if stat in ["attack", "hp", "def"]:
-                stats[stat] = stats[stat] * (levels["level"])
+                stats[stat] = round(
+                    stats[stat] * ((100 + levels["level"] - 1) / 100)
+                )
 
         return stats
 
@@ -1074,10 +1076,6 @@ class PvP(commands.Cog):
             await msg.edit(content=msg.content + " May the best guardian win!")
             await asyncio.sleep(1)
 
-        # If both parties have chosen heroes, get the raw stats.
-        hero_stats_challenger_buffer = hero_stats_challenger
-        hero_stats_opponent_buffer = hero_stats_opponent
-
         # Initialize hero current state
         challenger_current_state = self.resetCurrentState()
         opponent_current_state = self.resetCurrentState()
@@ -1091,13 +1089,13 @@ class PvP(commands.Cog):
         # All the information on participants
         participants = [
             {
-                "hero_stats": hero_stats_challenger_buffer,
+                "hero_stats": hero_stats_challenger,
                 "hero_acquired": hero_acquired_challenger,
                 "guardian_name": challenger_name,
                 "guardian_avatar": challenger_avatar,
                 "hero_name": hero_name_challenger,
                 "guardian_id": challenger_id,
-                "max_hp": hero_stats_challenger_buffer["hp"],
+                "max_hp": hero_stats_challenger["hp"],
                 "hero_buffs":hero_buffs_challenger,
                 "color": "🔴",
                 "current_state": challenger_current_state,
@@ -1107,13 +1105,13 @@ class PvP(commands.Cog):
                 "hero_triggers": hero_triggers_challenger
             },
             {
-                "hero_stats": hero_stats_opponent_buffer,
+                "hero_stats": hero_stats_opponent,
                 "hero_acquired": hero_acquired_opponent,
                 "guardian_name": opponent_name,
                 "guardian_avatar": opponent_avatar,
                 "hero_name": hero_name_opponent,
                 "guardian_id": opponent_id,
-                "max_hp": hero_stats_opponent_buffer["hp"],
+                "max_hp": hero_stats_opponent["hp"],
                 "hero_buffs":hero_buffs_opponent,
                 "color": "🔵",
                 "current_state": opponent_current_state,
@@ -1149,6 +1147,10 @@ class PvP(commands.Cog):
                     p["current_state"]["weapon_skill_cd"],
                     p["hero_stats"]["wsrs"]
                 )
+
+        # Update max HP
+        for p in participants:
+            p["max_hp"] = p["hero_stats"]["hp"]
 
         # Display participants' heroes
         for p in participants:
