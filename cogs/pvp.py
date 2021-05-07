@@ -874,6 +874,12 @@ class PvP(commands.Cog):
                 + "or `global`."
             )
 
+        # If no one has trophy
+        if not guardian_with_trophy:
+            await ctx.send("No one has trophies.")
+            db_ailie.disconnect()
+            return
+
         # Display richest user in discord server
         guardian_with_trophy_sorted = sorted(guardian_with_trophy)[::-1]
         guardian_with_trophy = guardian_with_trophy_sorted[:10]
