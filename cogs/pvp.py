@@ -788,8 +788,7 @@ class PvP(commands.Cog):
                 return
         except Exception:
             await ctx.send(
-                "Looks like your challenge got ignored, "
-                + f"<@{guardian_id}>. Ouch!"
+                "Looks like the challenge got ignored. Ouch!"
             )
             db_ailie.disconnect()
             return
