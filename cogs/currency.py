@@ -410,7 +410,7 @@ class Currency(commands.Cog):
             gems = 2500 + (200 * count)
             db_ailie.store_gems(ctx.author.id, gems)
             await ctx.send(
-                f"Daily gems claimed. You obtained {gems:,d} 💎, "
+                f"Daily gems claimed for {count} time(s). You obtained {gems:,d} 💎, "
                 + f"<@{ctx.author.id}>!"
             )
         else:
