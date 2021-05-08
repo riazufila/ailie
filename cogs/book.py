@@ -48,10 +48,17 @@ class Book(commands.Cog):
             db_ailie.disconnect()
             return
 
-        target = " ".join(target)
-        exists = False
-        hero_name = ""
-        hero_stats = hero_buffs = hero_skill = hero_on_hit = hero_on_normal = {}
+        if target:
+            target = " ".join(target)
+            exists = False
+            hero_name = ""
+            hero_stats = (
+                hero_buffs
+            ) = hero_skill = hero_on_hit = hero_on_normal = {}
+        else:
+            await ctx.send("No hero or equipment mentioned.")
+            db_ailie.disconnect()
+            return
 
         if type in ["heroes", "hero", "h"]:
             exists = True
