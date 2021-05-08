@@ -355,6 +355,38 @@ class Currency(commands.Cog):
         db_ailie.disconnect()
         await ctx.send(f"<@{guardian_id}> has {gems:,d} 💎 total.")
 
+    @commands.command(
+        name="hourly",
+        brief="Hourly gems.",
+        description="Claim hourly gems.",
+    )
+    async def hourly(self, ctx):
+        # Check if user is initialized first
+        db_ailie = Database()
+        if not db_ailie.is_initialized(ctx.author.id):
+            await ctx.send(
+                "Do `ailie;initialize` or `a;initialize` "
+                + "first before anything!"
+            )
+            db_ailie.disconnect()
+            return
+
+        qualified_hourly = db_ailie.get_hourly_qualification(ctx.author.id)
+
+        if qualified_hourly:
+            gems = 500
+            db_ailie.store_gems(ctx.author.id, gems)
+            await ctx.send(
+                f"Hourly gems claimed. You obtained {gems:,d} 💎, "
+                + f"<@{ctx.author.id}>!"
+            )
+        else:
+            cd = db_ailie.get_hourly_cooldown(ctx.author.id)
+            await ctx.send(
+                f"One can be so greedy, <@{ctx.author.id}>. "
+                + f"{cd} left before reset."
+            )
+
 
 def setup(bot):
     bot.add_cog(Currency(bot))

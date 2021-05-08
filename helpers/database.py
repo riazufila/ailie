@@ -1,5 +1,8 @@
 #!/usr/bin/env python
 
+from datetime import datetime
+import pytz
+import time
 import math
 import os
 import psycopg2
@@ -724,6 +727,74 @@ class Database():
         data = [new_lb, inventory_id, hero_id]
         self.cursor.execute(query, data)
         self.connection.commit()
+
+    def get_hourly_qualification(self, guardian_id):
+        query = "SELECT guardian_hourly FROM guardians WHERE guardian_id = %s;"
+        data = [guardian_id]
+        self.cursor.execute(query, data)
+
+        last_hour = self.cursor.fetchone()
+        now = datetime.now(pytz.utc)
+
+        if isinstance(last_hour, tuple):
+            last_hour = last_hour[0]
+
+        if last_hour:
+            difference = now - last_hour
+
+            if difference.total_seconds() > 3600:
+                query = (
+                    "UPDATE guardians SET guardian_hourly = %s "
+                    + "WHERE guardian_id = %s;"
+                )
+                data = [now, guardian_id]
+                self.cursor.execute(query, data)
+                self.connection.commit()
+
+                return True
+            else:
+                return False
+        else:
+            query = (
+                "UPDATE guardians SET guardian_hourly = %s "
+                + "WHERE guardian_id = %s;"
+            )
+            data = [now, guardian_id]
+            self.cursor.execute(query, data)
+            self.connection.commit()
+
+            return True
+
+    def get_hourly_cooldown(self, guardian_id):
+        query = "SELECT guardian_hourly FROM guardians WHERE guardian_id = %s;"
+        data = [guardian_id]
+        self.cursor.execute(query, data)
+
+        last_hour = self.cursor.fetchone()
+        now = datetime.now(pytz.utc)
+
+        if isinstance(last_hour, tuple):
+            last_hour = last_hour[0]
+
+        if last_hour:
+            difference = now - last_hour
+
+            if difference.total_seconds() > 3600:
+                return 0
+            else:
+                time_to_reset = 3600 - difference.total_seconds()
+
+                if time_to_reset >= 60:
+                    time_to_reset = time.gmtime(time_to_reset)
+                    cd = time.strftime(
+                        "%Mm and %Ss", time_to_reset)
+                else:
+                    time_to_reset = time.gmtime(time_to_reset)
+                    cd = time.strftime("%Ss", time_to_reset)
+
+                return cd
+        else:
+            return 0
 
     # Disconnect database
     def disconnect(self):

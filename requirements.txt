@@ -7,6 +7,7 @@ idna==3.1
 multidict==5.1.0
 psycopg2==2.8.6
 python-dotenv==0.15.0
+pytz==2021.1
 ratelimiter==1.2.0.post0
 typing-extensions==3.7.4.3
 yarl==1.6.3
