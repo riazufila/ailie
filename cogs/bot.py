@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 
-import dbl
 import os
 import asyncio
 import discord
@@ -12,8 +11,6 @@ class Bot(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.bot.help_command.cog = self
-        self.DBL_TOKEN = os.getenv("DBL_TOKEN")
-        self.dblpy = dbl.DBLClient(self.bot, self.DBL_TOKEN, autopost=True)
 
     async def notifyOwner(self, ctx, error, agreement=None):
         AUTHOR_ID = os.getenv("AUTHOR_ID")

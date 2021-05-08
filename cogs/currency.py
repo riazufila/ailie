@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 
-import os
 import random
 import discord
 from discord.ext import commands
@@ -10,18 +9,6 @@ from helpers.database import Database
 class Currency(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-
-    @commands.Cog.listener()
-    async def on_dbl_vote(self, data):
-        user = data['user']
-        embed = discord.Embed(
-            title=f"Reward for <@{user}>",
-            description="5000:,d 💎",
-            color=discord.Color.purple(),
-        )
-        channel = self.bot.get_channel(user)
-
-        await channel.send(embed=embed)
 
     @commands.command(
         name="race",
@@ -367,40 +354,6 @@ class Currency(commands.Cog):
         gems = db_ailie.get_gems(guardian_id)
         db_ailie.disconnect()
         await ctx.send(f"<@{guardian_id}> has {gems:,d} 💎 total.")
-
-    @commands.command(
-        name="vote",
-        brief="Vote for rewards.",
-        description="Vote Ailie to get rewards.",
-    )
-    async def vote(self, ctx):
-        # Check if user is initialized first
-        db_ailie = Database()
-        if not db_ailie.is_initialized(ctx.author.id):
-            await ctx.send(
-                "Do `ailie;initialize` or `a;initialize` "
-                + "first before anything!"
-            )
-            db_ailie.disconnect()
-            return
-
-        # Check if user has voted or not
-        voted = await self.bot.dbl.get_user_vote(ctx.author.id)
-
-        if not voted:
-            embed = discord.Embed(
-                title="Vote for Ailie",
-                description=os.getenv("VOTE_URL"),
-                color=discord.Color.purple(),
-            )
-            embed.set_author(name=ctx.me.name, icon_url=ctx.me.avatar_url)
-
-            await ctx.send(embed=embed)
-        else:
-            await ctx.send(
-                f"You have already voted for Ailie, <@{ctx.author.id}>. "
-                + "You're not so bad after all. Claim with `a;claim`."
-            )
 
 
 def setup(bot):
