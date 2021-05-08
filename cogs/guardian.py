@@ -98,7 +98,7 @@ class Guardian(commands.Cog):
         # Total unique and epic exclusive
         heroes_equips_count = (
             "**Summon Count**: "
-            + f"\n`{summon_count}`"
+            + f"`{summon_count}`"
             + "\n**Unique Heroes**: "
             + f"`{len(heroes_obtained[len(heroes_obtained) - 1])}`"
             + "\n**Epic Exclusive Equipments**: "
