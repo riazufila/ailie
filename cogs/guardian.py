@@ -84,30 +84,34 @@ class Guardian(commands.Cog):
         # Set embed baseline
         embed = discord.Embed(color=discord.Color.purple())
         embed.set_author(
-            name=f"Lvl {user_level} {guardian_name}'s Profile", icon_url=guardian_avatar
+            name=f"Lvl {user_level} {guardian_name}'s Profile",
+            icon_url=guardian_avatar
         )
 
         # Username, gems, and trophies
-        embed.add_field(name="Username 📝", value=username, inline=False)
-        embed.add_field(name="User EXP 💪", value=user_exp, inline=False)
-        embed.add_field(name="Gems 💎", value=f"{gems:,d}")
-        embed.add_field(name="Trophies 🏆", value=f"{trophies:,d}")
+        embed.add_field(name="Username 📝", value=f"`{username}`", inline=False)
+        embed.add_field(name="User EXP 💪", value=f"`{user_exp}`", inline=False)
+        embed.add_field(name="Gems 💎", value=f"`{gems:,d}`")
+        embed.add_field(name="Trophies 🏆", value=f"`{trophies:,d}`")
 
         # Total unique and epic exclusive
         heroes_equips_count = (
-            f"Unique Heroes: {len(heroes_obtained[len(heroes_obtained) - 1])}"
-            + "\nEpic Exclusive Equipments: "
-            + f"{len(equips_obtained[len(equips_obtained) - 1])}"
+            "**Unique Heroes**: "
+            + f"`{len(heroes_obtained[len(heroes_obtained) - 1])}`"
+            + "\n**Epic Exclusive Equipments**: "
+            + f"`{len(equips_obtained[len(equips_obtained) - 1])}`"
         )
         embed.add_field(
-            name="Unit Counts 🗡️", value=heroes_equips_count, inline=False
+            name="Unit Count ⚔️",
+            value=heroes_equips_count,
+            inline=False
         )
 
         # Guild details
         guild_detail = (
-            f"Guild Name: {guild_name}"
-            + f"\nGuild ID: {guild_id}"
-            + f"\nPosition: {position}"
+            f"**Guild Name**: `{guild_name}`"
+            + f"\n**Guild ID**: `{guild_id}`"
+            + f"\n**Position**: `{position}`"
         )
         embed.add_field(
             name="Guild Details 🏠",
