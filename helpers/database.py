@@ -1123,6 +1123,174 @@ class Database():
 
         return level
 
+    def get_won_gambled_gems(self, guardian_id):
+        query = (
+            "SELECT guardian_won_gambled_gems FROM guardians "
+            + "WHERE guardian_id = %s;"
+        )
+        data = [guardian_id]
+        self.cursor.execute(query, data)
+
+        won_gambled_gems = self.cursor.fetchone()
+
+        if isinstance(won_gambled_gems, tuple):
+            won_gambled_gems = won_gambled_gems[0]
+
+        return won_gambled_gems
+
+    def store_won_gambled_gems(self, guardian_id, gems):
+        won_gambled_gems = self.get_won_gambled_gems(guardian_id)
+
+        won_gambled_gems = won_gambled_gems + gems
+
+        query = (
+            "UPDATE guardians SET guardian_won_gambled_gems = %s "
+            + "WHERE guardian_id = %s;"
+        )
+        data = [won_gambled_gems, guardian_id]
+        self.cursor.execute(query, data)
+        self.connection.commit()
+
+    def get_lose_gambled_gems(self, guardian_id):
+        query = (
+            "SELECT guardian_lose_gambled_gems FROM guardians "
+            + "WHERE guardian_id = %s;"
+        )
+        data = [guardian_id]
+        self.cursor.execute(query, data)
+
+        lose_gambled_gems = self.cursor.fetchone()
+
+        if isinstance(lose_gambled_gems, tuple):
+            lose_gambled_gems = lose_gambled_gems[0]
+
+        return lose_gambled_gems
+
+    def store_lose_gambled_gems(self, guardian_id, gems):
+        lose_gambled_gems = self.get_lose_gambled_gems(guardian_id)
+
+        lose_gambled_gems = lose_gambled_gems + gems
+
+        query = (
+            "UPDATE guardians SET guardian_lose_gambled_gems = %s "
+            + "WHERE guardian_id = %s;"
+        )
+        data = [lose_gambled_gems, guardian_id]
+        self.cursor.execute(query, data)
+        self.connection.commit()
+
+    def get_lose_gambled_count(self, guardian_id):
+        query = (
+            "SELECT guardian_lose_gambled_count FROM guardians "
+            + "WHERE guardian_id = %s;"
+        )
+        data = [guardian_id]
+        self.cursor.execute(query, data)
+
+        lose_gambled_count = self.cursor.fetchone()
+
+        if isinstance(lose_gambled_count, tuple):
+            lose_gambled_count = lose_gambled_count[0]
+
+        return lose_gambled_count
+
+    def store_lose_gambled_count(self, guardian_id):
+        lose_gambled_count = self.get_lose_gambled_count(guardian_id)
+
+        lose_gambled_count = lose_gambled_count + 1
+
+        query = (
+            "UPDATE guardians SET guardian_lose_gambled_count = %s "
+            + "WHERE guardian_id = %s;"
+        )
+        data = [lose_gambled_count, guardian_id]
+        self.cursor.execute(query, data)
+        self.connection.commit()
+
+    def get_win_gambled_count(self, guardian_id):
+        query = (
+            "SELECT guardian_win_gambled_count FROM guardians "
+            + "WHERE guardian_id = %s;"
+        )
+        data = [guardian_id]
+        self.cursor.execute(query, data)
+
+        win_gambled_count = self.cursor.fetchone()
+
+        if isinstance(win_gambled_count, tuple):
+            win_gambled_count = win_gambled_count[0]
+
+        return win_gambled_count
+
+    def store_win_gambled_count(self, guardian_id):
+        win_gambled_count = self.get_win_gambled_count(guardian_id)
+
+        win_gambled_count = win_gambled_count + 1
+
+        query = (
+            "UPDATE guardians SET guardian_win_gambled_count = %s "
+            + "WHERE guardian_id = %s;"
+        )
+        data = [win_gambled_count, guardian_id]
+        self.cursor.execute(query, data)
+        self.connection.commit()
+
+    def get_gambled_count(self, guardian_id):
+        query = (
+            "SELECT guardian_gambled_count FROM guardians "
+            + "WHERE guardian_id = %s;"
+        )
+        data = [guardian_id]
+        self.cursor.execute(query, data)
+
+        gambled_count = self.cursor.fetchone()
+
+        if isinstance(gambled_count, tuple):
+            gambled_count = gambled_count[0]
+
+        return gambled_count
+
+    def store_gambled_count(self, guardian_id):
+        gambled_count = self.get_gambled_count(guardian_id)
+
+        gambled_count = gambled_count + 1
+
+        query = (
+            "UPDATE guardians SET guardian_gambled_count = %s "
+            + "WHERE guardian_id = %s;"
+        )
+        data = [gambled_count, guardian_id]
+        self.cursor.execute(query, data)
+        self.connection.commit()
+
+    def get_summon_count(self, guardian_id):
+        query = (
+            "SELECT guardian_summon_count FROM guardians "
+            + "WHERE guardian_id = %s;"
+        )
+        data = [guardian_id]
+        self.cursor.execute(query, data)
+
+        summon_count = self.cursor.fetchone()
+
+        if isinstance(summon_count, tuple):
+            summon_count = summon_count[0]
+
+        return summon_count
+
+    def store_summon_count(self, guardian_id, count):
+        summon_count = self.get_summon_count(guardian_id)
+
+        summon_count = summon_count + count
+
+        query = (
+            "UPDATE guardians SET guardian_summon_count = %s "
+            + "WHERE guardian_id = %s;"
+        )
+        data = [summon_count, guardian_id]
+        self.cursor.execute(query, data)
+        self.connection.commit()
+
     # Disconnect database
     def disconnect(self):
         self.cursor.close()

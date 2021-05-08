@@ -172,6 +172,8 @@ class Currency(commands.Cog):
                 + "gems.",
                 f"Welp. Lost {lost_gems:,d} gems. Too bad, <@{ctx.author.id}>.",
             ]
+            db_ailie.store_lose_gambled_count(ctx.author.id)
+            db_ailie.store_lose_gambled_gems(ctx.author.id, lost_gems)
         else:
             reply = [
                 f"<@{ctx.author.id}>, your luck is omnipotent! Gained "
@@ -182,8 +184,11 @@ class Currency(commands.Cog):
                 + "obtained!",
             ]
             db_ailie.store_gambled_gems(ctx.author.id, gems)
+            db_ailie.store_win_gambled_count(ctx.author.id)
+            db_ailie.store_won_gambled_gems(ctx.author.id, gems)
 
         db_ailie.store_gems(ctx.author.id, gems)
+        db_ailie.store_gambled_count(ctx.author.id)
         db_ailie.update_user_exp(ctx.author.id, 10)
         db_ailie.disconnect()
 
