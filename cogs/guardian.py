@@ -9,11 +9,11 @@ class Guardian(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    def heroStatsLevel(self, stats, level):
+    def heroStatsLevel(self, stats, level, user_level):
         for stat in stats:
             if stat in ["attack", "hp", "def"]:
                 stats[stat] = round(
-                    stats[stat] * ((100 + level - 1) / 100)
+                    stats[stat] * ((100 + level + user_level - 1) / 100)
                 )
 
         return stats
@@ -195,11 +195,12 @@ class Guardian(commands.Cog):
 
                 inventory_id = db_ailie.get_inventory_id(guardian_id)
                 if db_ailie.is_hero_obtained(guardian_id, hero_id):
+                    user_level = db_ailie.get_user_level(guardian_id)
                     hero_acquired = db_ailie.get_hero_acquired_details(
                         inventory_id, hero_id
                     )
                     hero_stats = self.heroStatsLevel(
-                        hero_stats, hero_acquired["level"]
+                        hero_stats, hero_acquired["level"], user_level
                     )
                 else:
                     exists = False
@@ -240,6 +241,7 @@ class Guardian(commands.Cog):
                 icon_url=self.bot.user.avatar_url,
                 name=f"Lvl {hero_acquired['level']} {hero_name}",
             )
+            embed.add_field(name="Total EXP", value=f"`{hero_acquired['exp']}`")
 
             # Set output
             for info in [

@@ -297,6 +297,7 @@ class Database():
         data = [gems, guardian_id]
         self.cursor.execute(query, data)
         self.connection.commit()
+        self.store_gained_gems(guardian_id, gems)
 
     def get_gems(self, guardian_id):
         # Get already existing gems
@@ -327,6 +328,7 @@ class Database():
             data = [balance_gems, guardian_id]
             self.cursor.execute(query, data)
             self.connection.commit()
+            self.store_spent_gems(guardian_id, gems)
 
             return True
 
@@ -896,6 +898,230 @@ class Database():
                 return cd
         else:
             return 0
+
+    def get_gained_gems(self, guardian_id):
+        query = (
+            "SELECT guardian_gained_gems FROM guardians "
+            + "WHERE guardian_id = %s;"
+        )
+        data = [guardian_id]
+        self.cursor.execute(query, data)
+
+        gained_gems = self.cursor.fetchone()
+
+        if isinstance(gained_gems, tuple):
+            gained_gems = gained_gems[0]
+
+        return gained_gems
+
+    def store_gained_gems(self, guardian_id, gems):
+        gained_gems = self.get_gained_gems(guardian_id)
+
+        gained_gems = gained_gems + gems
+
+        query = (
+            "UPDATE guardians SET guardian_gained_gems = %s "
+            + "WHERE guardian_id = %s;"
+        )
+        data = [gems, guardian_id]
+        self.cursor.execute(query, data)
+        self.connection.commit()
+
+    def get_spent_gems(self, guardian_id):
+        query = (
+            "SELECT guardian_spent_gems FROM guardians "
+            + "WHERE guardian_id = %s;"
+        )
+        data = [guardian_id]
+        self.cursor.execute(query, data)
+
+        spent_gems = self.cursor.fetchone()
+
+        if isinstance(spent_gems, tuple):
+            spent_gems = spent_gems[0]
+
+        return spent_gems
+
+    def store_spent_gems(self, guardian_id, gems):
+        spent_gems = self.get_spent_gems(guardian_id)
+
+        spent_gems = spent_gems + gems
+
+        query = (
+            "UPDATE guardians SET guardian_spent_gems = %s "
+            + "WHERE guardian_id = %s;"
+        )
+        data = [gems, guardian_id]
+        self.cursor.execute(query, data)
+        self.connection.commit()
+
+    def get_gambled_gems(self, guardian_id):
+        query = (
+            "SELECT guardian_gambled_gems FROM guardians "
+            + "WHERE guardian_id = %s;"
+        )
+        data = [guardian_id]
+        self.cursor.execute(query, data)
+
+        gambled_gems = self.cursor.fetchone()
+
+        if isinstance(gambled_gems, tuple):
+            gambled_gems = gambled_gems[0]
+
+        return gambled_gems
+
+    def store_gambled_gems(self, guardian_id, gems):
+        gambled_gems = self.get_gambled_gems(guardian_id)
+
+        gambled_gems = gambled_gems + gems
+
+        query = (
+            "UPDATE guardians SET guardian_gambled_gems = %s "
+            + "WHERE guardian_id = %s;"
+        )
+        data = [gems, guardian_id]
+        self.cursor.execute(query, data)
+        self.connection.commit()
+
+    def get_arena_wins(self, guardian_id):
+        query = "SELECT guardian_wins FROM guardians WHERE guardian_id = %s;"
+        data = [guardian_id]
+        self.cursor.execute(query, data)
+
+        arena_wins = self.cursor.fetchone()
+
+        if isinstance(arena_wins, tuple):
+            arena_wins = arena_wins[0]
+
+        return arena_wins
+
+    def increase_arena_wins(self, guardian_id):
+        arena_wins = self.get_arena_wins(guardian_id)
+
+        arena_wins = arena_wins + 1
+
+        query = (
+            "UPDATE guardians SET guardian_wins = %s "
+            + "WHERE guardian_id = %s;"
+        )
+        data = [arena_wins, guardian_id]
+        self.cursor.execute(query, data)
+        self.connection.commit()
+
+    def get_arena_losses(self, guardian_id):
+        query = "SELECT guardian_losses FROM guardians WHERE guardian_id = %s;"
+        data = [guardian_id]
+        self.cursor.execute(query, data)
+
+        arena_losses = self.cursor.fetchone()
+
+        if isinstance(arena_losses, tuple):
+            arena_losses = arena_losses[0]
+
+        return arena_losses
+
+    def increase_arena_losses(self, guardian_id):
+        arena_losses = self.get_arena_losses(guardian_id)
+
+        arena_losses = arena_losses + 1
+
+        query = (
+            "UPDATE guardians SET guardian_losses = %s "
+            + "WHERE guardian_id = %s;"
+        )
+        data = [arena_losses, guardian_id]
+        self.cursor.execute(query, data)
+        self.connection.commit()
+
+    def get_gained_trophy(self, guardian_id):
+        query = (
+            "SELECT guardian_gained_trophy FROM guardians "
+            + "WHERE guardian_id = %s;"
+        )
+        data = [guardian_id]
+        self.cursor.execute(query, data)
+
+        gained_trophies = self.cursor.fetchone()
+
+        if isinstance(gained_trophies, tuple):
+            gained_trophies = gained_trophies[0]
+
+        return gained_trophies
+
+    def increase_gained_trophy(self, guardian_id, trophy):
+        gained_trophies = self.get_gained_trophy(guardian_id)
+
+        gained_trophies = gained_trophies + trophy
+
+        query = (
+            "UPDATE guardians SET guardian_gained_trophy = %s "
+            + "WHERE guardian_id = %s;"
+        )
+        data = [gained_trophies, guardian_id]
+        self.cursor.execute(query, data)
+        self.connection.commit()
+
+    def get_lose_trophy(self, guardian_id):
+        query = (
+            "SELECT guardian_lose_trophy FROM guardians "
+            + "WHERE guardian_id = %s;"
+        )
+        data = [guardian_id]
+        self.cursor.execute(query, data)
+
+        lose_trophies = self.cursor.fetchone()
+
+        if isinstance(lose_trophies, tuple):
+            lose_trophies = lose_trophies[0]
+
+        return lose_trophies
+
+    def increase_lose_trophy(self, guardian_id, trophy):
+        lose_trophies = self.get_lose_trophy(guardian_id)
+
+        lose_trophies = lose_trophies + trophy
+
+        query = (
+            "UPDATE guardians SET guardian_gained_trophy = %s "
+            + "WHERE guardian_id = %s;"
+        )
+        data = [lose_trophies, guardian_id]
+        self.cursor.execute(query, data)
+        self.connection.commit()
+
+    def get_user_exp(self, guardian_id):
+        query = (
+            "SELECT guardian_exp FROM guardians "
+            + "WHERE guardian_id = %s;"
+        )
+        data = [guardian_id]
+        self.cursor.execute(query, data)
+        user_exp = self.cursor.fetchone()
+
+        if isinstance(user_exp, tuple):
+            user_exp = user_exp[0]
+
+        return user_exp
+
+    def update_user_exp(self, guardian_id, exp):
+        user_exp = self.get_user_exp(guardian_id)
+
+        user_exp = user_exp + exp
+
+        query = (
+            "UPDATE guardians SET guardian_exp = %s "
+            + "WHERE guardian_id = %s;"
+        )
+        data = [user_exp, guardian_id]
+        self.cursor.execute(query, data)
+        self.connection.commit()
+
+    def get_user_level(self, guardian_id):
+        user_exp = self.get_user_exp(guardian_id)
+
+        level = math.trunc((user_exp / 100) + 1)
+
+        return level
 
     # Disconnect database
     def disconnect(self):

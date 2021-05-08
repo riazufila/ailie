@@ -61,6 +61,7 @@ class Currency(commands.Cog):
         ]
 
         db_ailie.store_gems(ctx.author.id, gems)
+        db_ailie.update_user_exp(ctx.author.id, 2)
         db_ailie.disconnect()
 
         await ctx.send(random.choice(reply))
@@ -113,6 +114,7 @@ class Currency(commands.Cog):
         ]
 
         db_ailie.store_gems(ctx.author.id, gems)
+        db_ailie.update_user_exp(ctx.author.id, 3)
         db_ailie.disconnect()
 
         await ctx.send(random.choice(reply))
@@ -181,6 +183,8 @@ class Currency(commands.Cog):
             ]
 
         db_ailie.store_gems(ctx.author.id, gems)
+        db_ailie.store_gambled_gems(ctx.author.id, gems)
+        db_ailie.update_user_exp(ctx.author.id, 10)
         db_ailie.disconnect()
 
         await ctx.send(random.choice(reply))
@@ -236,6 +240,7 @@ class Currency(commands.Cog):
         # Transfer gems from sender to receiver
         db_ailie.spend_gems(ctx.author.id, gems)
         db_ailie.store_gems(mention.id, gems)
+        db_ailie.update_user_exp(ctx.author.id, 5)
         await ctx.send(
             f"<@{ctx.author.id}> shared {gems:,d} gem(s) to {mention.mention}. "
             + "SWEET!"
@@ -376,6 +381,7 @@ class Currency(commands.Cog):
         if qualified_hourly:
             gems = 500
             db_ailie.store_gems(ctx.author.id, gems)
+            db_ailie.update_user_exp(ctx.author.id, 5)
             await ctx.send(
                 f"Hourly gems claimed. You obtained {gems:,d} 💎, "
                 + f"<@{ctx.author.id}>!"
@@ -409,6 +415,7 @@ class Currency(commands.Cog):
             count = db_ailie.get_daily_count(ctx.author.id)
             gems = 2500 + (200 * count)
             db_ailie.store_gems(ctx.author.id, gems)
+            db_ailie.update_user_exp(ctx.author.id, 5)
             await ctx.send(
                 f"Daily gems claimed for {count} time(s). "
                 + f"You obtained {gems:,d} 💎, <@{ctx.author.id}>!"
