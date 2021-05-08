@@ -78,15 +78,18 @@ class Guardian(commands.Cog):
         guild_id = db_ailie.get_guild_id_of_member(guardian_id)
         heroes_obtained = db_ailie.hero_inventory(guardian_id)
         equips_obtained = db_ailie.equip_inventory(guardian_id)
+        user_exp = db_ailie.get_user_exp(guardian_id)
+        user_level = db_ailie.get_user_level(guardian_id)
 
         # Set embed baseline
         embed = discord.Embed(color=discord.Color.purple())
         embed.set_author(
-            name=f"{guardian_name}'s Profile", icon_url=guardian_avatar
+            name=f"Lvl {user_level} {guardian_name}'s Profile", icon_url=guardian_avatar
         )
 
         # Username, gems, and trophies
         embed.add_field(name="Username 📝", value=username, inline=False)
+        embed.add_field(name="User EXP 💪", value=user_exp, inline=False)
         embed.add_field(name="Gems 💎", value=f"{gems:,d}")
         embed.add_field(name="Trophies 🏆", value=f"{trophies:,d}")
 
@@ -241,7 +244,7 @@ class Guardian(commands.Cog):
                 icon_url=self.bot.user.avatar_url,
                 name=f"Lvl {hero_acquired['level']} {hero_name}",
             )
-            embed.add_field(name="Hero EXP", value=f"`{hero_acquired['exp']}`")
+            embed.add_field(name="Hero EXP 💪", value=f"`{hero_acquired['exp']}`")
 
             # Set output
             for info in [
