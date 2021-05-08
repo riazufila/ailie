@@ -80,6 +80,7 @@ class Guardian(commands.Cog):
         equips_obtained = db_ailie.equip_inventory(guardian_id)
         user_exp = db_ailie.get_user_exp(guardian_id)
         user_level = db_ailie.get_user_level(guardian_id)
+        summon_count = db_ailie.get_summon_count(guardian_id)
 
         # Set embed baseline
         embed = discord.Embed(color=discord.Color.purple())
@@ -96,13 +97,15 @@ class Guardian(commands.Cog):
 
         # Total unique and epic exclusive
         heroes_equips_count = (
-            "**Unique Heroes**: "
+            "**Summon Count**: "
+            + f"\n`{summon_count}`"
+            + "\n**Unique Heroes**: "
             + f"`{len(heroes_obtained[len(heroes_obtained) - 1])}`"
             + "\n**Epic Exclusive Equipments**: "
             + f"`{len(equips_obtained[len(equips_obtained) - 1])}`"
         )
         embed.add_field(
-            name="Unit Count ⚔️",
+            name="Summons⚔️",
             value=heroes_equips_count,
             inline=False
         )
