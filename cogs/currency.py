@@ -374,7 +374,8 @@ class Currency(commands.Cog):
             ),
             color=discord.Color.purple()
         )
-        embed.set_author(name=f"{guardian_name}'s Gems", icon_url=guardian_avatar)
+        embed.set_author(
+            name=f"{guardian_name}'s Gems", icon_url=guardian_avatar)
         await ctx.send(embed=embed)
 
     @commands.command(
