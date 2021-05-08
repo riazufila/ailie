@@ -367,10 +367,11 @@ class Currency(commands.Cog):
         db_ailie.disconnect()
         embed = discord.Embed(
             description=(
-                f"Current Gems: {gems}"
-                + f"\nGems Spent: {gems_spent}"
-                + f"\nGems Gambled: {gems_gambled}"
-                + f"\nOverall Gems Gained: {gems_gained}"),
+                f"**Current Gems**: `{gems}`"
+                + f"\n**Gems Spent**: `{gems_spent}`"
+                + f"\n**Gems Gambled**: `{gems_gambled}`"
+                + f"\n**Overall Gems Gained**: `{gems_gained}`"
+            ),
             color=discord.Color.purple()
         )
         embed.set_author(name=f"{guardian_name}'s Gems", icon_url=guardian_avatar)
