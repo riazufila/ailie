@@ -293,7 +293,6 @@ class Summon(commands.Cog):
         # Reduce gems in database after checking if balance is enough
         db_ailie = Database()
         enough_balance = db_ailie.spend_gems(ctx.author.id, gems)
-        db_ailie.disconnect()
 
         if not enough_balance:
             reply = f"You don't have enough gems, <@{ctx.author.id}>."

@@ -165,12 +165,12 @@ class Currency(commands.Cog):
 
         # Store and display gems obtained
         if gems < 0:
-            lost_gems = -gems
+            gems = -gems
             reply = [
-                f"<@{ctx.author.id}>, you lost {lost_gems} gems. HAHA.",
-                f"Condolences to <@{ctx.author.id}> for losing {lost_gems} "
+                f"<@{ctx.author.id}>, you lost {gems:,d} gems. HAHA.",
+                f"Condolences to <@{ctx.author.id}> for losing {gems:,d} "
                 + "gems.",
-                f"Welp. Lost {lost_gems} gems. Too bad, <@{ctx.author.id}>.",
+                f"Welp. Lost {gems:,d} gems. Too bad, <@{ctx.author.id}>.",
             ]
         else:
             reply = [
@@ -330,7 +330,7 @@ class Currency(commands.Cog):
     @commands.command(
         name="gems",
         brief="Check gems.",
-        description="Check the amount of your current gems.",
+        description="Check the amount of your current gems statistics.",
     )
     async def gems(self, ctx, mention: discord.Member = None):
         # Check if user is initialized first
@@ -352,13 +352,29 @@ class Currency(commands.Cog):
 
         if mention is None:
             guardian_id = ctx.author.id
+            guardian_name = ctx.author.name
+            guardian_avatar = ctx.author.avatar_url
         else:
             guardian_id = mention.id
+            guardian_name = mention.name
+            guardian_avatar = mention.avatar_url
 
         # Display gems balance
         gems = db_ailie.get_gems(guardian_id)
+        gems_gambled = db_ailie.get_gambled_gems(guardian_id)
+        gems_spent = db_ailie.get_spent_gems(guardian_id)
+        gems_gained = db_ailie.get_gained_gems(guardian_id)
         db_ailie.disconnect()
-        await ctx.send(f"<@{guardian_id}> has {gems:,d} 💎 total.")
+        embed = discord.Embed(
+            description=(
+                f"Current Gems: {gems}"
+                + f"\nGems Spent: {gems_spent}"
+                + f"\nGems Gambled: {gems_gambled}"
+                + f"\nOverall Gems Gained: {gems_gained}"),
+            color=discord.Color.purple()
+        )
+        embed.set_author(name=f"{guardian_name}'s Gems", icon_url=guardian_avatar)
+        await ctx.send(embed=embed)
 
     @commands.command(
         name="hourly",
