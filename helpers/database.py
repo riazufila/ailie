@@ -282,19 +282,19 @@ class Database():
         data = [guardian_id]
         self.cursor.execute(query, data)
 
-        row = self.cursor.fetchone()
+        old_gems = self.cursor.fetchone()
 
-        if isinstance(row, tuple):
-            row = row[0]
+        if isinstance(old_gems, tuple):
+            old_gems = old_gems[0]
 
         # Add total gems
-        gems = row + gems
+        new_gems = old_gems + gems
 
         # Update into database
         query = (
             "UPDATE guardians SET guardian_gems = %s WHERE guardian_id = %s;"
         )
-        data = [gems, guardian_id]
+        data = [new_gems, guardian_id]
         self.cursor.execute(query, data)
         self.connection.commit()
         self.store_gained_gems(guardian_id, gems)
@@ -923,7 +923,7 @@ class Database():
             "UPDATE guardians SET guardian_gained_gems = %s "
             + "WHERE guardian_id = %s;"
         )
-        data = [gems, guardian_id]
+        data = [gained_gems, guardian_id]
         self.cursor.execute(query, data)
         self.connection.commit()
 
@@ -951,7 +951,7 @@ class Database():
             "UPDATE guardians SET guardian_spent_gems = %s "
             + "WHERE guardian_id = %s;"
         )
-        data = [gems, guardian_id]
+        data = [spent_gems, guardian_id]
         self.cursor.execute(query, data)
         self.connection.commit()
 
@@ -979,7 +979,7 @@ class Database():
             "UPDATE guardians SET guardian_gambled_gems = %s "
             + "WHERE guardian_id = %s;"
         )
-        data = [gems, guardian_id]
+        data = [gambled_gems, guardian_id]
         self.cursor.execute(query, data)
         self.connection.commit()
 

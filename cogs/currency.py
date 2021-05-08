@@ -165,12 +165,12 @@ class Currency(commands.Cog):
 
         # Store and display gems obtained
         if gems < 0:
-            gems = -gems
+            lost_gems = -gems
             reply = [
-                f"<@{ctx.author.id}>, you lost {gems:,d} gems. HAHA.",
-                f"Condolences to <@{ctx.author.id}> for losing {gems:,d} "
+                f"<@{ctx.author.id}>, you lost {lost_gems:,d} gems. HAHA.",
+                f"Condolences to <@{ctx.author.id}> for losing {lost_gems:,d} "
                 + "gems.",
-                f"Welp. Lost {gems:,d} gems. Too bad, <@{ctx.author.id}>.",
+                f"Welp. Lost {lost_gems:,d} gems. Too bad, <@{ctx.author.id}>.",
             ]
         else:
             reply = [
@@ -181,9 +181,9 @@ class Currency(commands.Cog):
                 f"Keep the gems rolling, <@{ctx.author.id}>. {gems:,d} gems "
                 + "obtained!",
             ]
+            db_ailie.store_gambled_gems(ctx.author.id, gems)
 
         db_ailie.store_gems(ctx.author.id, gems)
-        db_ailie.store_gambled_gems(ctx.author.id, gems)
         db_ailie.update_user_exp(ctx.author.id, 10)
         db_ailie.disconnect()
 
