@@ -241,7 +241,7 @@ class Guardian(commands.Cog):
                 icon_url=self.bot.user.avatar_url,
                 name=f"Lvl {hero_acquired['level']} {hero_name}",
             )
-            embed.add_field(name="Total EXP", value=f"`{hero_acquired['exp']}`")
+            embed.add_field(name="Hero EXP", value=f"`{hero_acquired['exp']}`")
 
             # Set output
             for info in [
