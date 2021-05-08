@@ -297,7 +297,6 @@ class Database():
         data = [new_gems, guardian_id]
         self.cursor.execute(query, data)
         self.connection.commit()
-        self.store_gained_gems(guardian_id, gems)
 
     def get_gems(self, guardian_id):
         # Get already existing gems
@@ -1207,31 +1206,31 @@ class Database():
         self.cursor.execute(query, data)
         self.connection.commit()
 
-    def get_win_gambled_count(self, guardian_id):
+    def get_won_gambled_count(self, guardian_id):
         query = (
-            "SELECT guardian_win_gambled_count FROM guardians "
+            "SELECT guardian_won_gambled_count FROM guardians "
             + "WHERE guardian_id = %s;"
         )
         data = [guardian_id]
         self.cursor.execute(query, data)
 
-        win_gambled_count = self.cursor.fetchone()
+        won_gambled_count = self.cursor.fetchone()
 
-        if isinstance(win_gambled_count, tuple):
-            win_gambled_count = win_gambled_count[0]
+        if isinstance(won_gambled_count, tuple):
+            won_gambled_count = won_gambled_count[0]
 
-        return win_gambled_count
+        return won_gambled_count
 
-    def store_win_gambled_count(self, guardian_id):
-        win_gambled_count = self.get_win_gambled_count(guardian_id)
+    def store_won_gambled_count(self, guardian_id):
+        won_gambled_count = self.get_won_gambled_count(guardian_id)
 
-        win_gambled_count = win_gambled_count + 1
+        won_gambled_count = won_gambled_count + 1
 
         query = (
-            "UPDATE guardians SET guardian_win_gambled_count = %s "
+            "UPDATE guardians SET guardian_won_gambled_count = %s "
             + "WHERE guardian_id = %s;"
         )
-        data = [win_gambled_count, guardian_id]
+        data = [won_gambled_count, guardian_id]
         self.cursor.execute(query, data)
         self.connection.commit()
 
