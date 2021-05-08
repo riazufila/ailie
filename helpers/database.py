@@ -1235,31 +1235,31 @@ class Database():
         self.cursor.execute(query, data)
         self.connection.commit()
 
-    def get_gambled_count(self, guardian_id):
+    def get_gamble_count(self, guardian_id):
         query = (
-            "SELECT guardian_gambled_count FROM guardians "
+            "SELECT guardian_gamble_count FROM guardians "
             + "WHERE guardian_id = %s;"
         )
         data = [guardian_id]
         self.cursor.execute(query, data)
 
-        gambled_count = self.cursor.fetchone()
+        gamble_count = self.cursor.fetchone()
 
-        if isinstance(gambled_count, tuple):
-            gambled_count = gambled_count[0]
+        if isinstance(gamble_count, tuple):
+            gamble_count = gamble_count[0]
 
-        return gambled_count
+        return gamble_count
 
-    def store_gambled_count(self, guardian_id):
-        gambled_count = self.get_gambled_count(guardian_id)
+    def store_gamble_count(self, guardian_id):
+        gamble_count = self.get_gamble_count(guardian_id)
 
-        gambled_count = gambled_count + 1
+        gamble_count = gamble_count + 1
 
         query = (
-            "UPDATE guardians SET guardian_gambled_count = %s "
+            "UPDATE guardians SET guardian_gamble_count = %s "
             + "WHERE guardian_id = %s;"
         )
-        data = [gambled_count, guardian_id]
+        data = [gamble_count, guardian_id]
         self.cursor.execute(query, data)
         self.connection.commit()
 
