@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import dbl
 import os
 import asyncio
 import discord
@@ -10,8 +11,9 @@ from helpers.database import Database
 class Bot(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        # Assign help command to Info category
         self.bot.help_command.cog = self
+        self.DBL_TOKEN = os.getenv("DBL_TOKEN")
+        self.dblpy = dbl.DBLClient(self.bot, self.DBL_TOKEN, autopost=True)
 
     async def notifyOwner(self, ctx, error, agreement=None):
         AUTHOR_ID = os.getenv("AUTHOR_ID")
@@ -39,110 +41,6 @@ class Bot(commands.Cog):
                 type=discord.ActivityType.watching, name="ailie;help"
             )
         )
-
-    # Check bot's latency
-    @commands.command(
-        name="ping",
-        brief="Check latency.",
-        description=(
-            "Check how many milliseconds is Ailie taking to respond. "
-            + "This can be used to check if Ailie is responsive."
-        ),
-    )
-    async def ping(self, ctx):
-        # Check if user is initialized first
-        db_ailie = Database()
-        if not db_ailie.is_initialized(ctx.author.id):
-            await ctx.send(
-                "Do `ailie;initialize` or `a;initialize` first before anything!"
-            )
-            db_ailie.disconnect()
-            return
-
-        db_ailie.disconnect()
-
-        await ctx.send(
-            f"Pong, <@{ctx.author.id}>! Sending back this message with "
-            + f"{round(self.bot.latency * 1000)}ms latency."
-        )
-
-    # Retrieve Ailie's version
-    @commands.command(
-        name="version",
-        brief="Shows version.",
-        description=(
-            "Shows the version Ailie is currently bearing. "
-            + "The version uses the format `x.y.z` where "
-            + "`x` is for major updates, "
-            + "`y` is for minor updates, and `z` is for bug fixes."
-        ),
-    )
-    @commands.cooldown(1, 5, commands.BucketType.user)
-    async def version(self, ctx):
-        # Check if user is initialized first
-        db_ailie = Database()
-        if not db_ailie.is_initialized(ctx.author.id):
-            await ctx.send(
-                "Do `ailie;initialize` or `a;initialize` first before anything!"
-            )
-            db_ailie.disconnect()
-            return
-
-        db_ailie.disconnect()
-
-        # Change upon version update
-        version = "1.4.4"
-
-        # Mimic loading animation
-        msg = await ctx.send(
-            f"Hello, <@{ctx.author.id}>! " + "Ailie reporting to duty!"
-        )
-        await asyncio.sleep(1.5)
-        await msg.edit(content=msg.content + "\nMy current version is")
-        await asyncio.sleep(0.5)
-        await msg.edit(content=msg.content + ".")
-        await asyncio.sleep(0.5)
-        await msg.edit(content=msg.content + ".")
-        await asyncio.sleep(0.5)
-        await msg.edit(content=msg.content + f" {version}!")
-        await asyncio.sleep(0.5)
-
-    # Send feedback or issue to owner
-    @commands.command(
-        name="feedback",
-        brief="Sends feedback.",
-        description=(
-            "Sends feedback, issue, complaint. "
-            + "Basically anything that requires assistance. "
-            + "Do note that along with the feedback, "
-            + "your User ID will also be sent."
-        ),
-        aliases=["issue", "report", "problem", "complaint"],
-    )
-    async def feedback(self, ctx, *feedback):
-        # Check if user is initialized first
-        db_ailie = Database()
-        if not db_ailie.is_initialized(ctx.author.id):
-            await ctx.send(
-                "Do `ailie;initialize` or `a;initialize` first before anything!"
-            )
-            db_ailie.disconnect()
-            return
-
-        db_ailie.disconnect()
-
-        if feedback:
-            # Process complain
-            feedback = " ".join(feedback)
-            await self.notifyOwner(ctx, feedback, "agree")
-
-            # Mimic loading animation
-            await ctx.send(
-                f"Ding dong, <@{ctx.author.id}>! "
-                + "Your message has been logged."
-            )
-        else:
-            await ctx.send("Can't send anything since you put no messages!")
 
     # Send error message upon spamming commands
     @commands.Cog.listener()
@@ -203,6 +101,110 @@ class Bot(commands.Cog):
                 + "wanna send a feedback with "
                 + "the `feedback` command."
             )
+
+    # Check bot's latency
+    @commands.command(
+        name="ping",
+        brief="Check latency.",
+        description=(
+            "Check how many milliseconds is Ailie taking to respond. "
+            + "This can be used to check if Ailie is responsive."
+        ),
+    )
+    async def ping(self, ctx):
+        # Check if user is initialized first
+        db_ailie = Database()
+        if not db_ailie.is_initialized(ctx.author.id):
+            await ctx.send(
+                "Do `ailie;initialize` or `a;initialize` first before anything!"
+            )
+            db_ailie.disconnect()
+            return
+
+        db_ailie.disconnect()
+
+        await ctx.send(
+            f"Pong, <@{ctx.author.id}>! Sending back this message with "
+            + f"{round(self.bot.latency * 1000)}ms latency."
+        )
+
+    # Send feedback or issue to owner
+    @commands.command(
+        name="feedback",
+        brief="Sends feedback.",
+        description=(
+            "Sends feedback, issue, complaint. "
+            + "Basically anything that requires assistance. "
+            + "Do note that along with the feedback, "
+            + "your User ID will also be sent."
+        ),
+        aliases=["issue", "report", "problem", "complaint"],
+    )
+    async def feedback(self, ctx, *feedback):
+        # Check if user is initialized first
+        db_ailie = Database()
+        if not db_ailie.is_initialized(ctx.author.id):
+            await ctx.send(
+                "Do `ailie;initialize` or `a;initialize` first before anything!"
+            )
+            db_ailie.disconnect()
+            return
+
+        db_ailie.disconnect()
+
+        if feedback:
+            # Process complain
+            feedback = " ".join(feedback)
+            await self.notifyOwner(ctx, feedback, "agree")
+
+            # Mimic loading animation
+            await ctx.send(
+                f"Ding dong, <@{ctx.author.id}>! "
+                + "Your message has been logged."
+            )
+        else:
+            await ctx.send("Can't send anything since you put no messages!")
+
+    # Retrieve Ailie's version
+    @commands.command(
+        name="version",
+        brief="Shows version.",
+        description=(
+            "Shows the version Ailie is currently bearing. "
+            + "The version uses the format `x.y.z` where "
+            + "`x` is for major updates, "
+            + "`y` is for minor updates, and `z` is for bug fixes."
+        ),
+    )
+    @commands.cooldown(1, 5, commands.BucketType.user)
+    async def version(self, ctx):
+        # Check if user is initialized first
+        db_ailie = Database()
+        if not db_ailie.is_initialized(ctx.author.id):
+            await ctx.send(
+                "Do `ailie;initialize` or `a;initialize` first before anything!"
+            )
+            db_ailie.disconnect()
+            return
+
+        db_ailie.disconnect()
+
+        # Change upon version update
+        version = "1.4.4"
+
+        # Mimic loading animation
+        msg = await ctx.send(
+            f"Hello, <@{ctx.author.id}>! " + "Ailie reporting to duty!"
+        )
+        await asyncio.sleep(1.5)
+        await msg.edit(content=msg.content + "\nMy current version is")
+        await asyncio.sleep(0.5)
+        await msg.edit(content=msg.content + ".")
+        await asyncio.sleep(0.5)
+        await msg.edit(content=msg.content + ".")
+        await asyncio.sleep(0.5)
+        await msg.edit(content=msg.content + f" {version}!")
+        await asyncio.sleep(0.5)
 
 
 def setup(bot):

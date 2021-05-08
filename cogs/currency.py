@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import os
 import random
 import discord
 from discord.ext import commands
@@ -9,6 +10,18 @@ from helpers.database import Database
 class Currency(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+
+    @commands.Cog.listener()
+    async def on_dbl_vote(self, data):
+        user = data['user']
+        embed = discord.Embed(
+            title=f"Reward for <@{user}>",
+            description="5000:,d 💎",
+            color=discord.Color.purple(),
+        )
+        channel = self.bot.get_channel(user)
+
+        await channel.send(embed=embed)
 
     @commands.command(
         name="race",
@@ -51,13 +64,13 @@ class Currency(commands.Cog):
 
         # Store and display gems obtained
         reply = [
-            f"You raced against Lana and obtained {gems} gems, "
+            f"You raced against Lana and obtained {gems:,d} gems, "
             + f"<@{ctx.author.id}>!",
-            f"You got {gems} gems! Lana can't win with that wheelchair on. "
+            f"You got {gems:,d} gems! Lana can't win with that wheelchair on. "
             + f"Right, <@{ctx.author.id}>?",
-            f"YES! {gems} gems obtained! Good job, <@{ctx.author.id}>!",
+            f"YES! {gems:,d} gems obtained! Good job, <@{ctx.author.id}>!",
             f"Don't you get tired of racing Lana, <@{ctx.author.id}>? Oh well, "
-            + f"you've gotten {gems} gems though.",
+            + f"you've gotten {gems:,d} gems though.",
         ]
 
         db_ailie.store_gems(ctx.author.id, gems)
@@ -103,13 +116,13 @@ class Currency(commands.Cog):
 
         # Store and display gems obtained
         reply = [
-            f"Little Princess found you {gems} gems, <@{ctx.author.id}>!",
+            f"Little Princess found you {gems:,d} gems, <@{ctx.author.id}>!",
             "Little Princess did all the hard work for you and got you, "
-            + f"{gems} gems. Good one, <@{ctx.author.id}>?",
-            f"{gems} gems obtained! You get that by being nice to "
+            + f"{gems:,d} gems. Good one, <@{ctx.author.id}>?",
+            f"{gems:,d} gems obtained! You get that by being nice to "
             + f"Little Princess, <@{ctx.author.id}>!",
             f"Don't you ever get tired of Little Princess, <@{ctx.author.id}>? "
-            + f"Oh well, she gave you {gems} gems though.",
+            + f"Oh well, she gave you {gems:,d} gems though.",
         ]
 
         db_ailie.store_gems(ctx.author.id, gems)
@@ -173,9 +186,10 @@ class Currency(commands.Cog):
         else:
             reply = [
                 f"<@{ctx.author.id}>, your luck is omnipotent! Gained "
-                + f"{gems} gems.",
-                f"Congratulations for winning {gems} gems, <@{ctx.author.id}>!",
-                f"Keep the gems rolling, <@{ctx.author.id}>. {gems} gems "
+                + f"{gems:,d} gems.",
+                f"Congratulations for winning {gems:,d} gems, "
+                + f"<@{ctx.author.id}>!",
+                f"Keep the gems rolling, <@{ctx.author.id}>. {gems:,d} gems "
                 + "obtained!",
             ]
 
@@ -236,7 +250,7 @@ class Currency(commands.Cog):
         db_ailie.spend_gems(ctx.author.id, gems)
         db_ailie.store_gems(mention.id, gems)
         await ctx.send(
-            f"<@{ctx.author.id}> shared {gems} gem(s) to {mention.mention}. "
+            f"<@{ctx.author.id}> shared {gems:,d} gem(s) to {mention.mention}. "
             + "SWEET!"
         )
 
@@ -302,8 +316,9 @@ class Currency(commands.Cog):
             if counter == 1:
                 output = output + f"{counter}. {whales[0]:,d} 💎 - `{whales[1]}`"
             else:
-                output = output + \
-                    f"\n{counter}. {whales[0]:,d} 💎 - `{whales[1]}`"
+                output = (
+                    output + f"\n{counter}. {whales[0]:,d} 💎 - `{whales[1]}`"
+                )
 
             # Get username if any
             username = db_ailie.get_username(whales[2])
@@ -313,7 +328,7 @@ class Currency(commands.Cog):
             counter += 1
 
         embed = discord.Embed(color=discord.Color.purple())
-        embed.set_author(name="Ailie", icon_url=ctx.me.avatar_url)
+        embed.set_author(name=ctx.me.name, icon_url=ctx.me.avatar_url)
         embed.add_field(name=f"Whales in {logical_whereabouts}!", value=output)
 
         db_ailie.disconnect()
@@ -323,7 +338,7 @@ class Currency(commands.Cog):
     @commands.command(
         name="gems",
         brief="Check gems.",
-        description="Check the amount of your current gems."
+        description="Check the amount of your current gems.",
     )
     async def gems(self, ctx, mention: discord.Member = None):
         # Check if user is initialized first
@@ -352,6 +367,40 @@ class Currency(commands.Cog):
         gems = db_ailie.get_gems(guardian_id)
         db_ailie.disconnect()
         await ctx.send(f"<@{guardian_id}> has {gems:,d} 💎 total.")
+
+    @commands.command(
+        name="vote",
+        brief="Vote for rewards.",
+        description="Vote Ailie to get rewards.",
+    )
+    async def vote(self, ctx):
+        # Check if user is initialized first
+        db_ailie = Database()
+        if not db_ailie.is_initialized(ctx.author.id):
+            await ctx.send(
+                "Do `ailie;initialize` or `a;initialize` "
+                + "first before anything!"
+            )
+            db_ailie.disconnect()
+            return
+
+        # Check if user has voted or not
+        voted = await self.bot.dbl.get_user_vote(ctx.author.id)
+
+        if not voted:
+            embed = discord.Embed(
+                title="Vote for Ailie",
+                description=os.getenv("VOTE_URL"),
+                color=discord.Color.purple(),
+            )
+            embed.set_author(name=ctx.me.name, icon_url=ctx.me.avatar_url)
+
+            await ctx.send(embed=embed)
+        else:
+            await ctx.send(
+                f"You have already voted for Ailie, <@{ctx.author.id}>. "
+                + "You're not so bad after all. Claim with `a;claim`."
+            )
 
 
 def setup(bot):
