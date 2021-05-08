@@ -61,6 +61,8 @@ class Currency(commands.Cog):
         ]
 
         db_ailie.store_gems(ctx.author.id, gems)
+        db_ailie.store_gained_gems(ctx.author.id, gems)
+        db_ailie.update_user_exp(ctx.author.id, 2)
         db_ailie.disconnect()
 
         await ctx.send(random.choice(reply))
@@ -113,6 +115,8 @@ class Currency(commands.Cog):
         ]
 
         db_ailie.store_gems(ctx.author.id, gems)
+        db_ailie.store_gained_gems(ctx.author.id, gems)
+        db_ailie.update_user_exp(ctx.author.id, 3)
         db_ailie.disconnect()
 
         await ctx.send(random.choice(reply))
@@ -165,11 +169,15 @@ class Currency(commands.Cog):
         if gems < 0:
             lost_gems = -gems
             reply = [
-                f"<@{ctx.author.id}>, you lost {lost_gems} gems. HAHA.",
-                f"Condolences to <@{ctx.author.id}> for losing {lost_gems} "
+                f"<@{ctx.author.id}>, you lost {lost_gems:,d} gems. HAHA.",
+                f"Condolences to <@{ctx.author.id}> for losing {lost_gems:,d} "
                 + "gems.",
-                f"Welp. Lost {lost_gems} gems. Too bad, <@{ctx.author.id}>.",
+                f"Welp. Lost {lost_gems:,d} gems. Too bad, <@{ctx.author.id}>.",
             ]
+            db_ailie.store_lose_gambled_count(ctx.author.id)
+            db_ailie.store_lose_gambled_gems(ctx.author.id, lost_gems)
+            db_ailie.store_gambled_gems(ctx.author.id, lost_gems)
+            db_ailie.store_spent_gems(ctx.author.id, lost_gems)
         else:
             reply = [
                 f"<@{ctx.author.id}>, your luck is omnipotent! Gained "
@@ -179,8 +187,15 @@ class Currency(commands.Cog):
                 f"Keep the gems rolling, <@{ctx.author.id}>. {gems:,d} gems "
                 + "obtained!",
             ]
+            db_ailie.store_won_gambled_count(ctx.author.id)
+            db_ailie.store_won_gambled_gems(ctx.author.id, gems)
+            db_ailie.store_gambled_gems(ctx.author.id, gems)
+            db_ailie.store_spent_gems(ctx.author.id, gems)
+            db_ailie.store_gained_gems(ctx.author.id, gems)
 
         db_ailie.store_gems(ctx.author.id, gems)
+        db_ailie.store_gamble_count(ctx.author.id)
+        db_ailie.update_user_exp(ctx.author.id, 10)
         db_ailie.disconnect()
 
         await ctx.send(random.choice(reply))
@@ -236,6 +251,9 @@ class Currency(commands.Cog):
         # Transfer gems from sender to receiver
         db_ailie.spend_gems(ctx.author.id, gems)
         db_ailie.store_gems(mention.id, gems)
+        db_ailie.store_spent_gems(ctx.author.id, gems)
+        db_ailie.store_gained_gems(mention.id, gems)
+        db_ailie.update_user_exp(ctx.author.id, 5)
         await ctx.send(
             f"<@{ctx.author.id}> shared {gems:,d} gem(s) to {mention.mention}. "
             + "SWEET!"
@@ -325,7 +343,7 @@ class Currency(commands.Cog):
     @commands.command(
         name="gems",
         brief="Check gems.",
-        description="Check the amount of your current gems.",
+        description="Check the amount of your current gems statistics.",
     )
     async def gems(self, ctx, mention: discord.Member = None):
         # Check if user is initialized first
@@ -347,13 +365,102 @@ class Currency(commands.Cog):
 
         if mention is None:
             guardian_id = ctx.author.id
+            guardian_name = ctx.author.name
+            guardian_avatar = ctx.author.avatar_url
         else:
             guardian_id = mention.id
+            guardian_name = mention.name
+            guardian_avatar = mention.avatar_url
 
         # Display gems balance
         gems = db_ailie.get_gems(guardian_id)
+        gems_gambled = db_ailie.get_gambled_gems(guardian_id)
+        gems_spent = db_ailie.get_spent_gems(guardian_id)
+        gems_gained = db_ailie.get_gained_gems(guardian_id)
+        win_gamble_gems = db_ailie.get_won_gambled_gems(guardian_id)
+        lose_gamble_gems = db_ailie.get_lose_gambled_gems(guardian_id)
         db_ailie.disconnect()
-        await ctx.send(f"<@{guardian_id}> has {gems:,d} 💎 total.")
+        embed = discord.Embed(
+            description=(
+                f"**Current Gems**: `{gems}`"
+                + f"\n**Gems Spent**: `{gems_spent}`"
+                + f"\n**Gems Gambled**: `{gems_gambled}`"
+                + f"\n**Gems Gambled Won**: `{win_gamble_gems}`"
+                + f"\n**Gems Gambled Lost**: `{lose_gamble_gems}`"
+                + f"\n**Overall Gems Gained**: `{gems_gained}`"
+            ),
+            color=discord.Color.purple()
+        )
+        embed.set_author(
+            name=f"{guardian_name}'s Gems", icon_url=guardian_avatar)
+        await ctx.send(embed=embed)
+
+    @commands.command(
+        name="hourly",
+        brief="Hourly gems.",
+        description="Claim hourly gems.",
+    )
+    async def hourly(self, ctx):
+        # Check if user is initialized first
+        db_ailie = Database()
+        if not db_ailie.is_initialized(ctx.author.id):
+            await ctx.send(
+                "Do `ailie;initialize` or `a;initialize` "
+                + "first before anything!"
+            )
+            db_ailie.disconnect()
+            return
+
+        qualified_hourly = db_ailie.get_hourly_qualification(ctx.author.id)
+
+        if qualified_hourly:
+            gems = 500
+            db_ailie.store_gems(ctx.author.id, gems)
+            db_ailie.update_user_exp(ctx.author.id, 5)
+            await ctx.send(
+                f"Hourly gems claimed. You obtained {gems:,d} 💎, "
+                + f"<@{ctx.author.id}>!"
+            )
+        else:
+            cd = db_ailie.get_hourly_cooldown(ctx.author.id)
+            await ctx.send(
+                f"One can be so greedy, <@{ctx.author.id}>. "
+                + f"{cd} left before reset."
+            )
+
+    @commands.command(
+        name="daily",
+        brief="Daily gems.",
+        description="Claim daily gems.",
+    )
+    async def daily(self, ctx):
+        # Check if user is initialized first
+        db_ailie = Database()
+        if not db_ailie.is_initialized(ctx.author.id):
+            await ctx.send(
+                "Do `ailie;initialize` or `a;initialize` "
+                + "first before anything!"
+            )
+            db_ailie.disconnect()
+            return
+
+        qualified_daily = db_ailie.get_daily_qualification(ctx.author.id)
+
+        if qualified_daily:
+            count = db_ailie.get_daily_count(ctx.author.id)
+            gems = 2500 + (200 * count)
+            db_ailie.store_gems(ctx.author.id, gems)
+            db_ailie.update_user_exp(ctx.author.id, 5)
+            await ctx.send(
+                f"Daily gems claimed for {count} time(s). "
+                + f"You obtained {gems:,d} 💎, <@{ctx.author.id}>!"
+            )
+        else:
+            cd = db_ailie.get_daily_cooldown(ctx.author.id)
+            await ctx.send(
+                f"One can be so greedy, <@{ctx.author.id}>. "
+                + f"{cd} left before reset."
+            )
 
 
 def setup(bot):

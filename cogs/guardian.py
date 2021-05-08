@@ -9,11 +9,11 @@ class Guardian(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    def heroStatsLevel(self, stats, level):
+    def heroStatsLevel(self, stats, level, user_level):
         for stat in stats:
             if stat in ["attack", "hp", "def"]:
                 stats[stat] = round(
-                    stats[stat] * ((100 + level - 1) / 100)
+                    stats[stat] * ((100 + level + user_level - 1) / 100)
                 )
 
         return stats
@@ -78,33 +78,43 @@ class Guardian(commands.Cog):
         guild_id = db_ailie.get_guild_id_of_member(guardian_id)
         heroes_obtained = db_ailie.hero_inventory(guardian_id)
         equips_obtained = db_ailie.equip_inventory(guardian_id)
+        user_exp = db_ailie.get_user_exp(guardian_id)
+        user_level = db_ailie.get_user_level(guardian_id)
+        summon_count = db_ailie.get_summon_count(guardian_id)
 
         # Set embed baseline
         embed = discord.Embed(color=discord.Color.purple())
         embed.set_author(
-            name=f"{guardian_name}'s Profile", icon_url=guardian_avatar
+            name=f"Lvl {user_level} {guardian_name}'s Profile",
+            icon_url=guardian_avatar
         )
 
         # Username, gems, and trophies
-        embed.add_field(name="Username 📝", value=username, inline=False)
-        embed.add_field(name="Gems 💎", value=f"{gems:,d}")
-        embed.add_field(name="Trophies 🏆", value=f"{trophies:,d}")
+        embed.add_field(name="Username 📝", value=f"`{username}`", inline=False)
+        embed.add_field(name="User EXP 💪", value=f"`{user_exp}`", inline=False)
+        embed.add_field(name="Gems 💎", value=f"`{gems:,d}`")
+        embed.add_field(name="Trophies 🏆", value=f"`{trophies:,d}`")
 
         # Total unique and epic exclusive
         heroes_equips_count = (
-            f"Unique Heroes: {len(heroes_obtained[len(heroes_obtained) - 1])}"
-            + "\nEpic Exclusive Equipments: "
-            + f"{len(equips_obtained[len(equips_obtained) - 1])}"
+            "**Summon Count**: "
+            + f"`{summon_count}`"
+            + "\n**Unique Heroes**: "
+            + f"`{len(heroes_obtained[len(heroes_obtained) - 1])}`"
+            + "\n**Epic Exclusive Equipments**: "
+            + f"`{len(equips_obtained[len(equips_obtained) - 1])}`"
         )
         embed.add_field(
-            name="Unit Counts 🗡️", value=heroes_equips_count, inline=False
+            name="Summons⚔️",
+            value=heroes_equips_count,
+            inline=False
         )
 
         # Guild details
         guild_detail = (
-            f"Guild Name: {guild_name}"
-            + f"\nGuild ID: {guild_id}"
-            + f"\nPosition: {position}"
+            f"**Guild Name**: `{guild_name}`"
+            + f"\n**Guild ID**: `{guild_id}`"
+            + f"\n**Position**: `{position}`"
         )
         embed.add_field(
             name="Guild Details 🏠",
@@ -195,11 +205,12 @@ class Guardian(commands.Cog):
 
                 inventory_id = db_ailie.get_inventory_id(guardian_id)
                 if db_ailie.is_hero_obtained(guardian_id, hero_id):
+                    user_level = db_ailie.get_user_level(guardian_id)
                     hero_acquired = db_ailie.get_hero_acquired_details(
                         inventory_id, hero_id
                     )
                     hero_stats = self.heroStatsLevel(
-                        hero_stats, hero_acquired["level"]
+                        hero_stats, hero_acquired["level"], user_level
                     )
                 else:
                     exists = False
@@ -240,6 +251,7 @@ class Guardian(commands.Cog):
                 icon_url=self.bot.user.avatar_url,
                 name=f"Lvl {hero_acquired['level']} {hero_name}",
             )
+            embed.add_field(name="Hero EXP 💪", value=f"`{hero_acquired['exp']}`")
 
             # Set output
             for info in [

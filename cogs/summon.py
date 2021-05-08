@@ -293,13 +293,14 @@ class Summon(commands.Cog):
         # Reduce gems in database after checking if balance is enough
         db_ailie = Database()
         enough_balance = db_ailie.spend_gems(ctx.author.id, gems)
-        db_ailie.disconnect()
 
         if not enough_balance:
             reply = f"You don't have enough gems, <@{ctx.author.id}>."
 
         # If the value is valid, then the statements here is executed
         if (one_or_ten == 10 or one_or_ten == 1) and enough_balance:
+            db_ailie.update_user_exp(ctx.author.id, 100)
+            db_ailie.store_summon_count(ctx.author.id, one_or_ten)
             # Variables used as a counter to check what is being summoned
             pity_check = False
             pity = False

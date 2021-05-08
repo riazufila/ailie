@@ -589,11 +589,12 @@ class PvP(commands.Cog):
 
         return stats
 
-    def heroStatsLevels(self, stats, levels):
+    def heroStatsLevels(self, stats, levels, user_level):
         for stat in stats:
             if stat in ["attack", "hp", "def"]:
                 stats[stat] = round(
-                    stats[stat] * ((100 + levels["level"] - 1) / 100)
+                    stats[stat] * (
+                        (100 + levels["level"] + user_level - 1) / 100)
                 )
 
         return stats
@@ -935,13 +936,32 @@ class PvP(commands.Cog):
 
         if mention is None:
             guardian_id = ctx.author.id
+            guardian_name = ctx.author.name
+            guardian_avatar = ctx.author.avatar_url
         else:
             guardian_id = mention.id
+            guardian_name = mention.name
+            guardian_avatar = mention.avatar_url
 
         # Display trophies
         trophies = db_ailie.get_trophy(guardian_id)
+        trophies_won = db_ailie.get_gained_trophy(guardian_id)
+        trophies_lost = db_ailie.get_lose_trophy(guardian_id)
+        wins = db_ailie.get_arena_wins(guardian_id)
+        losses = db_ailie.get_arena_losses(guardian_id)
         db_ailie.disconnect()
-        await ctx.send(f"<@{guardian_id}> has `{trophies}` 🏆.")
+        embed = discord.Embed(
+            description=(
+                f"**Current Trophies**: `{trophies}`"
+                + f"\n**Trophies Won**: `{trophies_won}`"
+                + f"\n**Trophies Lost**: `{trophies_lost}`"
+                + f"\n**Wins**: `{wins}`"
+                + f"\n**Losses**: `{losses}`"
+            ),
+            color=discord.Color.purple()
+        )
+        embed.set_author(name=f"{guardian_name}'s Gems", icon_url=guardian_avatar)
+        await ctx.send(embed=embed)
 
     @commands.command(
         name="arena",
@@ -1131,8 +1151,9 @@ class PvP(commands.Cog):
 
         # Modify stats depending on levels
         for p in participants:
+            user_level = db_ailie.get_user_level(p["guardian_id"])
             p["hero_stats"] = self.heroStatsLevels(
-                p["hero_stats"], p["hero_acquired"])
+                p["hero_stats"], p["hero_acquired"], user_level)
 
         # Hero buffs
         for p in participants:
@@ -1691,12 +1712,35 @@ class PvP(commands.Cog):
             trophy_lose = -10
             hero_exp_win = 50
             hero_exp_lose = 30
+            user_exp_win = 100
+            user_exp_lose = 70
+            gems = 1000
 
             db_ailie.update_trophy(winner, trophy_win)
             db_ailie.update_trophy(loser, trophy_lose)
+
+            db_ailie.increase_arena_wins(winner)
+            db_ailie.increase_arena_losses(loser)
+
+            db_ailie.increase_gained_trophy(winner, trophy_win)
+            db_ailie.increase_lose_trophy(loser, (-1 * trophy_lose))
+
             db_ailie.update_hero_exp(winner, winner_hero, hero_exp_win)
             db_ailie.update_hero_exp(loser, loser_hero, hero_exp_lose)
-            db_ailie.store_gems(winner, 500)
+
+            db_ailie.store_gems(winner, gems)
+
+            db_ailie.update_user_exp(winner, user_exp_win)
+            db_ailie.update_user_exp(loser, user_exp_lose)
+
+            await ctx.send(
+                f"<@{winner}>, wins and obtained {trophy_win} 🏆 "
+                + f"and {gems} 💎."
+            )
+            await asyncio.sleep(1)
+            await ctx.send(
+                f"<@{loser}>, losses {-1 * trophy_lose} 🏆. Boooooo."
+            )
 
         # Disconnect Database
         db_ailie.disconnect()
