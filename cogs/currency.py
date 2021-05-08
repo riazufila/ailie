@@ -387,6 +387,39 @@ class Currency(commands.Cog):
                 + f"{cd} left before reset."
             )
 
+    @commands.command(
+        name="daily",
+        brief="Daily gems.",
+        description="Claim daily gems.",
+    )
+    async def daily(self, ctx):
+        # Check if user is initialized first
+        db_ailie = Database()
+        if not db_ailie.is_initialized(ctx.author.id):
+            await ctx.send(
+                "Do `ailie;initialize` or `a;initialize` "
+                + "first before anything!"
+            )
+            db_ailie.disconnect()
+            return
+
+        qualified_daily = db_ailie.get_daily_qualification(ctx.author.id)
+
+        if qualified_daily:
+            count = db_ailie.get_daily_count(ctx.author.id)
+            gems = 2500 + (200 * count)
+            db_ailie.store_gems(ctx.author.id, gems)
+            await ctx.send(
+                f"Daily gems claimed. You obtained {gems:,d} 💎, "
+                + f"<@{ctx.author.id}>!"
+            )
+        else:
+            cd = db_ailie.get_daily_cooldown(ctx.author.id)
+            await ctx.send(
+                f"One can be so greedy, <@{ctx.author.id}>. "
+                + f"{cd} left before reset."
+            )
+
 
 def setup(bot):
     bot.add_cog(Currency(bot))

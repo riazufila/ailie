@@ -796,6 +796,107 @@ class Database():
         else:
             return 0
 
+    def get_daily_count(self, guardian_id):
+        query = (
+            "SELECT guardian_daily_count FROM guardians "
+            + "WHERE guardian_id = %s;"
+        )
+        data = [guardian_id]
+        self.cursor.execute(query, data)
+        count = self.cursor.fetchone()
+
+        if isinstance(count, tuple):
+            count = count[0]
+
+        return count
+
+    def increase_daily_count(self, guardian_id):
+        count = self.get_daily_count(guardian_id)
+
+        count = count + 1
+
+        query = (
+            "UPDATE guardians SET guardian_daily_count = %s "
+            + "WHERE guardian_id = %s;"
+        )
+        data = [count, guardian_id]
+        self.cursor.execute(query, data)
+        self.connection.commit()
+
+    def get_daily_qualification(self, guardian_id):
+        query = "SELECT guardian_daily FROM guardians WHERE guardian_id = %s;"
+        data = [guardian_id]
+        self.cursor.execute(query, data)
+
+        last_day = self.cursor.fetchone()
+        now = datetime.now(pytz.utc)
+
+        if isinstance(last_day, tuple):
+            last_day = last_day[0]
+
+        if last_day:
+            difference = now - last_day
+
+            if difference.total_seconds() > 86400:
+                query = (
+                    "UPDATE guardians SET guardian_daily = %s "
+                    + "WHERE guardian_id = %s;"
+                )
+                data = [now, guardian_id]
+                self.cursor.execute(query, data)
+                self.connection.commit()
+                self.increase_daily_count(guardian_id)
+
+                return True
+            else:
+                return False
+        else:
+            query = (
+                "UPDATE guardians SET guardian_daily = %s "
+                + "WHERE guardian_id = %s;"
+            )
+            data = [now, guardian_id]
+            self.cursor.execute(query, data)
+            self.connection.commit()
+            self.increase_daily_count(guardian_id)
+
+            return True
+
+    def get_daily_cooldown(self, guardian_id):
+        query = "SELECT guardian_daily FROM guardians WHERE guardian_id = %s;"
+        data = [guardian_id]
+        self.cursor.execute(query, data)
+
+        last_day = self.cursor.fetchone()
+        now = datetime.now(pytz.utc)
+
+        if isinstance(last_day, tuple):
+            last_day = last_day[0]
+
+        if last_day:
+            difference = now - last_day
+
+            if difference.total_seconds() > 86400:
+                return 0
+            else:
+                time_to_reset = 86400 - difference.total_seconds()
+
+                if time_to_reset >= 3600:
+                    time_to_reset = time.gmtime(time_to_reset)
+                    cd = time.strftime(
+                        "%Hh, %Mm, and %Ss", time_to_reset)
+                elif time_to_reset >= 60:
+                    time_to_reset = time.gmtime(time_to_reset)
+                    cd = time.strftime(
+                        "%Mm and %Ss", time_to_reset)
+                else:
+                    time_to_reset = time.gmtime(time_to_reset)
+                    cd = time.strftime("%Ss", time_to_reset)
+
+                return cd
+        else:
+            return 0
+
     # Disconnect database
     def disconnect(self):
         self.cursor.close()
