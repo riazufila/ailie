@@ -298,8 +298,9 @@ class Currency(commands.Cog):
             async for member in ctx.guild.fetch_members(limit=None):
                 if db_ailie.is_initialized(member.id):
                     gems = db_ailie.get_gems(member.id)
+                    level = db_ailie.get_user_level(member.id)
                     if gems != 0:
-                        buffer = [gems, member, member.id]
+                        buffer = [gems, member, member.id, level]
                         guardian_with_gems.append(buffer)
         elif scope.lower() in ["global", "all"]:
             await ctx.send(
@@ -311,8 +312,9 @@ class Currency(commands.Cog):
                 async for member in guild.fetch_members(limit=None):
                     if db_ailie.is_initialized(member.id):
                         gems = db_ailie.get_gems(member.id)
+                        level = db_ailie.get_user_level(member.id)
                         if gems != 0:
-                            buffer = [gems, member, member.id]
+                            buffer = [gems, member, member.id, level]
                             if buffer not in guardian_with_gems:
                                 guardian_with_gems.append(buffer)
         else:
@@ -327,11 +329,13 @@ class Currency(commands.Cog):
         counter = 1
         for whales in guardian_with_gems:
             if counter == 1:
-                output = output + f"{counter}. {whales[0]:,d} 💎 - `{whales[1]}`"
+                output = output + \
+                    f"{counter}. Lvl {whales[3]} " \
+                    + f"{whales[0]:,d} 💎 - `{whales[1]}`"
             else:
-                output = (
-                    output + f"\n{counter}. {whales[0]:,d} 💎 - `{whales[1]}`"
-                )
+                output = output \
+                        + f"\n{counter}. Lvl {whales[3]} " \
+                        + f"{whales[0]:,d} 💎 - `{whales[1]}`"
 
             # Get username if any
             username = db_ailie.get_username(whales[2])

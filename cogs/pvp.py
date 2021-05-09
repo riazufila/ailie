@@ -853,8 +853,9 @@ class PvP(commands.Cog):
             async for member in ctx.guild.fetch_members(limit=None):
                 if db_ailie.is_initialized(member.id):
                     trophy = db_ailie.get_trophy(member.id)
+                    level = db_ailie.get_user_level(member.id)
                     if trophy > 0:
-                        buffer = [trophy, member, member.id]
+                        buffer = [trophy, member, member.id, level]
                         guardian_with_trophy.append(buffer)
         elif scope.lower() in ["global", "all"]:
             await ctx.send(
@@ -866,8 +867,9 @@ class PvP(commands.Cog):
                 async for member in guild.fetch_members(limit=None):
                     if db_ailie.is_initialized(member.id):
                         trophy = db_ailie.get_trophy(member.id)
+                        level = db_ailie.get_user_level(member.id)
                         if trophy > 0:
-                            buffer = [trophy, member, member.id]
+                            buffer = [trophy, member, member.id, level]
                             if buffer not in guardian_with_trophy:
                                 guardian_with_trophy.append(buffer)
         else:
@@ -889,10 +891,12 @@ class PvP(commands.Cog):
         for barbarian in guardian_with_trophy:
             if counter == 1:
                 output = output \
-                    + f"{counter}. {barbarian[0]:,d} 🏆 - `{barbarian[1]}`"
+                    + f"{counter}. Lvl {barbarian[3]} " \
+                    + f"{barbarian[0]:,d} 🏆 - `{barbarian[1]}`"
             else:
                 output = output + \
-                    f"\n{counter}. {barbarian[0]:,d} 🏆 - `{barbarian[1]}`"
+                    f"\n{counter}. Lvl {barbarian[3]} " \
+                    + f"{barbarian[0]:,d} 🏆 - `{barbarian[1]}`"
 
             # Get username if any
             username = db_ailie.get_username(barbarian[2])
