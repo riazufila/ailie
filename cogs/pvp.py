@@ -891,12 +891,12 @@ class PvP(commands.Cog):
         for barbarian in guardian_with_trophy:
             if counter == 1:
                 output = output \
-                    + f"{counter}. Lvl {barbarian[3]} " \
-                    + f"{barbarian[0]:,d} 🏆 - `{barbarian[1]}`"
+                    + f"{counter}. {barbarian[0]:,d} 🏆 - " \
+                    + f"Lvl {barbarian[3]} `{barbarian[1]}`"
             else:
                 output = output + \
-                    f"\n{counter}. Lvl {barbarian[3]} " \
-                    + f"{barbarian[0]:,d} 🏆 - `{barbarian[1]}`"
+                        f"\n{counter}. {barbarian[0]:,d} 🏆 - " \
+                        + f"Lvl {barbarian[3]} `{barbarian[1]}`"
 
             # Get username if any
             username = db_ailie.get_username(barbarian[2])

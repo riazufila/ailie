@@ -330,12 +330,12 @@ class Currency(commands.Cog):
         for whales in guardian_with_gems:
             if counter == 1:
                 output = output + \
-                    f"{counter}. Lvl {whales[3]} " \
-                    + f"{whales[0]:,d} 💎 - `{whales[1]}`"
+                    f"{counter}. {whales[0]:,d} 💎 - " \
+                    + f"Lvl {whales[3]} `{whales[1]}`"
             else:
                 output = output \
-                        + f"\n{counter}. Lvl {whales[3]} " \
-                        + f"{whales[0]:,d} 💎 - `{whales[1]}`"
+                        + f"\n{counter}. {whales[0]:,d} 💎 - " \
+                        + f"Lvl {whales[3]} `{whales[1]}`"
 
             # Get username if any
             username = db_ailie.get_username(whales[2])
