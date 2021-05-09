@@ -945,22 +945,19 @@ class PvP(commands.Cog):
 
         # Display trophies
         trophies = db_ailie.get_trophy(guardian_id)
-        trophies_won = db_ailie.get_gained_trophy(guardian_id)
-        trophies_lost = db_ailie.get_lose_trophy(guardian_id)
         wins = db_ailie.get_arena_wins(guardian_id)
         losses = db_ailie.get_arena_losses(guardian_id)
         db_ailie.disconnect()
         embed = discord.Embed(
             description=(
-                f"**Current Trophies**: `{trophies}`"
-                + f"\n**Trophies Won**: `{trophies_won}`"
-                + f"\n**Trophies Lost**: `{trophies_lost}`"
+                f"**Trophies**: `{trophies}`"
                 + f"\n**Wins**: `{wins}`"
                 + f"\n**Losses**: `{losses}`"
             ),
             color=discord.Color.purple()
         )
-        embed.set_author(name=f"{guardian_name}'s Gems", icon_url=guardian_avatar)
+        embed.set_author(
+            name=f"{guardian_name}'s Gems", icon_url=guardian_avatar)
         await ctx.send(embed=embed)
 
     @commands.command(
@@ -1721,9 +1718,6 @@ class PvP(commands.Cog):
 
             db_ailie.increase_arena_wins(winner)
             db_ailie.increase_arena_losses(loser)
-
-            db_ailie.increase_gained_trophy(winner, trophy_win)
-            db_ailie.increase_lose_trophy(loser, (-1 * trophy_lose))
 
             db_ailie.update_hero_exp(winner, winner_hero, hero_exp_win)
             db_ailie.update_hero_exp(loser, loser_hero, hero_exp_lose)

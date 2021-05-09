@@ -1031,62 +1031,6 @@ class Database():
         self.cursor.execute(query, data)
         self.connection.commit()
 
-    def get_gained_trophy(self, guardian_id):
-        query = (
-            "SELECT guardian_gained_trophy FROM guardians "
-            + "WHERE guardian_id = %s;"
-        )
-        data = [guardian_id]
-        self.cursor.execute(query, data)
-
-        gained_trophies = self.cursor.fetchone()
-
-        if isinstance(gained_trophies, tuple):
-            gained_trophies = gained_trophies[0]
-
-        return gained_trophies
-
-    def increase_gained_trophy(self, guardian_id, trophy):
-        gained_trophies = self.get_gained_trophy(guardian_id)
-
-        gained_trophies = gained_trophies + trophy
-
-        query = (
-            "UPDATE guardians SET guardian_gained_trophy = %s "
-            + "WHERE guardian_id = %s;"
-        )
-        data = [gained_trophies, guardian_id]
-        self.cursor.execute(query, data)
-        self.connection.commit()
-
-    def get_lose_trophy(self, guardian_id):
-        query = (
-            "SELECT guardian_lose_trophy FROM guardians "
-            + "WHERE guardian_id = %s;"
-        )
-        data = [guardian_id]
-        self.cursor.execute(query, data)
-
-        lose_trophies = self.cursor.fetchone()
-
-        if isinstance(lose_trophies, tuple):
-            lose_trophies = lose_trophies[0]
-
-        return lose_trophies
-
-    def increase_lose_trophy(self, guardian_id, trophy):
-        lose_trophies = self.get_lose_trophy(guardian_id)
-
-        lose_trophies = lose_trophies + trophy
-
-        query = (
-            "UPDATE guardians SET guardian_gained_trophy = %s "
-            + "WHERE guardian_id = %s;"
-        )
-        data = [lose_trophies, guardian_id]
-        self.cursor.execute(query, data)
-        self.connection.commit()
-
     def get_user_exp(self, guardian_id):
         query = (
             "SELECT guardian_exp FROM guardians "
