@@ -853,8 +853,9 @@ class PvP(commands.Cog):
             async for member in ctx.guild.fetch_members(limit=None):
                 if db_ailie.is_initialized(member.id):
                     trophy = db_ailie.get_trophy(member.id)
+                    level = db_ailie.get_user_level(member.id)
                     if trophy > 0:
-                        buffer = [trophy, member, member.id]
+                        buffer = [trophy, member, member.id, level]
                         guardian_with_trophy.append(buffer)
         elif scope.lower() in ["global", "all"]:
             await ctx.send(
@@ -866,8 +867,9 @@ class PvP(commands.Cog):
                 async for member in guild.fetch_members(limit=None):
                     if db_ailie.is_initialized(member.id):
                         trophy = db_ailie.get_trophy(member.id)
+                        level = db_ailie.get_user_level(member.id)
                         if trophy > 0:
-                            buffer = [trophy, member, member.id]
+                            buffer = [trophy, member, member.id, level]
                             if buffer not in guardian_with_trophy:
                                 guardian_with_trophy.append(buffer)
         else:
@@ -889,10 +891,12 @@ class PvP(commands.Cog):
         for barbarian in guardian_with_trophy:
             if counter == 1:
                 output = output \
-                    + f"{counter}. {barbarian[0]:,d} 🏆 - `{barbarian[1]}`"
+                    + f"{counter}. Lvl {barbarian[3]} " \
+                    + f"{barbarian[0]:,d} 🏆 - `{barbarian[1]}`"
             else:
                 output = output + \
-                    f"\n{counter}. {barbarian[0]:,d} 🏆 - `{barbarian[1]}`"
+                    f"\n{counter}. Lvl {barbarian[3]} " \
+                    + f"{barbarian[0]:,d} 🏆 - `{barbarian[1]}`"
 
             # Get username if any
             username = db_ailie.get_username(barbarian[2])
@@ -945,22 +949,19 @@ class PvP(commands.Cog):
 
         # Display trophies
         trophies = db_ailie.get_trophy(guardian_id)
-        trophies_won = db_ailie.get_gained_trophy(guardian_id)
-        trophies_lost = db_ailie.get_lose_trophy(guardian_id)
         wins = db_ailie.get_arena_wins(guardian_id)
         losses = db_ailie.get_arena_losses(guardian_id)
         db_ailie.disconnect()
         embed = discord.Embed(
             description=(
-                f"**Current Trophies**: `{trophies}`"
-                + f"\n**Trophies Won**: `{trophies_won}`"
-                + f"\n**Trophies Lost**: `{trophies_lost}`"
+                f"**Trophies**: `{trophies}`"
                 + f"\n**Wins**: `{wins}`"
                 + f"\n**Losses**: `{losses}`"
             ),
             color=discord.Color.purple()
         )
-        embed.set_author(name=f"{guardian_name}'s Gems", icon_url=guardian_avatar)
+        embed.set_author(
+            name=f"{guardian_name}'s Gems", icon_url=guardian_avatar)
         await ctx.send(embed=embed)
 
     @commands.command(
@@ -1721,9 +1722,6 @@ class PvP(commands.Cog):
 
             db_ailie.increase_arena_wins(winner)
             db_ailie.increase_arena_losses(loser)
-
-            db_ailie.increase_gained_trophy(winner, trophy_win)
-            db_ailie.increase_lose_trophy(loser, (-1 * trophy_lose))
 
             db_ailie.update_hero_exp(winner, winner_hero, hero_exp_win)
             db_ailie.update_hero_exp(loser, loser_hero, hero_exp_lose)
