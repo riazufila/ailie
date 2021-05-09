@@ -1555,7 +1555,7 @@ class PvP(commands.Cog):
                                                 participants[ec][cs][wscd]
                                             )
 
-                                    elif p["hero_skill"] in \
+                                    elif skill in \
                                             ["all_cure", "cure"]:
                                         debuffs = await self.cure(
                                                 ctx, p["debuffs"],
