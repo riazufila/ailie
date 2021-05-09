@@ -22,6 +22,14 @@ class Book(commands.Cog):
                     buffer_list.append(s.capitalize())
 
             readable_format = " ".join(buffer_list)
+        elif non_readable_format[6:7] == "_":
+            buffer_list = []
+            split = non_readable_format.split("_")
+
+            for s in split:
+                buffer_list.append(s.capitalize())
+
+            readable_format = " ".join(buffer_list)
         elif non_readable_format.lower() in ["wsrs", "dr", "hp", "cc", "aoe"]:
             readable_format = non_readable_format.upper()
         else:

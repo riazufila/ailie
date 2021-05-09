@@ -19,6 +19,7 @@ class Guardian(commands.Cog):
         return stats
 
     def translateToReadableFormat(self, non_readable_format):
+        print(non_readable_format)
         buffer_for_res = non_readable_format[::-1]
         if buffer_for_res[3:4] == "_":
             buffer_list = []
@@ -29,6 +30,14 @@ class Guardian(commands.Cog):
                     buffer_list.append("Resistance")
                 else:
                     buffer_list.append(s.capitalize())
+
+            readable_format = " ".join(buffer_list)
+        elif non_readable_format[6:7] == "_":
+            buffer_list = []
+            split = non_readable_format.split("_")
+
+            for s in split:
+                buffer_list.append(s.capitalize())
 
             readable_format = " ".join(buffer_list)
         elif non_readable_format.lower() in ["wsrs", "dr", "hp", "cc", "aoe"]:
