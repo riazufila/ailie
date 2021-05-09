@@ -161,6 +161,11 @@ class Currency(commands.Cog):
         # 50% chance of gambled gems being negative or positive
         gems_obtained = random.choices([-gems, gems], [50, 50], k=1)
 
+        # Only increase User EXP on 500 or more gamble
+        legit_gamble = False
+        if gems >= 500:
+            legit_gamble = True
+
         # Assign gem amount from array to single variable
         for gems in gems_obtained:
             gems = gems
@@ -195,7 +200,10 @@ class Currency(commands.Cog):
 
         db_ailie.store_gems(ctx.author.id, gems)
         db_ailie.store_gamble_count(ctx.author.id)
-        db_ailie.update_user_exp(ctx.author.id, 10)
+
+        if legit_gamble:
+            db_ailie.update_user_exp(ctx.author.id, 10)
+
         db_ailie.disconnect()
 
         await ctx.send(random.choice(reply))
