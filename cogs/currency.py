@@ -416,6 +416,7 @@ class Currency(commands.Cog):
         if qualified_hourly:
             gems = 500
             db_ailie.store_gems(ctx.author.id, gems)
+            db_ailie.store_gained_gems(ctx.author.id, gems)
             db_ailie.update_user_exp(ctx.author.id, 5)
             await ctx.send(
                 f"Hourly gems claimed. You obtained {gems:,d} 💎, "
@@ -450,6 +451,7 @@ class Currency(commands.Cog):
             count = db_ailie.get_daily_count(ctx.author.id)
             gems = 2500 + (200 * count)
             db_ailie.store_gems(ctx.author.id, gems)
+            db_ailie.store_gained_gems(ctx.author.id, gems)
             db_ailie.update_user_exp(ctx.author.id, 5)
             await ctx.send(
                 f"Daily gems claimed for {count} time(s). "
