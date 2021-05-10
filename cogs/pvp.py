@@ -38,12 +38,12 @@ class PvP(commands.Cog):
             elif buff.startswith("debuff"):
                 heroes[second]["stats"], heroes[second]["debuffs"] \
                     = await self.debuff(
-                    ctx, heroes[first], heroes[second], buff, buffs,
+                    ctx, heroes[first], heroes[second], buff, buffs
                 )
             else:
                 heroes[first]["stats"], heroes[first]["multipliers"] \
                     = await self.multiplier(
-                    ctx, heroes[first], heroes[first], buff, buffs,
+                    ctx, heroes[first], heroes[first], buff, buffs
                 )
 
         return heroes
@@ -63,59 +63,64 @@ class PvP(commands.Cog):
             elif buff.startswith("debuff"):
                 heroes[first]["stats"], heroes[first]["debuffs"] \
                     = await self.debuff(
-                    ctx, heroes[second], heroes[first], buff, buffs,
+                    ctx, heroes[second], heroes[first], buff, buffs
                 )
             else:
                 heroes[second]["stats"], heroes[second]["multipliers"] \
                     = await self.multiplier(
-                    ctx, heroes[second], heroes[second], buff, buffs,
+                    ctx, heroes[second], heroes[second], buff, buffs
                 )
 
         return heroes
 
     async def multiplier(
             self, ctx, actor, victim, multiplier, multipliers):
-        multipliers = self.initMultiplier()
-        multiplier = multiplier[7:]
+        multipliers_buffer = self.initMultiplier()
+        if multiplier.startswith("all"):
+            multi = multiplier[4:]
+        else:
+            multi = multiplier
+
+        multipliers_buffer[multi] = multipliers[multiplier]
+
+        # Enter multipliers buffer in a list of many multipliers
+        victim["multipliers"].append(multipliers_buffer)
 
         # Update stats after multiplier
-        victim["stats"], multipliers, \
-            victim["multipliers"], \
+        victim["stats"], victim["multipliers"], \
             victim["current_state"]["weapon_skill_cd"] = \
             self.updateStatsAfterMultiplierDebuff(
-                victim, victim["multipliers"], multipliers)
-
-        # Enter multipliers in a list of many multipliers
-        victim["multipliers"].append(multipliers)
+                victim, victim["multipliers"])
 
         multiplier = self.translateToReadableFormat(multiplier)
         await ctx.send(
             f"{actor['color']} **{victim['hero_name']}**'s "
             + f"{multiplier} is buffed!"
         )
+        await asyncio.sleep(2)
 
         return victim["stats"], victim["multipliers"]
 
     async def debuff(self, ctx, actor, victim, debuff, debuffs):
-        debuffs = self.initDebuff()
-        debuff = debuff[7:]
-        debuffs[debuff] = -1 * debuffs[debuff]
+        debuffs_buffer = self.initDebuff()
+        debuffs_buffer[debuff[7:]] = -1 * debuffs[debuff]
+
+        # Enter debuffs in a list of many debuffs
+        victim["debuffs"].append(debuffs_buffer)
 
         # Update stats after debuff
-        victim["stats"], debuffs, \
+        victim["stats"], \
             victim["debuffs"], \
             victim["current_state"]["weapon_skill_cd"] = \
             self.updateStatsAfterMultiplierDebuff(
-                victim, victim["debuffs"], debuffs)
-
-        # Enter debuffs in a list of many debuffs
-        victim["debuffs"].append(debuffs)
+                victim, victim["debuffs"])
 
         debuff = self.translateToReadableFormat(debuff)
         await ctx.send(
             f"{actor['color']} **{victim['hero_name']}**'s "
             + f"{debuff} is debuffed!"
         )
+        await asyncio.sleep(2)
 
         return victim["stats"], victim["debuffs"]
 
@@ -142,55 +147,54 @@ class PvP(commands.Cog):
         await ctx.send(
             f"{hero['color']} **{hero['hero_name']}** is cured!"
         )
+        await asyncio.sleep(2)
 
         return hero["stats"], hero["debuffs"]
 
     def updateStatsAfterMultiplierDebuff(
-            self, hero, all_multipliers_debuffs, multipliers_debuffs):
+            self, hero, all_multipliers_debuffs):
         wsrs_check = False
-        for multiplier_debuff in multipliers_debuffs:
-            # Only update with those that have count 3 and is not checked
-            if multipliers_debuffs["count"] > 1 and \
-                    not multipliers_debuffs["check"]:
-                print("got here maybe?")
-                if multiplier_debuff not in ["count", "check"]:
-                    if multiplier_debuff in ["attack", "hp", "def"]:
-                        hero["stats"][multiplier_debuff] = round(
-                            hero["stats"][multiplier_debuff]
-                            * ((100 + multipliers_debuffs[multiplier_debuff])
-                                / 100)
-                        )
-                    else:
-                        if multiplier_debuff == "wsrs":
-                            wsrs_check = True
+        for multipliers_debuffs in all_multipliers_debuffs:
+            for multiplier_debuff in multipliers_debuffs:
+                # Only update with those that have count 3 and is not checked
+                if multipliers_debuffs["count"] > 1 and \
+                        not multipliers_debuffs["check"]:
+                    if multiplier_debuff not in ["count", "check"]:
+                        if multiplier_debuff in ["attack", "hp", "def"]:
+                            hero["stats"][multiplier_debuff] = round(
+                                hero["stats"][multiplier_debuff]
+                                * ((100
+                                    + multipliers_debuffs[multiplier_debuff])
+                                    / 100)
+                            )
+                        else:
+                            if multiplier_debuff == "wsrs":
+                                wsrs_check = True
 
-                        hero["stats"][multiplier_debuff] = \
-                            hero["stats"][multiplier_debuff] + \
-                            multipliers_debuffs[multiplier_debuff]
-                # After stats are done updating, set to checked.
-                multipliers_debuffs["check"] = True
-            elif multipliers_debuffs["count"] == 1 and \
-                    multipliers_debuffs["check"]:
-                print("got here?")
-                if multiplier_debuff not in ["count", "check"]:
-                    if multiplier_debuff in ["attack", "hp", "def"]:
-                        hero["stats"][multiplier_debuff] = round(
-                            hero["stats"][multiplier_debuff]
-                            * (100
-                                / (100
-                                    + multipliers_debuffs[multiplier_debuff]))
-                        )
-                    else:
-                        hero["stats"][multiplier_debuff] = \
-                            hero["stats"][multiplier_debuff] - \
-                            multipliers_debuffs[multiplier_debuff]
-                # Remove after stats are updated
-                print("before remove")
-                print(all_multipliers_debuffs)
-                all_multipliers_debuffs.remove(multipliers_debuffs)
-                print("after remove")
-            else:
-                pass
+                            hero["stats"][multiplier_debuff] = \
+                                hero["stats"][multiplier_debuff] + \
+                                multipliers_debuffs[multiplier_debuff]
+                    # After stats are done updating, set to checked.
+                    multipliers_debuffs["check"] = True
+                elif multipliers_debuffs["count"] == 1 and \
+                        multipliers_debuffs["check"]:
+                    if multiplier_debuff not in ["count", "check"]:
+                        if multiplier_debuff in ["attack", "hp", "def"]:
+                            hero["stats"][multiplier_debuff] = round(
+                                hero["stats"][multiplier_debuff]
+                                * (100
+                                    / (100 +
+                                        multipliers_debuffs[multiplier_debuff]))
+                            )
+                        else:
+                            hero["stats"][multiplier_debuff] = \
+                                hero["stats"][multiplier_debuff] - \
+                                multipliers_debuffs[multiplier_debuff]
+                    # Remove after stats are updated
+                    if multipliers_debuffs in all_multipliers_debuffs:
+                        all_multipliers_debuffs.remove(multipliers_debuffs)
+                else:
+                    pass
 
         # If wsrs is updated
         if wsrs_check:
@@ -200,7 +204,7 @@ class PvP(commands.Cog):
                     hero["stats"]["wsrs"]
                 )
 
-        return hero["stats"], multipliers_debuffs, \
+        return hero["stats"], \
             all_multipliers_debuffs, \
             hero["current_state"]["weapon_skill_cd"]
 
@@ -244,6 +248,7 @@ class PvP(commands.Cog):
         if miss:
             await ctx.send(
                 f"{actor['color']} **{actor['hero_name']}** missed.")
+            await asyncio.sleep(2)
 
         if not miss:
             if total_damage < 0:
@@ -259,6 +264,7 @@ class PvP(commands.Cog):
                 + f"{move_type} and `dealt {total_damage:,d}` "
                 + f"{damage_type}!"
             )
+            await asyncio.sleep(2)
 
             if victim["stats"]["hp"] < 0:
                 end = True
@@ -275,6 +281,7 @@ class PvP(commands.Cog):
                     + f"**{victim['hero_name']}"
                     + f"** has died! **{actor['hero_name']}** won!"
                 )
+                await asyncio.sleep(2)
 
             else:
                 await ctx.send(
@@ -284,6 +291,7 @@ class PvP(commands.Cog):
                     + f"`{victim['stats']['hp']}"
                     + f"`/`{victim['max_hp']}` HP left!"
                 )
+                await asyncio.sleep(2)
 
         return actor["stats"]["hp"], victim["stats"]["hp"], end, winner, loser
 
@@ -299,10 +307,12 @@ class PvP(commands.Cog):
             f"{hero['color']} `{heal:,d}` HP healed to "
             + f"**{hero['hero_name']}**.\n"
         )
+        await asyncio.sleep(2)
         await ctx.send(
             f"{hero['color']} **{hero['hero_name']}** current HP is "
-            + f"`{hp_after_heal}`/`{hero['max_hp']}`"
+            + f"`{hp_after_heal}`/`{hero['max_hp']}`."
         )
+        await asyncio.sleep(2)
 
         return hp_after_heal
 
@@ -443,9 +453,9 @@ class PvP(commands.Cog):
 
     def initCurrentState(self):
         return {
-            "weapon_skill_cd": 5,
-            "on_normal_skill_cd": 5,
-            "on_hit_skill_cd": 5,
+            "weapon_skill_cd": 0,
+            "on_normal_skill_cd": 0,
+            "on_hit_skill_cd": 0,
             "stunned": 0,
         }
 
@@ -769,16 +779,22 @@ class PvP(commands.Cog):
                 text="Enter the number respective to your choice of move.")
 
             for hero in heroes:
-                if hero["current_state"]["weapon_skill_cd"] != 0:
+                index = heroes.index(hero)
+                if index == 0:
+                    other_index = 1
+                else:
+                    other_index = 0
+
+                if heroes[index]["current_state"]["weapon_skill_cd"] != 0:
                     ws_cd = \
-                        f"`{str(hero['current_state']['weapon_skill_cd'])}` ❌"
+                        f"`{str(hero['current_state']['weapon_skill_cd'])}`"
                 else:
                     ws_cd = "✅"
 
-                if hero["current_state"]["weapon_skill_cd"] != 0:
-                    cs_cd = "❌"
-                else:
+                if heroes[other_index]["current_state"]["stunned"] != 0:
                     cs_cd = "✅"
+                else:
+                    cs_cd = "❌"
                 moves = (
                     "1. **Attack**"
                     + f"\n2. **({ws_cd}) Weapon Skill**"
@@ -789,10 +805,11 @@ class PvP(commands.Cog):
                 embed.add_field(
                     name=f"{hero['guardian_name']}'s Moves", value=moves)
 
+            await asyncio.sleep(1)
             await ctx.send(embed=embed)
 
             # Prompt for each player to enter their move
-            await asyncio.sleep(1)
+            await asyncio.sleep(3)
             msg = await ctx.send(
                 f"<@{heroes[0]['guardian_id']}> and "
                 + f"<@{heroes[1]['guardian_id']}>, please go ahead and "
@@ -847,8 +864,6 @@ class PvP(commands.Cog):
                 else:
                     await ctx.send("A problem occured.")
 
-            await ctx.send(f"<@{choices[0][0]}> moves first.")
-
             # Now process the choice for each player
             for choice in choices:
                 # Determining in which index is the the one who first
@@ -865,6 +880,10 @@ class PvP(commands.Cog):
                         else:
                             second = 0
 
+                # Indicator of who's move it is
+                await ctx.send(f"<@{heroes[first]['guardian_id']}>'s turn.")
+                await asyncio.sleep(2)
+
                 # Move choices available for players
                 # Attack Move
                 if choice[1] == 1 and \
@@ -875,7 +894,7 @@ class PvP(commands.Cog):
                     # Trigger buffs on attack
                     if heroes[first]["current_state"]["on_normal_skill_cd"] \
                             == 0:
-                        if "on_normal" in heroes[first]["skill"]:
+                        if "on_normal" in heroes[first]["triggers"]:
                             heroes = await self.goingToAttackPleaseBuff(
                                 ctx, heroes, first, second,
                                 heroes[first]["triggers"]["on_normal"],
@@ -884,7 +903,7 @@ class PvP(commands.Cog):
 
                     # Trigger buffs to victim
                     if heroes[second]["current_state"]["on_hit_skill_cd"] == 0:
-                        if "on_hit" in heroes[second]["skill"]:
+                        if "on_hit" in heroes[second]["triggers"]:
                             heroes = await self.gotHitPleaseBuff(
                                 ctx, heroes, first, second,
                                 heroes[second]["triggers"]["on_hit"],
@@ -903,20 +922,44 @@ class PvP(commands.Cog):
                 elif choice[1] == 2 and \
                         heroes[first]["current_state"]["stunned"] == 0:
                     if heroes[first]["current_state"]["weapon_skill_cd"] == 0:
+                        # Trigger buffs on attack
+                        if heroes[first]["current_state"]["on_normal_skill_cd"] \
+                                == 0:
+                            if "on_normal" in heroes[first]["triggers"]:
+                                heroes = await self.goingToAttackPleaseBuff(
+                                    ctx, heroes, first, second,
+                                    heroes[first]["triggers"]["on_normal"],
+                                )
+                            heroes[first]["current_state"]["on_normal_skill_cd"] = 5
+
+                        # Trigger buffs to victim
+                        if heroes[second]["current_state"]["on_hit_skill_cd"] == 0:
+                            if "on_hit" in heroes[second]["triggers"]:
+                                heroes = await self.gotHitPleaseBuff(
+                                    ctx, heroes, first, second,
+                                    heroes[second]["triggers"]["on_hit"],
+                                )
+                            heroes[second]["current_state"]["on_hit_skill_cd"] = 5
+
+                        # Weapon Skill calculations
                         miss = self.is_miss(heroes[second]["stats"]["speed"])
                         if not miss:
                             heroes[second]["current_state"]["stunned"] = 3
                             await ctx.send(
                                 f"{heroes[first]['color']} "
+                                + f"**{heroes[first]['hero_name']}** "
+                                + "used weapon skill and stunned "
                                 + f"**{heroes[second]['hero_name']}** "
-                                + "is stunned for 3 rounds!"
+                                + "for 3 rounds!"
                             )
+                            await asyncio.sleep(2)
                         else:
                             await ctx.send(
                                 f"{heroes[first]['color']} "
                                 + f"**{heroes[first]['hero_name']}** "
                                 + "missed!"
                             )
+                            await asyncio.sleep(2)
                         heroes[first]["current_state"]["weapon_skill_cd"] = \
                             self.calcWeapSkillCooldown(
                                 5, heroes[first]["stats"]["wsrs"])
@@ -927,6 +970,25 @@ class PvP(commands.Cog):
                     move_type = "chain skill"
                     percent_damage = heroes[first]["skill"]["damage"]
                     activated_chain = False
+
+                    # Trigger buffs on attack
+                    if heroes[first]["current_state"]["on_normal_skill_cd"] \
+                            == 0:
+                        if "on_normal" in heroes[first]["triggers"]:
+                            heroes = await self.goingToAttackPleaseBuff(
+                                ctx, heroes, first, second,
+                                heroes[first]["triggers"]["on_normal"],
+                            )
+                        heroes[first]["current_state"]["on_normal_skill_cd"] = 5
+
+                    # Trigger buffs to victim
+                    if heroes[second]["current_state"]["on_hit_skill_cd"] == 0:
+                        if "on_hit" in heroes[second]["triggers"]:
+                            heroes = await self.gotHitPleaseBuff(
+                                ctx, heroes, first, second,
+                                heroes[second]["triggers"]["on_hit"],
+                            )
+                        heroes[second]["current_state"]["on_hit_skill_cd"] = 5
 
                     # Buffs from activating chain skill
                     if heroes[second]["current_state"]["stunned"] != 0:
@@ -970,6 +1032,7 @@ class PvP(commands.Cog):
 
                     await ctx.send(
                         f"<@{heroes[first]['guardian_id']}> surrendered!")
+                    await asyncio.sleep(2)
 
                 # Pass everything else
                 else:
@@ -982,6 +1045,23 @@ class PvP(commands.Cog):
                         + f"**{heroes[first]['hero_name']}** "
                         + "is stunned!"
                     )
+                    await asyncio.sleep(2)
+
+                # Update stats after multipliers
+                for hero in heroes:
+                    hero["stats"], hero["multipliers"], \
+                        hero["current_state"]["weapon_skill_cd"] = \
+                        self.updateStatsAfterMultiplierDebuff(
+                            hero, hero["multipliers"]
+                        )
+
+                # Update stats after debuffs
+                for hero in heroes:
+                    hero["stats"], hero["debuffs"], \
+                        hero["current_state"]["weapon_skill_cd"] = \
+                        self.updateStatsAfterMultiplierDebuff(
+                            hero, hero["debuffs"]
+                        )
 
                 # Update cooldown and more
                 if heroes[first]["current_state"]["weapon_skill_cd"] != 0:
@@ -1053,11 +1133,12 @@ class PvP(commands.Cog):
                         f"<@{winner['guardian_id']}>, wins and obtained "
                         + f"{trophy_win} 🏆 and {gems} 💎."
                     )
-                    await asyncio.sleep(1)
+                    await asyncio.sleep(2)
                     await ctx.send(
                         f"<@{loser['guardian_id']}>, "
                         + f"losses {-1 * trophy_lose} 🏆. Boooooo."
                     )
+                    await asyncio.sleep(2)
                     break
 
 
