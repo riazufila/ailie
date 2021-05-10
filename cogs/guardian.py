@@ -9,11 +9,14 @@ class Guardian(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    def heroStatsLevel(self, stats, level, user_level):
+    def heroStatsLevel(self, stats, hero_level, user_level):
+        # Increase overall stats
         for stat in stats:
             if stat in ["attack", "hp", "def"]:
                 stats[stat] = round(
-                    stats[stat] * ((100 + level + user_level - 1) / 100)
+                    stats[stat]
+                    + (200 * (((hero_level - 1) / 100) * 2))
+                    + (200 * (((user_level - 1) / 100) * 2))
                 )
 
         return stats
