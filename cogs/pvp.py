@@ -361,12 +361,19 @@ class PvP(commands.Cog):
         return stats
 
     def multiplyStatsWithLevels(self, stats, hero_level, user_level):
+        # Increase overall stats
         for stat in stats:
             if stat in ["attack", "hp", "def"]:
                 stats[stat] = round(
-                    stats[stat] * (
-                        (100 + hero_level + user_level - 1) / 100)
+                    stats[stat]
+                    + (200 * (((hero_level - 1) / 100) * 2))
+                    + (200 * (((user_level - 1) / 100) * 2))
                 )
+
+        # Increase stats specifically for arena
+        for stat in stats:
+            if stat in ["hp"]:
+                stats[stat] = stats[stat] * 2
 
         return stats
 
@@ -849,16 +856,37 @@ class PvP(commands.Cog):
                     return
                 elif isinstance(error, asyncio.TimeoutError) \
                         and len(choices) == 1:
-                    quitter = None
+                    winner_id = ""
+                    winner_hero = ""
+                    quitter_id = ""
+                    quitter_hero = ""
                     for choice in choices:
                         if choice[0] == heroes[0]["guardian_id"]:
-                            quitter = heroes[1]["guardian_id"]
+                            winner_id = heroes[0]["guardian_id"]
+                            winner_hero = heroes[0]["hero_name"]
+
+                            quitter_id = heroes[1]["guardian_id"]
+                            quitter_hero = heroes[1]["hero_name"]
                         else:
-                            quitter = heroes[0]["guardian_id"]
+                            winner_id = heroes[1]["guardian_id"]
+                            winner_hero = heroes[1]["hero_name"]
+
+                            quitter_id = heroes[0]["guardian_id"]
+                            quitter_hero = heroes[0]["hero_name"]
+
+                    if round >= 3:
+                        winner = {
+                            "guardian_id": winner_id,
+                            "hero_name": winner_hero
+                        }
+                        loser = {
+                            "guardian_id": quitter_id,
+                            "hero_name": quitter_hero
+                        }
 
                     await ctx.send(
                         "Don't get involved in something you can't finish, "
-                        + f"<@{quitter}>!"
+                        + f"<@{quitter_id}>!"
                     )
                     return
                 else:
