@@ -969,7 +969,7 @@ class PvP(commands.Cog):
             await ctx.send(embed=embed)
 
             # Prompt for each player to enter their move
-            await asyncio.sleep(3)
+            await asyncio.sleep(5)
             msg = await ctx.send(
                 f"<@{heroes[0]['guardian_id']}> and "
                 + f"<@{heroes[1]['guardian_id']}>, please go ahead and "
@@ -977,9 +977,9 @@ class PvP(commands.Cog):
             )
             await asyncio.sleep(1)
             await msg.edit(content=msg.content + "\n3..")
-            await asyncio.sleep(1.5)
+            await asyncio.sleep(1)
             await msg.edit(content=msg.content + "\n2..")
-            await asyncio.sleep(3)
+            await asyncio.sleep(1)
             await msg.edit(content=msg.content + "\n1!")
 
             players = [heroes[0]["guardian_id"], heroes[1]["guardian_id"]]
