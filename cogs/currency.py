@@ -466,7 +466,7 @@ class Currency(commands.Cog):
             db_ailie.store_gained_gems(ctx.author.id, gems)
             db_ailie.update_user_exp(ctx.author.id, 5)
             await ctx.send(
-                f"Daily gems claimed for {count} time(s). "
+                f"Daily gems claimed for {count} time(s) already. "
                 + f"You obtained {gems:,d} 💎, <@{ctx.author.id}>!"
             )
         else:
