@@ -1060,8 +1060,14 @@ class Database():
 
     def update_user_exp(self, guardian_id, exp):
         user_exp = self.get_user_exp(guardian_id)
-
         user_exp = user_exp + exp
+
+        # Set max level
+        max_level = 500
+        max_exp = (max_level - 1) * 100
+
+        if user_exp >= max_exp:
+            user_exp = max_exp
 
         query = (
             "UPDATE guardians SET guardian_exp = %s "
