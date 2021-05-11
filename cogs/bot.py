@@ -88,6 +88,10 @@ class Bot(commands.Cog):
                 f"Yo, <@{ctx.author.id}>! CHILL? "
                 + "Someone is already doing that command!"
             )
+        elif isinstance(error, commands.NotOwner):
+            await ctx.send("That command is only for my awesome creator.")
+        elif isinstance(error, ConnectionResetError):
+            await ctx.send("We just got rate limited by Discord *sad*")
         else:
             await self.notifyOwner(ctx, error)
 
