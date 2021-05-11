@@ -22,7 +22,6 @@ class Guardian(commands.Cog):
         return stats
 
     def translateToReadableFormat(self, non_readable_format):
-        print(non_readable_format)
         buffer_for_res = non_readable_format[::-1]
         if buffer_for_res[3:4] == "_":
             buffer_list = []

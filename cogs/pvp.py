@@ -125,7 +125,6 @@ class PvP(commands.Cog):
         return victim["stats"], victim["debuffs"]
 
     async def removeAllDebuff(self, ctx, hero):
-        # Put debuffs in count 1
         if len(hero["debuffs"]) > 0:
             for debuff in hero["debuffs"]:
                 # Calculate new stats when debuff is removed
@@ -155,10 +154,11 @@ class PvP(commands.Cog):
             self, hero, all_multipliers_debuffs):
         wsrs_check = False
         for multipliers_debuffs in all_multipliers_debuffs:
-            for multiplier_debuff in multipliers_debuffs:
-                # Only update with those that have count 3 and is not checked
-                if multipliers_debuffs["count"] > 1 and \
-                        not multipliers_debuffs["check"]:
+            if multipliers_debuffs["count"] > 1 and \
+                    not multipliers_debuffs["check"]:
+                for multiplier_debuff in multipliers_debuffs:
+                    # Only update with those that have count 3
+                    # and is not checked
                     if multiplier_debuff not in ["count", "check"]:
                         if multiplier_debuff in ["attack", "hp", "def"]:
                             hero["stats"][multiplier_debuff] = round(
@@ -176,8 +176,9 @@ class PvP(commands.Cog):
                                 multipliers_debuffs[multiplier_debuff]
                     # After stats are done updating, set to checked.
                     multipliers_debuffs["check"] = True
-                elif multipliers_debuffs["count"] == 1 and \
-                        multipliers_debuffs["check"]:
+            elif multipliers_debuffs["count"] == 1 and \
+                    multipliers_debuffs["check"]:
+                for multiplier_debuff in multipliers_debuffs:
                     if multiplier_debuff not in ["count", "check"]:
                         if multiplier_debuff in ["attack", "hp", "def"]:
                             hero["stats"][multiplier_debuff] = round(
@@ -190,11 +191,10 @@ class PvP(commands.Cog):
                             hero["stats"][multiplier_debuff] = \
                                 hero["stats"][multiplier_debuff] - \
                                 multipliers_debuffs[multiplier_debuff]
-                    # Remove after stats are updated
-                    if multipliers_debuffs in all_multipliers_debuffs:
-                        all_multipliers_debuffs.remove(multipliers_debuffs)
-                else:
-                    pass
+                # Remove after stats are updated
+                all_multipliers_debuffs.remove(multipliers_debuffs)
+            else:
+                pass
 
         # If wsrs is updated
         if wsrs_check:
@@ -460,9 +460,9 @@ class PvP(commands.Cog):
 
     def initCurrentState(self):
         return {
-            "weapon_skill_cd": 0,
-            "on_normal_skill_cd": 0,
-            "on_hit_skill_cd": 0,
+            "weapon_skill_cd": 5,
+            "on_normal_skill_cd": 5,
+            "on_hit_skill_cd": 5,
             "stunned": 0,
         }
 
@@ -967,7 +967,8 @@ class PvP(commands.Cog):
                                     ctx, heroes, first, second,
                                     heroes[second]["triggers"]["on_hit"],
                                 )
-                            heroes[second]["current_state"]["on_hit_skill_cd"] = 5
+                            heroes[second]["current_state"]["on_hit_skill_cd"] \
+                                = 5
 
                         # Weapon Skill calculations
                         miss = self.is_miss(heroes[second]["stats"]["speed"])
