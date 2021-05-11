@@ -622,7 +622,7 @@ class PvP(commands.Cog):
 
         if scope.lower() in ["server"]:
             logical_whereabouts = ctx.guild.name
-            async for member in ctx.guild.fetch_members(limit=None):
+            for member in ctx.guild.members:
                 if db_ailie.is_initialized(member.id):
                     trophy = db_ailie.get_trophy(member.id)
                     level = db_ailie.get_user_level(member.id)
@@ -636,7 +636,7 @@ class PvP(commands.Cog):
             )
             logical_whereabouts = "Global"
             for guild in self.bot.guilds:
-                async for member in guild.fetch_members(limit=None):
+                for member in guild.members:
                     if db_ailie.is_initialized(member.id):
                         trophy = db_ailie.get_trophy(member.id)
                         level = db_ailie.get_user_level(member.id)
