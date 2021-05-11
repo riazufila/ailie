@@ -323,6 +323,12 @@ class Currency(commands.Cog):
                 + "or `global`."
             )
 
+        # If no one has gems
+        if not guardian_with_gems:
+            await ctx.send("No one has trophies.")
+            db_ailie.disconnect()
+            return
+
         # Display richest user in discord server
         guardian_with_gems_sorted = sorted(guardian_with_gems)[::-1]
         guardian_with_gems = guardian_with_gems_sorted[:10]
