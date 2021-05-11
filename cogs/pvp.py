@@ -845,8 +845,11 @@ class PvP(commands.Cog):
             def check(message):
                 if message.channel == ctx.channel \
                         and message.author.id in players \
-                        and message.content in ["1", "2", "3", "4", "5"]:
-                    choices.append([message.author.id, int(message.content)])
+                        and message.content.lower() in [
+                            "a", "ws", "cs", "e", "s",
+                            "1", "2", "3", "4", "5"
+                        ]:
+                    choices.append([message.author.id, message.content.lower()])
                     players.remove(message.author.id)
                     if len(players) == 0:
                         return True
@@ -924,7 +927,7 @@ class PvP(commands.Cog):
 
                 # Move choices available for players
                 # Attack Move
-                if choice[1] == 1 and \
+                if choice[1].lower() in ["a", "1"] and \
                         heroes[first]["current_state"]["stunned"] == 0:
                     move_type = "attack"
                     percent_damage = heroes[first]["stats"]["normal"]
@@ -957,7 +960,7 @@ class PvP(commands.Cog):
                         )
 
                 # Weapon Skill Move
-                elif choice[1] == 2 and \
+                elif choice[1].lower() in ["ws", "2"] and \
                         heroes[first]["current_state"]["stunned"] == 0:
                     if heroes[first]["current_state"]["weapon_skill_cd"] == 0:
                         # Trigger buffs on attack
@@ -1012,7 +1015,7 @@ class PvP(commands.Cog):
                         await asyncio.sleep(2)
 
                 # Chain Skill Move
-                elif choice[1] == 3 and \
+                elif choice[1].lower() in ["cs", "3"] and \
                         heroes[first]["current_state"]["stunned"] == 0:
                     move_type = "chain skill"
                     percent_damage = heroes[first]["skill"]["damage"]
@@ -1061,7 +1064,7 @@ class PvP(commands.Cog):
                         await asyncio.sleep(2)
 
                 # Evade Move
-                elif choice[1] == 4 and \
+                elif choice[1].lower() in ["e", "4"] and \
                         heroes[first]["current_state"]["stunned"] == 0:
                     if heroes[first]["current_state"]["evade_cd"] == 0:
                         evasion_buff = {"speed": 50}
@@ -1073,7 +1076,8 @@ class PvP(commands.Cog):
                         await ctx.send(
                             f"{heroes[first]['color']} "
                             + f"**{heroes[first]['hero_name']}** "
-                            + "tries to evade the next attack!"
+                            + "tries to evade the next attack "
+                            + "in the nearest time!"
                         )
                         await asyncio.sleep(2)
                     else:
@@ -1085,7 +1089,7 @@ class PvP(commands.Cog):
                         await asyncio.sleep(2)
 
                 # Surrender
-                elif choice[1] == 5 and \
+                elif choice[1].lower() in ["s", "5"] and \
                         heroes[first]["current_state"]["stunned"] == 0:
                     end = True
                     if round >= 3:
