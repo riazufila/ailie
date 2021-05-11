@@ -687,6 +687,56 @@ class PvP(commands.Cog):
         await ctx.send(embed=embed)
 
     @commands.command(
+        name="trophy",
+        brief="Check trophies.",
+        description="Check the amount of your current trophies.",
+        aliases=["trophies"]
+    )
+    async def trophy(self, ctx, mention: discord.Member = None):
+        # Check if user is initialized first
+        db_ailie = Database()
+        if not db_ailie.is_initialized(ctx.author.id):
+            await ctx.send(
+                "Do `ailie;initialize` or `a;initialize` "
+                + "first before anything!"
+            )
+            db_ailie.disconnect()
+            return
+
+        # Check if person mentioned is initialized
+        if mention:
+            if not db_ailie.is_initialized(mention.id):
+                await ctx.send(f"{mention.mention} is not initialized yet!")
+                db_ailie.disconnect()
+                return
+
+        if mention is None:
+            guardian_id = ctx.author.id
+            guardian_name = ctx.author.name
+            guardian_avatar = ctx.author.avatar_url
+        else:
+            guardian_id = mention.id
+            guardian_name = mention.name
+            guardian_avatar = mention.avatar_url
+
+        # Display trophies
+        trophies = db_ailie.get_trophy(guardian_id)
+        wins = db_ailie.get_arena_wins(guardian_id)
+        losses = db_ailie.get_arena_losses(guardian_id)
+        db_ailie.disconnect()
+        embed = discord.Embed(
+            description=(
+                f"**Trophies**: `{trophies}`"
+                + f"\n**Wins**: `{wins}`"
+                + f"\n**Losses**: `{losses}`"
+            ),
+            color=discord.Color.purple()
+        )
+        embed.set_author(
+            name=f"{guardian_name}'s Gems", icon_url=guardian_avatar)
+        await ctx.send(embed=embed)
+
+    @commands.command(
         name="arena",
         brief="Play arena.",
         description=(
