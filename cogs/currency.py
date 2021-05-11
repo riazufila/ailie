@@ -305,7 +305,7 @@ class Currency(commands.Cog):
                     gems = db_ailie.get_gems(member.id)
                     level = db_ailie.get_user_level(member.id)
                     if gems != 0:
-                        buffer = [gems, member, member.id, level]
+                        buffer = [gems, str(member), member.id, level]
                         guardian_with_gems.append(buffer)
         elif scope.lower() in ["global", "all"]:
             await ctx.send(
@@ -319,7 +319,7 @@ class Currency(commands.Cog):
                         gems = db_ailie.get_gems(member.id)
                         level = db_ailie.get_user_level(member.id)
                         if gems != 0:
-                            buffer = [gems, member, member.id, level]
+                            buffer = [gems, str(member), member.id, level]
                             if buffer not in guardian_with_gems:
                                 guardian_with_gems.append(buffer)
         else:
@@ -335,7 +335,7 @@ class Currency(commands.Cog):
             return
 
         # Display richest user in discord server
-        guardian_with_gems_sorted = sorted(guardian_with_gems)[::-1]
+        guardian_with_gems_sorted = sorted(guardian_with_gems, reverse=True)
         guardian_with_gems = guardian_with_gems_sorted[:10]
         counter = 1
         for whales in guardian_with_gems:
