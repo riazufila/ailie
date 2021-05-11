@@ -951,17 +951,18 @@ class PvP(commands.Cog):
                         heroes[first]["current_state"]["stunned"] == 0:
                     if heroes[first]["current_state"]["weapon_skill_cd"] == 0:
                         # Trigger buffs on attack
-                        if heroes[first]["current_state"]["on_normal_skill_cd"] \
+                        cs = "current_state"
+                        if heroes[first][cs]["on_normal_skill_cd"] \
                                 == 0:
                             if "on_normal" in heroes[first]["triggers"]:
                                 heroes = await self.goingToAttackPleaseBuff(
                                     ctx, heroes, first, second,
                                     heroes[first]["triggers"]["on_normal"],
                                 )
-                            heroes[first]["current_state"]["on_normal_skill_cd"] = 5
+                            heroes[first][cs]["on_normal_skill_cd"] = 5
 
                         # Trigger buffs to victim
-                        if heroes[second]["current_state"]["on_hit_skill_cd"] == 0:
+                        if heroes[second][cs]["on_hit_skill_cd"] == 0:
                             if "on_hit" in heroes[second]["triggers"]:
                                 heroes = await self.gotHitPleaseBuff(
                                     ctx, heroes, first, second,
