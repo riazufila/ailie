@@ -38,12 +38,12 @@ class PvP(commands.Cog):
             elif buff.startswith("debuff"):
                 heroes[second]["stats"], heroes[second]["debuffs"] \
                     = await self.debuff(
-                    ctx, heroes[first], heroes[second], buff, buffs
+                    ctx, heroes[first], heroes[second], buff, buffs, 3
                 )
             else:
                 heroes[first]["stats"], heroes[first]["multipliers"] \
                     = await self.multiplier(
-                    ctx, heroes[first], heroes[first], buff, buffs
+                    ctx, heroes[first], heroes[first], buff, buffs, 3
                 )
 
         return heroes
@@ -63,19 +63,19 @@ class PvP(commands.Cog):
             elif buff.startswith("debuff"):
                 heroes[first]["stats"], heroes[first]["debuffs"] \
                     = await self.debuff(
-                    ctx, heroes[second], heroes[first], buff, buffs
+                    ctx, heroes[second], heroes[first], buff, buffs, 3
                 )
             else:
                 heroes[second]["stats"], heroes[second]["multipliers"] \
                     = await self.multiplier(
-                    ctx, heroes[second], heroes[second], buff, buffs
+                    ctx, heroes[second], heroes[second], buff, buffs, 3
                 )
 
         return heroes
 
     async def multiplier(
-            self, ctx, actor, victim, multiplier, multipliers):
-        multipliers_buffer = self.initMultiplier()
+            self, ctx, actor, victim, multiplier, multipliers, count):
+        multipliers_buffer = self.initMultiplier(count)
         if multiplier.startswith("all"):
             multi = multiplier[4:]
         else:
@@ -101,8 +101,8 @@ class PvP(commands.Cog):
 
         return victim["stats"], victim["multipliers"]
 
-    async def debuff(self, ctx, actor, victim, debuff, debuffs):
-        debuffs_buffer = self.initDebuff()
+    async def debuff(self, ctx, actor, victim, debuff, debuffs, count):
+        debuffs_buffer = self.initDebuff(count)
         debuffs_buffer[debuff[7:]] = -1 * debuffs[debuff]
 
         # Enter debuffs in a list of many debuffs
@@ -154,8 +154,8 @@ class PvP(commands.Cog):
             self, hero, all_multipliers_debuffs):
         wsrs_check = False
         for multipliers_debuffs in all_multipliers_debuffs:
-            if multipliers_debuffs["count"] > 1 and \
-                    not multipliers_debuffs["check"]:
+            # if multipliers_debuffs["count"] > 1 and \
+            if not multipliers_debuffs["check"]:
                 for multiplier_debuff in multipliers_debuffs:
                     # Only update with those that have count 3
                     # and is not checked
@@ -463,12 +463,13 @@ class PvP(commands.Cog):
             "weapon_skill_cd": 5,
             "on_normal_skill_cd": 5,
             "on_hit_skill_cd": 5,
+            "evade_cd": 3,
             "stunned": 0,
         }
 
-    def initMultiplier(self):
+    def initMultiplier(self, count):
         return {
-            "count": 3,
+            "count": count,
             "check": False,
             "attack": 0,
             "cc": 0,
@@ -487,9 +488,9 @@ class PvP(commands.Cog):
             "wsrs": 0,
         }
 
-    def initDebuff(self):
+    def initDebuff(self, count):
         return {
-            "count": 3,
+            "count": count,
             "check": False,
             "attack": 0,
             "cc": 0,
@@ -999,52 +1000,72 @@ class PvP(commands.Cog):
                         heroes[first]["current_state"]["stunned"] == 0:
                     move_type = "chain skill"
                     percent_damage = heroes[first]["skill"]["damage"]
-                    activated_chain = False
 
-                    # Trigger buffs on attack
-                    if heroes[first]["current_state"]["on_normal_skill_cd"] \
-                            == 0:
-                        if "on_normal" in heroes[first]["triggers"]:
+                    if heroes[second]["current_state"]["stunned"] != 0:
+                        cs = "current_state"
+                        # Trigger buffs on attack
+                        if heroes[first][cs]["on_normal_skill_cd"] \
+                                == 0:
+                            if "on_normal" in heroes[first]["triggers"]:
+                                heroes = await self.goingToAttackPleaseBuff(
+                                    ctx, heroes, first, second,
+                                    heroes[first]["triggers"]["on_normal"],
+                                )
+                            heroes[first][cs]["on_normal_skill_cd"] = 5
+
+                        # Trigger buffs to victim
+                        if heroes[second][cs]["on_hit_skill_cd"] == 0:
+                            if "on_hit" in heroes[second]["triggers"]:
+                                heroes = await self.gotHitPleaseBuff(
+                                    ctx, heroes, first, second,
+                                    heroes[second]["triggers"]["on_hit"],
+                                )
+                            heroes[second][cs]["on_hit_skill_cd"] = 5
+
+                        # Buffs from activating chain skill
+                        if heroes[second]["current_state"]["stunned"] != 0:
                             heroes = await self.goingToAttackPleaseBuff(
-                                ctx, heroes, first, second,
-                                heroes[first]["triggers"]["on_normal"],
-                            )
-                        heroes[first]["current_state"]["on_normal_skill_cd"] = 5
+                                ctx, heroes, first,
+                                second, heroes[first]["skill"])
 
-                    # Trigger buffs to victim
-                    if heroes[second]["current_state"]["on_hit_skill_cd"] == 0:
-                        if "on_hit" in heroes[second]["triggers"]:
-                            heroes = await self.gotHitPleaseBuff(
-                                ctx, heroes, first, second,
-                                heroes[second]["triggers"]["on_hit"],
-                            )
-                        heroes[second]["current_state"]["on_hit_skill_cd"] = 5
-
-                    # Buffs from activating chain skill
-                    if heroes[second]["current_state"]["stunned"] != 0:
-                        heroes = await self.goingToAttackPleaseBuff(
-                            ctx, heroes, first, second, heroes[first]["skill"])
-                        activated_chain = True
-
-                    # Deal damage
-                    if heroes[second]["current_state"]["stunned"] != 0:
+                        # Deal damage
                         heroes[first]["stats"]["hp"], \
-                                heroes[second]["stats"]["hp"], \
-                                end, winner, loser = await self.attack(
+                            heroes[second]["stats"]["hp"], \
+                            end, winner, loser = await self.attack(
                             ctx, heroes[first], heroes[second],
                             move_type, percent_damage
                         )
-                        activated_chain = True
-
-                    if activated_chain:
                         heroes[second]["current_state"]["stunned"] = 0
+                    else:
+                        await ctx.send(
+                            f"{heroes[first]['color']} "
+                            + f"**{heroes[second]['hero_name']}** "
+                            + "is not stunned!"
+                        )
+                        await asyncio.sleep(2)
 
                 # Evade Move
                 elif choice[1] == 4 and \
                         heroes[first]["current_state"]["stunned"] == 0:
-                    evasion_buff = {"speed": 30}
-                    heroes = await self.goingToAttackPleaseBuff(
-                        ctx, heroes, first, second, evasion_buff)
+                    if heroes[first]["current_state"]["evade_cd"] == 0:
+                        evasion_buff = {"speed": 30}
+                        heroes[first]["stats"], heroes[first]["multipliers"] = \
+                            await self.multiplier(
+                                ctx, heroes[first], heroes[first],
+                                "speed", evasion_buff, 2)
+                        await ctx.send(
+                            f"{heroes[first]['color']} "
+                            + f"**{heroes[first]['hero_name']}** "
+                            + "tries to evade the next attack!"
+                        )
+                        await asyncio.sleep(2)
+                    else:
+                        await ctx.send(
+                            f"{heroes[first]['color']} "
+                            + f"**{heroes[first]['hero_name']}** "
+                            + "can't use evade right now!"
+                        )
+                        await asyncio.sleep(2)
 
                 # Surrender
                 elif choice[1] == 5 and \
