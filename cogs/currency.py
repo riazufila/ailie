@@ -295,7 +295,7 @@ class Currency(commands.Cog):
 
         if scope.lower() in ["server"]:
             logical_whereabouts = ctx.guild.name
-            async for member in ctx.guild.fetch_members(limit=None):
+            for member in ctx.guild.members:
                 if db_ailie.is_initialized(member.id):
                     gems = db_ailie.get_gems(member.id)
                     level = db_ailie.get_user_level(member.id)
@@ -309,7 +309,7 @@ class Currency(commands.Cog):
             )
             logical_whereabouts = "Global"
             for guild in self.bot.guilds:
-                async for member in guild.fetch_members(limit=None):
+                for member in guild.members:
                     if db_ailie.is_initialized(member.id):
                         gems = db_ailie.get_gems(member.id)
                         level = db_ailie.get_user_level(member.id)
@@ -322,6 +322,12 @@ class Currency(commands.Cog):
                 f"Dear, <@{ctx.author.id}>. You can only specify `server` "
                 + "or `global`."
             )
+
+        # If no one has gems
+        if not guardian_with_gems:
+            await ctx.send("No one has gems.")
+            db_ailie.disconnect()
+            return
 
         # Display richest user in discord server
         guardian_with_gems_sorted = sorted(guardian_with_gems)[::-1]
@@ -394,12 +400,12 @@ class Currency(commands.Cog):
         db_ailie.disconnect()
         embed = discord.Embed(
             description=(
-                f"**Current Gems**: `{gems}`"
-                + f"\n**Gems Spent**: `{gems_spent}`"
-                + f"\n**Gems Gambled**: `{gems_gambled}`"
-                + f"\n**Gems Gambled Won**: `{win_gamble_gems}`"
-                + f"\n**Gems Gambled Lost**: `{lose_gamble_gems}`"
-                + f"\n**Overall Gems Gained**: `{gems_gained}`"
+                f"**Current Gems**: `{gems:,d}`"
+                + f"\n**Gems Spent**: `{gems_spent:,d}`"
+                + f"\n**Gems Gambled**: `{gems_gambled:,d}`"
+                + f"\n**Gems Gambled Won**: `{win_gamble_gems:,d}`"
+                + f"\n**Gems Gambled Lost**: `{lose_gamble_gems:,d}`"
+                + f"\n**Overall Gems Gained**: `{gems_gained:,d}`"
             ),
             color=discord.Color.purple()
         )
@@ -466,7 +472,7 @@ class Currency(commands.Cog):
             db_ailie.store_gained_gems(ctx.author.id, gems)
             db_ailie.update_user_exp(ctx.author.id, 5)
             await ctx.send(
-                f"Daily gems claimed for {count} time(s). "
+                f"Daily gems claimed for {count} time(s) already. "
                 + f"You obtained {gems:,d} 💎, <@{ctx.author.id}>!"
             )
         else:
