@@ -595,6 +595,98 @@ class PvP(commands.Cog):
         return True
 
     @commands.command(
+        name="rank",
+        brief="Show PvP ranks.",
+        description=(
+            "Rank users based on the server you're in or globally. "
+            + "To rank based on the server you're in, put `server` as "
+            + "the scope (default). To rank based on global, "
+            + "put `global` as the scope."
+        ),
+    )
+    async def rank(self, ctx, scope="server"):
+        # Check if user is initialized first
+        db_ailie = Database()
+        if not db_ailie.is_initialized(ctx.author.id):
+            await ctx.send(
+                "Do `ailie;initialize` or `a;initialize` "
+                + "first before anything!"
+            )
+            db_ailie.disconnect()
+            return
+
+        # Get members in discord server that is initialized
+        guardian_with_trophy = []
+        logical_whereabouts = ""
+        output = ""
+
+        if scope.lower() in ["server"]:
+            logical_whereabouts = ctx.guild.name
+            async for member in ctx.guild.fetch_members(limit=None):
+                if db_ailie.is_initialized(member.id):
+                    trophy = db_ailie.get_trophy(member.id)
+                    level = db_ailie.get_user_level(member.id)
+                    if trophy > 0:
+                        buffer = [trophy, member, member.id, level]
+                        guardian_with_trophy.append(buffer)
+        elif scope.lower() in ["global", "all"]:
+            await ctx.send(
+                "Global rank will take a while to produce.. "
+                + f"Please wait, <@{ctx.author.id}>."
+            )
+            logical_whereabouts = "Global"
+            for guild in self.bot.guilds:
+                async for member in guild.fetch_members(limit=None):
+                    if db_ailie.is_initialized(member.id):
+                        trophy = db_ailie.get_trophy(member.id)
+                        level = db_ailie.get_user_level(member.id)
+                        if trophy > 0:
+                            buffer = [trophy, member, member.id, level]
+                            if buffer not in guardian_with_trophy:
+                                guardian_with_trophy.append(buffer)
+        else:
+            await ctx.send(
+                f"Dear, <@{ctx.author.id}>. You can only specify `server` "
+                + "or `global`."
+            )
+
+        # If no one has trophy
+        if not guardian_with_trophy:
+            await ctx.send("No one has trophies.")
+            db_ailie.disconnect()
+            return
+
+        # Display richest user in discord server
+        guardian_with_trophy_sorted = sorted(guardian_with_trophy)[::-1]
+        guardian_with_trophy = guardian_with_trophy_sorted[:10]
+        counter = 1
+        for barbarian in guardian_with_trophy:
+            if counter == 1:
+                output = output \
+                    + f"{counter}. {barbarian[0]:,d} 🏆 - " \
+                    + f"Lvl {barbarian[3]} `{barbarian[1]}`"
+            else:
+                output = output + \
+                        f"\n{counter}. {barbarian[0]:,d} 🏆 - " \
+                        + f"Lvl {barbarian[3]} `{barbarian[1]}`"
+
+            # Get username if any
+            username = db_ailie.get_username(barbarian[2])
+            if username is not None:
+                output = output + f" a.k.a. `{username}`"
+
+            counter += 1
+
+        embed = discord.Embed(color=discord.Color.purple())
+        embed.set_author(name="Ailie", icon_url=ctx.me.avatar_url)
+        embed.add_field(
+            name=f"Barbarians in {logical_whereabouts}!", value=output)
+
+        db_ailie.disconnect()
+
+        await ctx.send(embed=embed)
+
+    @commands.command(
         name="arena",
         brief="Play arena.",
         description=(
