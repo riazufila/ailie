@@ -1435,7 +1435,8 @@ class PvP(commands.Cog):
             return
 
         # Display richest user in discord server
-        guardian_with_trophy_sorted = sorted(guardian_with_trophy)[::-1]
+        print(f"guardian_with_trophy: {guardian_with_trophy}")
+        guardian_with_trophy_sorted = sorted(guardian_with_trophy, reverse=True)
         guardian_with_trophy = guardian_with_trophy_sorted[:10]
         counter = 1
         for barbarian in guardian_with_trophy:
