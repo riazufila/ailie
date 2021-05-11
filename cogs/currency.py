@@ -295,7 +295,7 @@ class Currency(commands.Cog):
 
         if scope.lower() in ["server"]:
             logical_whereabouts = ctx.guild.name
-            async for member in ctx.guild.fetch_members(limit=None):
+            for member in ctx.guild.members:
                 if db_ailie.is_initialized(member.id):
                     gems = db_ailie.get_gems(member.id)
                     level = db_ailie.get_user_level(member.id)
@@ -309,7 +309,7 @@ class Currency(commands.Cog):
             )
             logical_whereabouts = "Global"
             for guild in self.bot.guilds:
-                async for member in guild.fetch_members(limit=None):
+                for member in guild.members:
                     if db_ailie.is_initialized(member.id):
                         gems = db_ailie.get_gems(member.id)
                         level = db_ailie.get_user_level(member.id)
@@ -325,7 +325,7 @@ class Currency(commands.Cog):
 
         # If no one has gems
         if not guardian_with_gems:
-            await ctx.send("No one has trophies.")
+            await ctx.send("No one has gems.")
             db_ailie.disconnect()
             return
 

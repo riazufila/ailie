@@ -52,6 +52,19 @@ class Database():
         else:
             return False
 
+    def get_all_guardians_id(self):
+        query = "SELECT guardian_id FROM guardians;"
+        self.cursor.execute(query)
+        all_guardians = self.cursor.fetchall()
+
+        buffer = []
+        if all_guardians:
+            for guardian in all_guardians:
+                buffer.append(guardian[0])
+            return buffer
+        else:
+            return []
+
     def get_username(self, guardian_id):
         query = (
             "SELECT guardian_username FROM guardians "
