@@ -99,6 +99,13 @@ class Bot(commands.Cog):
                 + "the `feedback` command."
             )
 
+            if ctx.command in ["rich", "rank"]:
+                await ctx.send(
+                    "Its a bug for ranking command isn't it? The dev "
+                    + "is aware. And he's trying to find a workaround "
+                    + "for it. Hope you'll be patient. Thanks!"
+                )
+
     # Check bot's latency
     @commands.command(
         name="ping",
