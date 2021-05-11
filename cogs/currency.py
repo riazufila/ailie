@@ -288,6 +288,11 @@ class Currency(commands.Cog):
             db_ailie.disconnect()
             return
 
+        if scope.lower() in ["global", "all"]:
+            await ctx.send("Global rank is under maintenance.")
+            db_ailie.disconnect()
+            return
+
         # Get members in discord server that is initialized
         guardian_with_gems = []
         logical_whereabouts = ""
