@@ -366,8 +366,8 @@ class PvP(commands.Cog):
             if stat in ["attack", "hp", "def"]:
                 stats[stat] = round(
                     stats[stat]
-                    + (200 * (((hero_level - 1) / 100) * 2))
-                    + (200 * (((user_level - 1) / 100) * 2))
+                    + (stats[stat] * (((hero_level - 1) / 100) * 2))
+                    + (stats[stat] * (((user_level - 1) / 100) * 2))
                 )
 
         # Increase stats specifically for arena
