@@ -88,23 +88,20 @@ class Bot(commands.Cog):
                 f"Yo, <@{ctx.author.id}>! CHILL? "
                 + "Someone is already doing that command!"
             )
+        elif isinstance(error, commands.NotOwner):
+            await ctx.send("That command is only for my awesome creator.")
+        elif isinstance(error, ConnectionResetError):
+            await ctx.send("We just got rate limited by Discord *sad*")
         else:
             await self.notifyOwner(ctx, error)
 
-            if str(ctx.command) in ["rich", "rank"]:
-                await ctx.send(
-                    "Its a bug for ranking command isn't it? The dev "
-                    + "is aware. And he's trying to find a workaround "
-                    + "for it. Hope you'll be patient. Thanks!"
-                )
-            else:
-                await ctx.send(
-                    "I encountered a bug. Don't worry. "
-                    + "I've logged the bug. However, "
-                    + "if it still happens, you might "
-                    + "wanna send a feedback with "
-                    + "the `feedback` command."
-                )
+            await ctx.send(
+                "I encountered a bug. Don't worry. "
+                + "I've logged the bug. However, "
+                + "if it still happens, you might "
+                + "wanna send a feedback with "
+                + "the `feedback` command."
+            )
 
     # Check bot's latency
     @commands.command(

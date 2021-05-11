@@ -12,8 +12,7 @@ if __name__ == "__main__":
     TOKEN = os.getenv("DISCORD_TOKEN")
 
     # Bot setup
-    intents = discord.Intents.default()
-    intents.members = True
+    intents = discord.Intents().all()
     bot = commands.Bot(
         command_prefix=["ailie;", "a;"],
         description="Guardian's collector.",

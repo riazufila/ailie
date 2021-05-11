@@ -288,6 +288,11 @@ class Currency(commands.Cog):
             db_ailie.disconnect()
             return
 
+        if scope.lower() in ["global", "all"]:
+            await ctx.send("Global rank is under maintenance.")
+            db_ailie.disconnect()
+            return
+
         # Get members in discord server that is initialized
         guardian_with_gems = []
         logical_whereabouts = ""
@@ -300,7 +305,7 @@ class Currency(commands.Cog):
                     gems = db_ailie.get_gems(member.id)
                     level = db_ailie.get_user_level(member.id)
                     if gems != 0:
-                        buffer = [gems, member, member.id, level]
+                        buffer = [gems, str(member), member.id, level]
                         guardian_with_gems.append(buffer)
         elif scope.lower() in ["global", "all"]:
             await ctx.send(
@@ -314,7 +319,7 @@ class Currency(commands.Cog):
                         gems = db_ailie.get_gems(member.id)
                         level = db_ailie.get_user_level(member.id)
                         if gems != 0:
-                            buffer = [gems, member, member.id, level]
+                            buffer = [gems, str(member), member.id, level]
                             if buffer not in guardian_with_gems:
                                 guardian_with_gems.append(buffer)
         else:
@@ -330,7 +335,7 @@ class Currency(commands.Cog):
             return
 
         # Display richest user in discord server
-        guardian_with_gems_sorted = sorted(guardian_with_gems)[::-1]
+        guardian_with_gems_sorted = sorted(guardian_with_gems, reverse=True)
         guardian_with_gems = guardian_with_gems_sorted[:10]
         counter = 1
         for whales in guardian_with_gems:
@@ -482,6 +487,104 @@ class Currency(commands.Cog):
                 + f"{cd} left before reset."
             )
 
+    @commands.is_owner()
+    @commands.command(
+        name="rich-dev",
+        brief="Show whales.",
+        description=(
+            "Rank users based on the server you're in or globally. "
+            + "To rank based on the server you're in, put `server` as "
+            + "the scope (default). To rank based on global, "
+            + "put `global` as the scope."
+        ),
+    )
+    async def richDev(self, ctx, scope="server"):
+        # Check if user is initialized first
+        db_ailie = Database()
+        if not db_ailie.is_initialized(ctx.author.id):
+            await ctx.send(
+                "Do `ailie;initialize` or `a;initialize` "
+                + "first before anything!"
+            )
+            db_ailie.disconnect()
+            return
+
+        # Get members in discord server that is initialized
+        guardian_with_gems = []
+        logical_whereabouts = ""
+        output = ""
+
+        if scope.lower() in ["server"]:
+            logical_whereabouts = ctx.guild.name
+            for member in ctx.guild.members:
+                if db_ailie.is_initialized(member.id):
+                    gems = db_ailie.get_gems(member.id)
+                    level = db_ailie.get_user_level(member.id)
+                    if gems != 0:
+                        buffer = [gems, member, member.id, level]
+                        guardian_with_gems.append(buffer)
+        elif scope.lower() in ["global", "all"]:
+            await ctx.send(
+                "Global rank will take a while to produce.. "
+                + f"Please wait, <@{ctx.author.id}>."
+            )
+            logical_whereabouts = "Global"
+            for guild in self.bot.guilds:
+                print(f"============{guild.name}=======================")
+                for member in guild.members:
+                    if db_ailie.is_initialized(member.id):
+                        gems = db_ailie.get_gems(member.id)
+                        level = db_ailie.get_user_level(member.id)
+                        print(f"# {member}: {member.id}")
+                        print(f"# gems: {gems}")
+                        if gems != 0:
+                            buffer = [gems, member, member.id, level]
+                            if buffer not in guardian_with_gems:
+                                guardian_with_gems.append(buffer)
+                print("===============================================")
+                print()
+                print()
+                print()
+        else:
+            await ctx.send(
+                f"Dear, <@{ctx.author.id}>. You can only specify `server` "
+                + "or `global`."
+            )
+
+        # If no one has gems
+        if not guardian_with_gems:
+            await ctx.send("No one has gems.")
+            db_ailie.disconnect()
+            return
+
+        # Display richest user in discord server
+        guardian_with_gems_sorted = sorted(guardian_with_gems)[::-1]
+        guardian_with_gems = guardian_with_gems_sorted[:10]
+        counter = 1
+        for whales in guardian_with_gems:
+            if counter == 1:
+                output = output + \
+                    f"{counter}. {whales[0]:,d} 💎 - " \
+                    + f"Lvl {whales[3]} `{whales[1]}`"
+            else:
+                output = output \
+                        + f"\n{counter}. {whales[0]:,d} 💎 - " \
+                        + f"Lvl {whales[3]} `{whales[1]}`"
+
+            # Get username if any
+            username = db_ailie.get_username(whales[2])
+            if username is not None:
+                output = output + f" a.k.a. `{username}`"
+
+            counter += 1
+
+        embed = discord.Embed(color=discord.Color.purple())
+        embed.set_author(name=ctx.me.name, icon_url=ctx.me.avatar_url)
+        embed.add_field(name=f"Whales in {logical_whereabouts}!", value=output)
+
+        db_ailie.disconnect()
+
+        await ctx.send(embed=embed)
 
 def setup(bot):
     bot.add_cog(Currency(bot))
