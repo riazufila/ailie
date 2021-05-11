@@ -463,7 +463,7 @@ class PvP(commands.Cog):
             "weapon_skill_cd": 5,
             "on_normal_skill_cd": 5,
             "on_hit_skill_cd": 5,
-            "evade_cd": 3,
+            "evade_cd": 0,
             "stunned": 0,
         }
 
@@ -793,12 +793,21 @@ class PvP(commands.Cog):
                 else:
                     other_index = 0
 
+                # Get weapon skill cooldown
                 if heroes[index]["current_state"]["weapon_skill_cd"] != 0:
                     ws_cd = \
                         f"`{str(hero['current_state']['weapon_skill_cd'])}`"
                 else:
                     ws_cd = "✅"
 
+                # Get evade cooldown
+                if heroes[index]["current_state"]["evade_cd"] != 0:
+                    ev_cd = \
+                        f"`{str(hero['current_state']['evade_cd'])}`"
+                else:
+                    ev_cd = "✅"
+
+                # Get chain skill availability
                 if heroes[other_index]["current_state"]["stunned"] != 0:
                     cs_cd = "✅"
                 else:
@@ -807,7 +816,7 @@ class PvP(commands.Cog):
                     "1. **Attack**"
                     + f"\n2. **({ws_cd}) Weapon Skill**"
                     + f"\n3. **({cs_cd}) Chain Skill**"
-                    + "\n4. **Evade**"
+                    + f"\n4. **({ev_cd}) Evade**"
                     + "\n5. **Surrender**"
                 )
                 embed.add_field(
@@ -994,6 +1003,13 @@ class PvP(commands.Cog):
                         heroes[first]["current_state"]["weapon_skill_cd"] = \
                             self.calcWeapSkillCooldown(
                                 5, heroes[first]["stats"]["wsrs"])
+                    else:
+                        await ctx.send(
+                            f"{heroes[first]['color']} "
+                            + f"**{heroes[first]['hero_name']}**'s "
+                            + "weapon skill is on cooldown!"
+                        )
+                        await asyncio.sleep(2)
 
                 # Chain Skill Move
                 elif choice[1] == 3 and \
@@ -1048,11 +1064,12 @@ class PvP(commands.Cog):
                 elif choice[1] == 4 and \
                         heroes[first]["current_state"]["stunned"] == 0:
                     if heroes[first]["current_state"]["evade_cd"] == 0:
-                        evasion_buff = {"speed": 30}
+                        evasion_buff = {"speed": 50}
                         heroes[first]["stats"], heroes[first]["multipliers"] = \
                             await self.multiplier(
                                 ctx, heroes[first], heroes[first],
                                 "speed", evasion_buff, 2)
+                        heroes[first]["current_state"]["evade_cd"] = 3
                         await ctx.send(
                             f"{heroes[first]['color']} "
                             + f"**{heroes[first]['hero_name']}** "
@@ -1122,6 +1139,10 @@ class PvP(commands.Cog):
                 if heroes[first]["current_state"]["stunned"] != 0:
                     heroes[first]["current_state"]["stunned"] = \
                         heroes[first]["current_state"]["stunned"] - 1
+
+                if heroes[first]["current_state"]["evade_cd"] != 0:
+                    heroes[first]["current_state"]["evade_cd"] = \
+                        heroes[first]["current_state"]["evade_cd"] - 1
 
                 if heroes[first]["current_state"]["on_normal_skill_cd"] != 0:
                     heroes[first]["current_state"]["on_normal_skill_cd"] = \
