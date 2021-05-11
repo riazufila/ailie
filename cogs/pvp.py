@@ -726,9 +726,9 @@ class PvP(commands.Cog):
         db_ailie.disconnect()
         embed = discord.Embed(
             description=(
-                f"**Trophies**: `{trophies}`"
-                + f"\n**Wins**: `{wins}`"
-                + f"\n**Losses**: `{losses}`"
+                f"**Trophies**: `{trophies:,d}`"
+                + f"\n**Wins**: `{wins:,d}`"
+                + f"\n**Losses**: `{losses:,d}`"
             ),
             color=discord.Color.purple()
         )

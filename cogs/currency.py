@@ -394,12 +394,12 @@ class Currency(commands.Cog):
         db_ailie.disconnect()
         embed = discord.Embed(
             description=(
-                f"**Current Gems**: `{gems}`"
-                + f"\n**Gems Spent**: `{gems_spent}`"
-                + f"\n**Gems Gambled**: `{gems_gambled}`"
-                + f"\n**Gems Gambled Won**: `{win_gamble_gems}`"
-                + f"\n**Gems Gambled Lost**: `{lose_gamble_gems}`"
-                + f"\n**Overall Gems Gained**: `{gems_gained}`"
+                f"**Current Gems**: `{gems:,d}`"
+                + f"\n**Gems Spent**: `{gems_spent:,d}`"
+                + f"\n**Gems Gambled**: `{gems_gambled:,d}`"
+                + f"\n**Gems Gambled Won**: `{win_gamble_gems:,d}`"
+                + f"\n**Gems Gambled Lost**: `{lose_gamble_gems:,d}`"
+                + f"\n**Overall Gems Gained**: `{gems_gained:,d}`"
             ),
             color=discord.Color.purple()
         )
