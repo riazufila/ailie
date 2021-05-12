@@ -93,7 +93,7 @@ class PvE(commands.Cog):
                     + f"is, <@{ctx.author.id}>, it still won't surpass me. "
                     + f"You've got `{exp:,d}` Hero EXP though.",
                     f"<@{ctx.author.id}>, you can feel **{hero_full_name}** "
-                    + "getting stronger right this moment. Gained `{exp:,d}` "
+                    + f"getting stronger right this moment. Gained `{exp:,d}` "
                     + "Hero EXP!",
                 ]
                 reply = random.choice(reply)
