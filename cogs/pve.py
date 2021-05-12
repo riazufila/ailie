@@ -55,34 +55,21 @@ class PvE(commands.Cog):
             db_ailie.disconnect()
             return
 
-        training_type = [
-            "punch",
-            "evasion",
-            "block",
-            "focus",
-            "skill",
-            "run",
-            "kite",
+        training_typing = [
+            "Must protect Little Princess!",
+            "I hope Future Princess gets nerfed..",
+            "I love it when my Weapon Skill misses.",
+            "Push up, push down, push up, push down.",
+            "I just want to get this over with.",
+            "What should I ask you guys to type?",
         ]
-        training_type_buffer = training_type[:]
-        training_type_picked = []
 
-        # Shuffle list
-        random.shuffle(training_type_buffer)
-        # Pick two from list
-        training_type_picked.append(training_type_buffer.pop())
-        training_type_picked.append(training_type_buffer.pop())
-
-        output = ""
-        for training in training_type_picked:
-            if output == "":
-                output = f"`{training}`"
-            else:
-                output = f"{output} or `{training}`"
+        # Randomly pick from list
+        training_typing_picked = random.choice(training_typing)
 
         await ctx.send(
-            "Now choose which training would you want "
-            + f"for **{hero_full_name}**. {output}?"
+            f"Type `{training_typing_picked}` to train **{hero_full_name}**. "
+            + "Easy enough?"
         )
 
         # Function to confirm training
@@ -94,30 +81,35 @@ class PvE(commands.Cog):
             msg = await self.bot.wait_for(
                 "message", check=confirm_training, timeout=30
             )
-            if msg.content.lower() in training_type_picked:
+
+            exp = random.randint(1, 10)
+
+            if msg.content == training_typing_picked:
                 reply = [
-                    f"Now **{hero_full_name}** should have "
-                    + f"better `{msg.content.lower()}`.",
-                    f"**{hero_full_name}**'s `{msg.content.lower()}` "
-                    + "intensifies!",
+                    f"<@{ctx.author.id}>, you can feel `{exp:,d}` Hero EXP "
+                    + f" coursing through **{hero_full_name}**.",
                     f"You think you've got the best **{hero_full_name}**? "
-                    + f"However polished your **{hero_full_name}**'s "
-                    + f"`{msg.content.lower()}` is, it won't surpass mine.",
-                    "Lol, goodluck with your training. "
-                    + f"`{msg.content.lower()}` increased.",
-                    f"I can feel your **{hero_full_name}** getting stronger!",
-                    "Now that is a good way to train your hero!",
+                    + f"However strong your **{hero_full_name}** "
+                    + f"is, <@{ctx.author.id}>, it still won't surpass me. "
+                    + f"You've got `{exp:,d}` Hero EXP though.",
+                    f"<@{ctx.author.id}>, you can feel **{hero_full_name}** "
+                    + "getting stronger right this moment. Gained `{exp:,d}` "
+                    + "Hero EXP!",
                 ]
                 reply = random.choice(reply)
 
-                db_ailie.update_hero_exp(ctx.author.id, hero_full_name, 5)
+                db_ailie.update_hero_exp(ctx.author.id, hero_full_name, exp)
 
                 await ctx.send(reply)
             else:
-                await ctx.send("Better enter your decision properly next time!")
+                await ctx.send(
+                    f"Oops! You typed wrong, <@{ctx.author.id}>. "
+                    + "Make sure everything is the same. "
+                    + "Also, its Caps Lock Sensitive."
+                )
         except Exception:
             await ctx.send(
-                "You're taking too long to decide, "
+                "You're taking too long to type, "
                 + f"<@{ctx.author.id}>. Ain't waiting for you!"
             )
 
