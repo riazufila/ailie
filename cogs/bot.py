@@ -191,7 +191,7 @@ class Bot(commands.Cog):
         db_ailie.disconnect()
 
         # Change upon version update
-        version = "1.6.3"
+        version = "1.7.0"
 
         # Mimic loading animation
         msg = await ctx.send(
