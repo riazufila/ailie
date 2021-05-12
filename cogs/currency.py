@@ -258,7 +258,8 @@ class Currency(commands.Cog):
 
         # Check if same sender and receiver
         if mention.id == ctx.author.id:
-            await ctx.send("Haha! You really assumed I'd let you share to yourself?")
+            await ctx.send(
+                "Haha! You really assumed I'd let you share to yourself?")
             db_ailie.disconnect()
             return
 
