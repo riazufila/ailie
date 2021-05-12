@@ -165,11 +165,20 @@ class Guardian(commands.Cog):
         guardian_avatar = ctx.author.avatar_url
         inventory = []
         header = ""
-        target = " ".join(target)
         exists = False
         hero_name = ""
         hero_acquired = {}
         hero_stats = hero_buffs = hero_skill = hero_on_hit = hero_on_normal = {}
+
+        if target:
+            target = " ".join(target)
+            if len(target) < 4:
+                await ctx.send(
+                    f"Yo, <@{ctx.author.id}>. "
+                    + "At least put 4 characters please?"
+                )
+                db_ailie.disconnect()
+                return
 
         # Determine inventory to check
         if type.lower() in ["heroes", "hero", "h"] and not target:

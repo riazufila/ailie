@@ -58,6 +58,15 @@ class Book(commands.Cog):
 
         if target:
             target = " ".join(target)
+
+            if len(target) < 4:
+                await ctx.send(
+                    f"Yo, <@{ctx.author.id}>. "
+                    + "At least put 4 characters please?"
+                )
+                db_ailie.disconnect()
+                return
+
             exists = False
             hero_name = ""
             hero_stats = (
