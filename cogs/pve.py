@@ -64,8 +64,15 @@ class PvE(commands.Cog):
             "run",
             "kite",
         ]
+        training_type_buffer = training_type[:]
+        training_type_picked = []
 
-        training_type_picked = random.choices(training_type, k=2)
+        # Shuffle list
+        random.shuffle(training_type_buffer)
+        # Pick two from list
+        training_type_picked.append(training_type_buffer.pop())
+        training_type_picked.append(training_type_buffer.pop())
+
         output = ""
         for training in training_type_picked:
             if output == "":
