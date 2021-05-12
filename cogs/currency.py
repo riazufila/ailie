@@ -256,6 +256,12 @@ class Currency(commands.Cog):
             db_ailie.disconnect()
             return
 
+        # Check if same sender and receiver
+        if mention.id == ctx.author.id:
+            await ctx.send("Haha! You really assumed I'd let you share to yourself?")
+            db_ailie.disconnect()
+            return
+
         # Transfer gems from sender to receiver
         db_ailie.spend_gems(ctx.author.id, gems)
         db_ailie.store_gems(mention.id, gems)
