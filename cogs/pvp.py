@@ -955,15 +955,23 @@ class PvP(commands.Cog):
                     cs_cd = "✅"
                 else:
                     cs_cd = "❌"
+
+                # Display the moves
+                hp = (
+                    f"**HP**\n`{hero['stats']['hp']:,d}`/`{hero['max_hp']:,d}`"
+                )
                 moves = (
-                    "1. **Attack**"
+                    "**Moves**"
+                    + "\n1. **Attack**"
                     + f"\n2. **({ws_cd}) Weapon Skill**"
                     + f"\n3. **({cs_cd}) Chain Skill**"
                     + f"\n4. **({ev_cd}) Evade**"
                     + "\n5. **Surrender**"
                 )
                 embed.add_field(
-                    name=f"{hero['guardian_name']}'s Moves", value=moves)
+                    name=f"{hero['guardian_name']}'s",
+                    value=f"{hp}\n\n{moves}"
+                )
 
             await asyncio.sleep(1)
             await ctx.send(embed=embed)
