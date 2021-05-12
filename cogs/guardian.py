@@ -102,14 +102,15 @@ class Guardian(commands.Cog):
 
         # Username, gems, and trophies
         embed.add_field(name="Username 📝", value=f"`{username}`", inline=False)
-        embed.add_field(name="User EXP 💪", value=f"`{user_exp}`", inline=False)
+        embed.add_field(
+            name="User EXP 💪", value=f"`{user_exp:,d}`", inline=False)
         embed.add_field(name="Gems 💎", value=f"`{gems:,d}`")
         embed.add_field(name="Trophies 🏆", value=f"`{trophies:,d}`")
 
         # Total unique and epic exclusive
         heroes_equips_count = (
             "**Summon Count**: "
-            + f"`{summon_count}`"
+            + f"`{summon_count:,d}`"
             + "\n**Unique Heroes**: "
             + f"`{len(heroes_obtained[len(heroes_obtained) - 1])}`"
             + "\n**Epic Exclusive Equipments**: "
@@ -262,7 +263,10 @@ class Guardian(commands.Cog):
                 icon_url=self.bot.user.avatar_url,
                 name=f"Lvl {hero_acquired['level']} {hero_name}",
             )
-            embed.add_field(name="Hero EXP 💪", value=f"`{hero_acquired['exp']}`")
+            embed.add_field(
+                name="Hero EXP 💪",
+                value=f"`{hero_acquired['exp']:,d}`"
+            )
 
             # Set output
             for info in [

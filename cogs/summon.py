@@ -40,6 +40,28 @@ class Summon(commands.Cog):
         # Disconnect database for Ailie
         db_ailie.disconnect()
 
+    def grantExpOnDupe(self, guardian_id, boxes, type):
+        exp = 100
+
+        db_ailie = Database()
+        for box in boxes:
+            if type in ["h", "hero", "heroes"]:
+                requirement = "★★★ "
+                if box.startswith(requirement):
+                    hero_id = db_ailie.get_hero_id(box[4:])
+                    if db_ailie.is_hero_obtained(guardian_id, hero_id):
+                        db_ailie.update_user_exp(guardian_id, exp)
+            elif type in ["e", "eq", "equip", "equipment", "equipments"]:
+                requirement = "★★★★★ [Ex]"
+                another_requirement = "★★★★ [Ex]"
+                if box.startswith(requirement) or \
+                        box.startswith(another_requirement):
+                    equip_id = db_ailie.get_equip_id(box[box.find("]"):][2:])
+                    if db_ailie.is_equip_obtained(guardian_id, equip_id):
+                        db_ailie.update_user_exp(guardian_id, exp)
+            else:
+                pass
+
     # Summons are determined to check for certain requirements
     def checkWhatIsSummoned(
             self, r, target, not_easter_eggs, easter_eggs=None):
@@ -591,6 +613,7 @@ class Summon(commands.Cog):
             )
             return
 
+        self.grantExpOnDupe(ctx.author.id, boxes, type)
         await self.summonDisplay(ctx, count, boxes, reply)
 
 
