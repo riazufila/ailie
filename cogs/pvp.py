@@ -1160,10 +1160,13 @@ class PvP(commands.Cog):
                 # Chain Skill Move
                 elif choice[1].lower() in ["cs", "3"] and \
                         heroes[first]["current_state"]["stunned"] == 0:
-                    move_type = "chain skill"
-                    percent_damage = heroes[first]["skill"]["damage"]
-
                     if heroes[second]["current_state"]["stunned"] != 0:
+                        move_type = "chain skill"
+                        if "damage" in heroes[first]["skill"]:
+                            percent_damage = heroes[first]["skill"]["damage"]
+                        else:
+                            percent_damage = None
+
                         cs = "current_state"
                         # Trigger buffs on attack
                         if heroes[first][cs]["on_normal_skill_cd"] \
@@ -1191,12 +1194,15 @@ class PvP(commands.Cog):
                                 second, heroes[first]["skill"])
 
                         # Deal damage
-                        heroes[first]["stats"]["hp"], \
-                            heroes[second]["stats"]["hp"], \
-                            end, winner, loser = await self.attack(
-                            ctx, heroes[first], heroes[second],
-                            move_type, percent_damage
-                        )
+                        if percent_damage is not None:
+                            heroes[first]["stats"]["hp"], \
+                                heroes[second]["stats"]["hp"], \
+                                end, winner, loser = await self.attack(
+                                ctx, heroes[first], heroes[second],
+                                move_type, percent_damage
+                            )
+
+                        # Break stunned condition after CS
                         heroes[second]["current_state"]["stunned"] = 0
                     else:
                         await ctx.send(
@@ -1232,8 +1238,7 @@ class PvP(commands.Cog):
                         await asyncio.sleep(2)
 
                 # Surrender
-                elif choice[1].lower() in ["s", "5"] and \
-                        heroes[first]["current_state"]["stunned"] == 0:
+                elif choice[1].lower() in ["s", "5"]:
                     end = True
                     if round >= 3:
                         winner = {
