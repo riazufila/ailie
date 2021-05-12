@@ -1363,12 +1363,12 @@ class PvP(commands.Cog):
 
                     await ctx.send(
                         f"<@{winner['guardian_id']}>, wins and obtained "
-                        + f"{trophy_win} 🏆 and {gems} 💎."
+                        + f"`{trophy_win:,d}` trophies and `{gems:,d}` gems."
                     )
                     await asyncio.sleep(2)
                     await ctx.send(
                         f"<@{loser['guardian_id']}>, "
-                        + f"losses {-1 * trophy_lose} 🏆. Boooooo."
+                        + f"losses `{-1 * trophy_lose:,d}` trophies. Boooooo."
                     )
                     await asyncio.sleep(2)
                     break
