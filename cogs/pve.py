@@ -87,7 +87,7 @@ class PvE(commands.Cog):
             if msg.content == training_typing_picked:
                 reply = [
                     f"<@{ctx.author.id}>, you can feel `{exp:,d}` Hero EXP "
-                    + f" coursing through **{hero_full_name}**.",
+                    + f"coursing through **{hero_full_name}**.",
                     f"You think you've got the best **{hero_full_name}**? "
                     + f"However strong your **{hero_full_name}** "
                     + f"is, <@{ctx.author.id}>, it still won't surpass me. "
