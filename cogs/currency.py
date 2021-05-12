@@ -51,13 +51,13 @@ class Currency(commands.Cog):
 
         # Store and display gems obtained
         reply = [
-            f"You raced against Lana and obtained {gems:,d} gems, "
+            f"You raced against Lana and obtained `{gems:,d}` gems, "
             + f"<@{ctx.author.id}>!",
-            f"You got {gems:,d} gems! Lana can't win with that wheelchair on. "
-            + f"Right, <@{ctx.author.id}>?",
-            f"YES! {gems:,d} gems obtained! Good job, <@{ctx.author.id}>!",
+            f"You got `{gems:,d}` gems! Lana can't win with that wheelchair "
+            + f"on. Right, <@{ctx.author.id}>?",
+            f"YES! `{gems:,d}` gems obtained! Good job, <@{ctx.author.id}>!",
             f"Don't you get tired of racing Lana, <@{ctx.author.id}>? Oh well, "
-            + f"you've gotten {gems:,d} gems though.",
+            + f"you've gotten `{gems:,d}` gems though.",
         ]
 
         db_ailie.store_gems(ctx.author.id, gems)
@@ -105,13 +105,13 @@ class Currency(commands.Cog):
 
         # Store and display gems obtained
         reply = [
-            f"Little Princess found you {gems:,d} gems, <@{ctx.author.id}>!",
+            f"Little Princess found you `{gems:,d}` gems, <@{ctx.author.id}>!",
             "Little Princess did all the hard work for you and got you, "
-            + f"{gems:,d} gems. Good one, <@{ctx.author.id}>?",
-            f"{gems:,d} gems obtained! You get that by being nice to "
+            + f"`{gems:,d}` gems. Good one, <@{ctx.author.id}>?",
+            f"`{gems:,d}` gems obtained! You get that by being nice to "
             + f"Little Princess, <@{ctx.author.id}>!",
             f"Don't you ever get tired of Little Princess, <@{ctx.author.id}>? "
-            + f"Oh well, she gave you {gems:,d} gems though.",
+            + f"Oh well, she gave you `{gems:,d}` gems though.",
         ]
 
         db_ailie.store_gems(ctx.author.id, gems)
@@ -174,10 +174,11 @@ class Currency(commands.Cog):
         if gems < 0:
             lost_gems = -gems
             reply = [
-                f"<@{ctx.author.id}>, you lost {lost_gems:,d} gems. HAHA.",
-                f"Condolences to <@{ctx.author.id}> for losing {lost_gems:,d} "
-                + "gems.",
-                f"Welp. Lost {lost_gems:,d} gems. Too bad, <@{ctx.author.id}>.",
+                f"<@{ctx.author.id}>, you lost `{lost_gems:,d}` gems. HAHA.",
+                f"Condolences to <@{ctx.author.id}> for losing "
+                + f"`{lost_gems:,d}` gems.",
+                f"Welp. Lost `{lost_gems:,d}` gems. "
+                + f"Too bad, <@{ctx.author.id}>.",
             ]
             db_ailie.store_lose_gambled_count(ctx.author.id)
             db_ailie.store_lose_gambled_gems(ctx.author.id, lost_gems)
@@ -186,10 +187,10 @@ class Currency(commands.Cog):
         else:
             reply = [
                 f"<@{ctx.author.id}>, your luck is omnipotent! Gained "
-                + f"{gems:,d} gems.",
-                f"Congratulations for winning {gems:,d} gems, "
+                + f"`{gems:,d}` gems.",
+                f"Congratulations for winning `{gems:,d}` gems, "
                 + f"<@{ctx.author.id}>!",
-                f"Keep the gems rolling, <@{ctx.author.id}>. {gems:,d} gems "
+                f"Keep the gems rolling, <@{ctx.author.id}>. `{gems:,d}` gems "
                 + "obtained!",
             ]
             db_ailie.store_won_gambled_count(ctx.author.id)
@@ -270,7 +271,7 @@ class Currency(commands.Cog):
         db_ailie.store_gained_gems(mention.id, gems)
         db_ailie.update_user_exp(ctx.author.id, 5)
         await ctx.send(
-            f"<@{ctx.author.id}> shared {gems:,d} gem(s) to {mention.mention}. "
+            f"<@{ctx.author.id}> shared `{gems:,d}` gem(s) to {mention.mention}. "
             + "SWEET!"
         )
 
@@ -444,14 +445,14 @@ class Currency(commands.Cog):
             db_ailie.store_gained_gems(ctx.author.id, gems)
             db_ailie.update_user_exp(ctx.author.id, 5)
             await ctx.send(
-                f"Hourly gems claimed. You obtained {gems:,d} 💎, "
+                f"Hourly gems claimed. You obtained `{gems:,d}` gems, "
                 + f"<@{ctx.author.id}>!"
             )
         else:
             cd = db_ailie.get_hourly_cooldown(ctx.author.id)
             await ctx.send(
                 f"One can be so greedy, <@{ctx.author.id}>. "
-                + f"{cd} left before reset."
+                + f"`{cd}` left before reset."
             )
 
     @commands.command(
@@ -479,14 +480,14 @@ class Currency(commands.Cog):
             db_ailie.store_gained_gems(ctx.author.id, gems)
             db_ailie.update_user_exp(ctx.author.id, 5)
             await ctx.send(
-                f"Daily gems claimed for {count} time(s) already. "
-                + f"You obtained {gems:,d} 💎, <@{ctx.author.id}>!"
+                f"Daily gems claimed for `{count:,d}` time(s) already. "
+                + f"You obtained `{gems:,d}` gems, <@{ctx.author.id}>!"
             )
         else:
             cd = db_ailie.get_daily_cooldown(ctx.author.id)
             await ctx.send(
                 f"One can be so greedy, <@{ctx.author.id}>. "
-                + f"{cd} left before reset."
+                + f"`{cd}` left before reset."
             )
 
 

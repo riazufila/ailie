@@ -800,10 +800,10 @@ class Database():
                 if time_to_reset >= 60:
                     time_to_reset = time.gmtime(time_to_reset)
                     cd = time.strftime(
-                        "%Mm and %Ss", time_to_reset)
+                        "%-Mm and %-Ss", time_to_reset)
                 else:
                     time_to_reset = time.gmtime(time_to_reset)
-                    cd = time.strftime("%Ss", time_to_reset)
+                    cd = time.strftime("%-Ss", time_to_reset)
 
                 return cd
         else:
@@ -897,14 +897,14 @@ class Database():
                 if time_to_reset >= 3600:
                     time_to_reset = time.gmtime(time_to_reset)
                     cd = time.strftime(
-                        "%Hh, %Mm, and %Ss", time_to_reset)
+                        "%-Hh, %-Mm, and %-Ss", time_to_reset)
                 elif time_to_reset >= 60:
                     time_to_reset = time.gmtime(time_to_reset)
                     cd = time.strftime(
-                        "%Mm and %Ss", time_to_reset)
+                        "%-Mm and %-Ss", time_to_reset)
                 else:
                     time_to_reset = time.gmtime(time_to_reset)
-                    cd = time.strftime("%Ss", time_to_reset)
+                    cd = time.strftime("%-Ss", time_to_reset)
 
                 return cd
         else:
