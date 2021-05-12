@@ -61,7 +61,6 @@ class Currency(commands.Cog):
         ]
 
         db_ailie.store_gems(ctx.author.id, gems)
-        db_ailie.store_gained_gems(ctx.author.id, gems)
         db_ailie.update_user_exp(ctx.author.id, 2)
         db_ailie.disconnect()
 
@@ -115,7 +114,6 @@ class Currency(commands.Cog):
         ]
 
         db_ailie.store_gems(ctx.author.id, gems)
-        db_ailie.store_gained_gems(ctx.author.id, gems)
         db_ailie.update_user_exp(ctx.author.id, 3)
         db_ailie.disconnect()
 
@@ -197,7 +195,6 @@ class Currency(commands.Cog):
             db_ailie.store_won_gambled_gems(ctx.author.id, gems)
             db_ailie.store_gambled_gems(ctx.author.id, gems)
             db_ailie.store_spent_gems(ctx.author.id, gems)
-            db_ailie.store_gained_gems(ctx.author.id, gems)
 
         db_ailie.store_gems(ctx.author.id, gems)
         db_ailie.store_gamble_count(ctx.author.id)
@@ -266,9 +263,8 @@ class Currency(commands.Cog):
 
         # Transfer gems from sender to receiver
         db_ailie.spend_gems(ctx.author.id, gems)
-        db_ailie.store_gems(mention.id, gems)
         db_ailie.store_spent_gems(ctx.author.id, gems)
-        db_ailie.store_gained_gems(mention.id, gems)
+        db_ailie.store_gems(mention.id, gems)
         db_ailie.update_user_exp(ctx.author.id, 5)
         await ctx.send(
             f"<@{ctx.author.id}> shared `{gems:,d}` gem(s) to {mention.mention}. "
@@ -402,7 +398,6 @@ class Currency(commands.Cog):
         gems = db_ailie.get_gems(guardian_id)
         gems_gambled = db_ailie.get_gambled_gems(guardian_id)
         gems_spent = db_ailie.get_spent_gems(guardian_id)
-        gems_gained = db_ailie.get_gained_gems(guardian_id)
         win_gamble_gems = db_ailie.get_won_gambled_gems(guardian_id)
         lose_gamble_gems = db_ailie.get_lose_gambled_gems(guardian_id)
         db_ailie.disconnect()
@@ -413,7 +408,6 @@ class Currency(commands.Cog):
                 + f"\n**Gems Gambled**: `{gems_gambled:,d}`"
                 + f"\n**Gems Gambled Won**: `{win_gamble_gems:,d}`"
                 + f"\n**Gems Gambled Lost**: `{lose_gamble_gems:,d}`"
-                + f"\n**Overall Gems Gained**: `{gems_gained:,d}`"
             ),
             color=discord.Color.purple()
         )
@@ -442,7 +436,6 @@ class Currency(commands.Cog):
         if qualified_hourly:
             gems = 500
             db_ailie.store_gems(ctx.author.id, gems)
-            db_ailie.store_gained_gems(ctx.author.id, gems)
             db_ailie.update_user_exp(ctx.author.id, 5)
             await ctx.send(
                 f"Hourly gems claimed. You obtained `{gems:,d}` gems, "
@@ -477,7 +470,6 @@ class Currency(commands.Cog):
             count = db_ailie.get_daily_count(ctx.author.id)
             gems = 2500 + (200 * count)
             db_ailie.store_gems(ctx.author.id, gems)
-            db_ailie.store_gained_gems(ctx.author.id, gems)
             db_ailie.update_user_exp(ctx.author.id, 5)
             await ctx.send(
                 f"Daily gems claimed for `{count:,d}` time(s) already. "

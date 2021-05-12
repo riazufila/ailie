@@ -910,34 +910,6 @@ class Database():
         else:
             return 0
 
-    def get_gained_gems(self, guardian_id):
-        query = (
-            "SELECT guardian_gained_gems FROM guardians "
-            + "WHERE guardian_id = %s;"
-        )
-        data = [guardian_id]
-        self.cursor.execute(query, data)
-
-        gained_gems = self.cursor.fetchone()
-
-        if isinstance(gained_gems, tuple):
-            gained_gems = gained_gems[0]
-
-        return gained_gems
-
-    def store_gained_gems(self, guardian_id, gems):
-        gained_gems = self.get_gained_gems(guardian_id)
-
-        gained_gems = gained_gems + gems
-
-        query = (
-            "UPDATE guardians SET guardian_gained_gems = %s "
-            + "WHERE guardian_id = %s;"
-        )
-        data = [gained_gems, guardian_id]
-        self.cursor.execute(query, data)
-        self.connection.commit()
-
     def get_spent_gems(self, guardian_id):
         query = (
             "SELECT guardian_spent_gems FROM guardians "
