@@ -92,10 +92,10 @@ class PvP(commands.Cog):
             self.updateStatsAfterMultiplierDebuff(
                 victim, victim["multipliers"])
 
-        multiplier = self.translateToReadableFormat(multiplier)
+        multi_readable = self.translateToReadableFormat(multi)
         await ctx.send(
             f"{actor['color']} **{victim['hero_name']}**'s "
-            + f"{multiplier} is buffed!"
+            + f"{multi_readable} is buffed!"
         )
         await asyncio.sleep(2)
 
@@ -115,10 +115,10 @@ class PvP(commands.Cog):
             self.updateStatsAfterMultiplierDebuff(
                 victim, victim["debuffs"])
 
-        debuff = self.translateToReadableFormat(debuff)
+        debuff_readable = self.translateToReadableFormat(debuff)
         await ctx.send(
             f"{actor['color']} **{victim['hero_name']}**'s "
-            + f"{debuff} is debuffed!"
+            + f"{debuff_readable} is debuffed!"
         )
         await asyncio.sleep(2)
 
