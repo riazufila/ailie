@@ -370,7 +370,7 @@ class PvP(commands.Cog):
         # Increase overall stats
         for stat in stats:
             if stat in ["attack"]:
-                increase = 20
+                increase = 10
                 stats[stat] = round(
                     stats[stat]
                     + ((increase/100) * stats[stat] * (hero_level - 1))
@@ -478,9 +478,9 @@ class PvP(commands.Cog):
 
     def initCurrentState(self):
         return {
-            "weapon_skill_cd": 0,
-            "on_normal_skill_cd": 0,
-            "on_hit_skill_cd": 0,
+            "weapon_skill_cd": 5,
+            "on_normal_skill_cd": 5,
+            "on_hit_skill_cd": 5,
             "evade_cd": 0,
             "stunned": 0,
         }

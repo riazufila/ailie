@@ -13,7 +13,7 @@ class Guardian(commands.Cog):
         # Increase overall stats
         for stat in stats:
             if stat in ["attack"]:
-                increase = 20
+                increase = 10
                 stats[stat] = round(
                     stats[stat]
                     + ((increase/100) * stats[stat] * (hero_level - 1))
