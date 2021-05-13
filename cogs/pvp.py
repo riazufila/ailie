@@ -138,7 +138,7 @@ class PvP(commands.Cog):
                     if debuff_in_debuff not in ["count", "check"]:
                         if debuff_in_debuff in ["attack", "hp", "def"]:
                             hero["stats"][debuff_in_debuff] = round(
-                                hero["stats"]
+                                hero["stats"][debuff_in_debuff]
                                 * (100 / (100 + debuff[debuff_in_debuff]))
                             )
                         else:
@@ -478,9 +478,9 @@ class PvP(commands.Cog):
 
     def initCurrentState(self):
         return {
-            "weapon_skill_cd": 5,
-            "on_normal_skill_cd": 5,
-            "on_hit_skill_cd": 5,
+            "weapon_skill_cd": 0,
+            "on_normal_skill_cd": 0,
+            "on_hit_skill_cd": 0,
             "evade_cd": 0,
             "stunned": 0,
         }
