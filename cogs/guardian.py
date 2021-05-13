@@ -12,12 +12,29 @@ class Guardian(commands.Cog):
     def heroStatsLevel(self, stats, hero_level, user_level):
         # Increase overall stats
         for stat in stats:
-            if stat in ["attack", "hp", "def"]:
+            if stat in ["attack"]:
+                increase = 20
                 stats[stat] = round(
                     stats[stat]
-                    + (stats[stat] * (((hero_level - 1) / 100) * 2))
-                    + (stats[stat] * (((user_level - 1) / 100) * 2))
+                    + ((increase/100) * stats[stat] * (hero_level - 1))
+                    + ((increase/100) * stats[stat] * (user_level - 1))
                 )
+            elif stat in ["hp"]:
+                increase = 5
+                stats[stat] = round(
+                    stats[stat]
+                    + ((increase/100) * stats[stat] * (hero_level - 1))
+                    + ((increase/100) * stats[stat] * (user_level - 1))
+                )
+            elif stat in ["def"]:
+                increase = 2
+                stats[stat] = round(
+                    stats[stat]
+                    + ((increase/100) * stats[stat] * (hero_level - 1))
+                    + ((increase/100) * stats[stat] * (user_level - 1))
+                )
+            else:
+                pass
 
         return stats
 

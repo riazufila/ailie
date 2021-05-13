@@ -363,17 +363,29 @@ class PvP(commands.Cog):
     def multiplyStatsWithLevels(self, stats, hero_level, user_level):
         # Increase overall stats
         for stat in stats:
-            if stat in ["attack", "hp", "def"]:
+            if stat in ["attack"]:
+                increase = 20
                 stats[stat] = round(
                     stats[stat]
-                    + (stats[stat] * (((hero_level - 1) / 100) * 2))
-                    + (stats[stat] * (((user_level - 1) / 100) * 2))
+                    + ((increase/100) * stats[stat] * (hero_level - 1))
+                    + ((increase/100) * stats[stat] * (user_level - 1))
                 )
-
-        # Increase stats specifically for arena
-        for stat in stats:
-            if stat in ["hp"]:
-                stats[stat] = stats[stat] * 2
+            elif stat in ["hp"]:
+                increase = 5
+                stats[stat] = round(
+                    stats[stat]
+                    + ((increase/100) * stats[stat] * (hero_level - 1))
+                    + ((increase/100) * stats[stat] * (user_level - 1))
+                )
+            elif stat in ["def"]:
+                increase = 2
+                stats[stat] = round(
+                    stats[stat]
+                    + ((increase/100) * stats[stat] * (hero_level - 1))
+                    + ((increase/100) * stats[stat] * (user_level - 1))
+                )
+            else:
+                pass
 
         return stats
 
@@ -919,6 +931,7 @@ class PvP(commands.Cog):
         winner = {}
         loser = {}
         round = 1
+        left = False
         while True:
             # Show available moves for each player
             embed = discord.Embed(color=discord.Color.purple())
@@ -927,7 +940,11 @@ class PvP(commands.Cog):
                 name=f"Round {round}"
             )
             embed.set_footer(
-                text="Enter the number respective to your choice of move.")
+                text=(
+                    "Enter the number or the first letter of the move."
+                    + "\nTo surrender, enter `surrender` or `five`."
+                )
+            )
 
             for hero in heroes:
                 index = heroes.index(hero)
@@ -997,8 +1014,8 @@ class PvP(commands.Cog):
                 if message.channel == ctx.channel \
                         and message.author.id in players \
                         and message.content.lower() in [
-                            "a", "ws", "cs", "e", "s",
-                            "1", "2", "3", "4", "5"
+                            "a", "w", "c", "e", "surrender",
+                            "1", "2", "3", "4", "five"
                         ]:
                     choices.append([message.author.id, message.content.lower()])
                     players.remove(message.author.id)
@@ -1038,6 +1055,11 @@ class PvP(commands.Cog):
                             quitter_id = heroes[0]["guardian_id"]
                             quitter_hero = heroes[0]["hero_name"]
 
+                    await ctx.send(
+                        "Don't get involved in something you can't finish, "
+                        + f"<@{quitter_id}>!"
+                    )
+
                     if round >= 3:
                         winner = {
                             "guardian_id": winner_id,
@@ -1047,12 +1069,10 @@ class PvP(commands.Cog):
                             "guardian_id": quitter_id,
                             "hero_name": quitter_hero
                         }
-
-                    await ctx.send(
-                        "Don't get involved in something you can't finish, "
-                        + f"<@{quitter_id}>!"
-                    )
-                    return
+                        choices.insert(0, [quitter_id, "5"])
+                        left = True
+                    else:
+                        return
                 else:
                     await ctx.send("A problem occured.")
 
@@ -1073,8 +1093,9 @@ class PvP(commands.Cog):
                             second = 0
 
                 # Indicator of who's move it is
-                await ctx.send(f"<@{heroes[first]['guardian_id']}>'s turn.")
-                await asyncio.sleep(2)
+                if not left:
+                    await ctx.send(f"<@{heroes[first]['guardian_id']}>'s turn.")
+                    await asyncio.sleep(2)
 
                 # Move choices available for players
                 # Attack Move
@@ -1111,7 +1132,7 @@ class PvP(commands.Cog):
                         )
 
                 # Weapon Skill Move
-                elif choice[1].lower() in ["ws", "2"] and \
+                elif choice[1].lower() in ["w", "2"] and \
                         heroes[first]["current_state"]["stunned"] == 0:
                     if heroes[first]["current_state"]["weapon_skill_cd"] == 0:
                         # Trigger buffs on attack
@@ -1166,7 +1187,7 @@ class PvP(commands.Cog):
                         await asyncio.sleep(2)
 
                 # Chain Skill Move
-                elif choice[1].lower() in ["cs", "3"] and \
+                elif choice[1].lower() in ["c", "3"] and \
                         heroes[first]["current_state"]["stunned"] == 0:
                     if heroes[second]["current_state"]["stunned"] != 0:
                         move_type = "chain skill"
@@ -1246,8 +1267,13 @@ class PvP(commands.Cog):
                         await asyncio.sleep(2)
 
                 # Surrender
-                elif choice[1].lower() in ["s", "5"]:
+                elif choice[1].lower() in ["surrender", "five"]:
                     end = True
+
+                    await ctx.send(
+                        f"<@{heroes[first]['guardian_id']}> surrendered!")
+                    await asyncio.sleep(2)
+
                     if round >= 3:
                         winner = {
                             "guardian_id": heroes[second]["guardian_id"],
@@ -1257,10 +1283,8 @@ class PvP(commands.Cog):
                             "guardian_id": heroes[first]["guardian_id"],
                             "hero_name": heroes[first]["hero_name"]
                         }
-
-                    await ctx.send(
-                        f"<@{heroes[first]['guardian_id']}> surrendered!")
-                    await asyncio.sleep(2)
+                    else:
+                        return
 
                 # Pass everything else
                 else:
