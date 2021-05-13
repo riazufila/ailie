@@ -940,7 +940,11 @@ class PvP(commands.Cog):
                 name=f"Round {round}"
             )
             embed.set_footer(
-                text="Enter the number respective to your choice of move.")
+                text=(
+                    "Enter the number or the first letter of the move."
+                    + "\nTo surrender, enter `surrender` or `five`."
+                )
+            )
 
             for hero in heroes:
                 index = heroes.index(hero)
@@ -1010,8 +1014,8 @@ class PvP(commands.Cog):
                 if message.channel == ctx.channel \
                         and message.author.id in players \
                         and message.content.lower() in [
-                            "a", "ws", "cs", "e", "s",
-                            "1", "2", "3", "4", "5"
+                            "a", "w", "c", "e", "surrender",
+                            "1", "2", "3", "4", "five"
                         ]:
                     choices.append([message.author.id, message.content.lower()])
                     players.remove(message.author.id)
@@ -1128,7 +1132,7 @@ class PvP(commands.Cog):
                         )
 
                 # Weapon Skill Move
-                elif choice[1].lower() in ["ws", "2"] and \
+                elif choice[1].lower() in ["w", "2"] and \
                         heroes[first]["current_state"]["stunned"] == 0:
                     if heroes[first]["current_state"]["weapon_skill_cd"] == 0:
                         # Trigger buffs on attack
@@ -1183,7 +1187,7 @@ class PvP(commands.Cog):
                         await asyncio.sleep(2)
 
                 # Chain Skill Move
-                elif choice[1].lower() in ["cs", "3"] and \
+                elif choice[1].lower() in ["c", "3"] and \
                         heroes[first]["current_state"]["stunned"] == 0:
                     if heroes[second]["current_state"]["stunned"] != 0:
                         move_type = "chain skill"
@@ -1263,7 +1267,7 @@ class PvP(commands.Cog):
                         await asyncio.sleep(2)
 
                 # Surrender
-                elif choice[1].lower() in ["surrender", "5"]:
+                elif choice[1].lower() in ["surrender", "five"]:
                     end = True
 
                     await ctx.send(
