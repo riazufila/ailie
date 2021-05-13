@@ -931,6 +931,7 @@ class PvP(commands.Cog):
         winner = {}
         loser = {}
         round = 1
+        left = False
         while True:
             # Show available moves for each player
             embed = discord.Embed(color=discord.Color.purple())
@@ -1050,6 +1051,11 @@ class PvP(commands.Cog):
                             quitter_id = heroes[0]["guardian_id"]
                             quitter_hero = heroes[0]["hero_name"]
 
+                    await ctx.send(
+                        "Don't get involved in something you can't finish, "
+                        + f"<@{quitter_id}>!"
+                    )
+
                     if round >= 3:
                         winner = {
                             "guardian_id": winner_id,
@@ -1059,12 +1065,10 @@ class PvP(commands.Cog):
                             "guardian_id": quitter_id,
                             "hero_name": quitter_hero
                         }
-
-                    await ctx.send(
-                        "Don't get involved in something you can't finish, "
-                        + f"<@{quitter_id}>!"
-                    )
-                    return
+                        choices.insert(0, [quitter_id, "5"])
+                        left = True
+                    else:
+                        return
                 else:
                     await ctx.send("A problem occured.")
 
@@ -1085,8 +1089,9 @@ class PvP(commands.Cog):
                             second = 0
 
                 # Indicator of who's move it is
-                await ctx.send(f"<@{heroes[first]['guardian_id']}>'s turn.")
-                await asyncio.sleep(2)
+                if not left:
+                    await ctx.send(f"<@{heroes[first]['guardian_id']}>'s turn.")
+                    await asyncio.sleep(2)
 
                 # Move choices available for players
                 # Attack Move
@@ -1258,8 +1263,13 @@ class PvP(commands.Cog):
                         await asyncio.sleep(2)
 
                 # Surrender
-                elif choice[1].lower() in ["s", "5"]:
+                elif choice[1].lower() in ["surrender", "5"]:
                     end = True
+
+                    await ctx.send(
+                        f"<@{heroes[first]['guardian_id']}> surrendered!")
+                    await asyncio.sleep(2)
+
                     if round >= 3:
                         winner = {
                             "guardian_id": heroes[second]["guardian_id"],
@@ -1269,11 +1279,8 @@ class PvP(commands.Cog):
                             "guardian_id": heroes[first]["guardian_id"],
                             "hero_name": heroes[first]["hero_name"]
                         }
-
-                    await ctx.send(
-                        f"<@{heroes[first]['guardian_id']}> surrendered!")
-                    await asyncio.sleep(2)
-                    return
+                    else:
+                        return
 
                 # Pass everything else
                 else:
