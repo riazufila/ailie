@@ -420,7 +420,7 @@ class Guardian(commands.Cog):
                     f"<@{ctx.author.id}>, confirm to limit break "
                     + f"**{hero_name}** from `{current_lb}` "
                     + f"to `{current_lb + 1}` for "
-                    + f"`{required_gems:,d}` 💎?"
+                    + f"`{required_gems:,d}` gems. `Y` or `N`?"
             )
 
             # Function to confirm request
@@ -439,6 +439,7 @@ class Guardian(commands.Cog):
                 # Request confirmed
                 if msg.content.upper() in ["YES", "Y"]:
                     inventory_id = db_ailie.get_inventory_id(ctx.author.id)
+                    db_ailie.spend_gems(ctx.author.id, required_gems)
                     db_ailie.increase_limit_break_hero(
                         inventory_id, hero_id, current_lb)
                     await ctx.send(
