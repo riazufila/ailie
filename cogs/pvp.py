@@ -363,17 +363,29 @@ class PvP(commands.Cog):
     def multiplyStatsWithLevels(self, stats, hero_level, user_level):
         # Increase overall stats
         for stat in stats:
-            if stat in ["attack", "hp", "def"]:
+            if stat in ["attack"]:
+                increase = 20
                 stats[stat] = round(
                     stats[stat]
-                    + (stats[stat] * (((hero_level - 1) / 100) * 2))
-                    + (stats[stat] * (((user_level - 1) / 100) * 2))
+                    + ((increase/100) * stats[stat] * (hero_level - 1))
+                    + ((increase/100) * stats[stat] * (user_level - 1))
                 )
-
-        # Increase stats specifically for arena
-        for stat in stats:
-            if stat in ["hp"]:
-                stats[stat] = stats[stat] * 2
+            elif stat in ["hp"]:
+                increase = 5
+                stats[stat] = round(
+                    stats[stat]
+                    + ((increase/100) * stats[stat] * (hero_level - 1))
+                    + ((increase/100) * stats[stat] * (user_level - 1))
+                )
+            elif stat in ["def"]:
+                increase = 2
+                stats[stat] = round(
+                    stats[stat]
+                    + ((increase/100) * stats[stat] * (hero_level - 1))
+                    + ((increase/100) * stats[stat] * (user_level - 1))
+                )
+            else:
+                pass
 
         return stats
 
@@ -1261,6 +1273,7 @@ class PvP(commands.Cog):
                     await ctx.send(
                         f"<@{heroes[first]['guardian_id']}> surrendered!")
                     await asyncio.sleep(2)
+                    return
 
                 # Pass everything else
                 else:
