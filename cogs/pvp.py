@@ -103,7 +103,13 @@ class PvP(commands.Cog):
 
     async def debuff(self, ctx, actor, victim, debuff, debuffs, count):
         debuffs_buffer = self.initDebuff(count)
-        debuffs_buffer[debuff[7:]] = -1 * debuffs[debuff]
+
+        if debuff.startswith("debuff"):
+            deb = debuff[7:]
+        else:
+            deb = debuff
+
+        debuffs_buffer[deb] = -1 * debuffs[debuff]
 
         # Enter debuffs in a list of many debuffs
         victim["debuffs"].append(debuffs_buffer)
@@ -115,7 +121,7 @@ class PvP(commands.Cog):
             self.updateStatsAfterMultiplierDebuff(
                 victim, victim["debuffs"])
 
-        debuff_readable = self.translateToReadableFormat(debuff)
+        debuff_readable = self.translateToReadableFormat(deb)
         await ctx.send(
             f"{actor['color']} **{victim['hero_name']}**'s "
             + f"{debuff_readable} is debuffed!"
