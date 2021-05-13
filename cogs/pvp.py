@@ -1020,7 +1020,7 @@ class PvP(commands.Cog):
                 if message.channel == ctx.channel \
                         and message.author.id in players \
                         and message.content.lower() in [
-                            "a", "w", "c", "e", "surrender",
+                            "a", "w", "ws", "c", "cs", "e", "surrender",
                             "1", "2", "3", "4", "five"
                         ]:
                     choices.append([message.author.id, message.content.lower()])
@@ -1138,7 +1138,7 @@ class PvP(commands.Cog):
                         )
 
                 # Weapon Skill Move
-                elif choice[1].lower() in ["w", "2"] and \
+                elif choice[1].lower() in ["w", "ws", "2"] and \
                         heroes[first]["current_state"]["stunned"] == 0:
                     if heroes[first]["current_state"]["weapon_skill_cd"] == 0:
                         # Trigger buffs on attack
@@ -1193,7 +1193,7 @@ class PvP(commands.Cog):
                         await asyncio.sleep(2)
 
                 # Chain Skill Move
-                elif choice[1].lower() in ["c", "3"] and \
+                elif choice[1].lower() in ["c", "cs", "3"] and \
                         heroes[first]["current_state"]["stunned"] == 0:
                     if heroes[second]["current_state"]["stunned"] != 0:
                         move_type = "chain skill"
