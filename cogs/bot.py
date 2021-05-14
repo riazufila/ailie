@@ -13,21 +13,43 @@ class Bot(commands.Cog):
         self.bot.help_command.cog = self
 
     async def notifyOwner(self, ctx, error, agreement=None):
-        AUTHOR_ID = os.getenv("AUTHOR_ID")
-        author = await self.bot.fetch_user(AUTHOR_ID)
-
         embed = discord.Embed(color=discord.Color.purple())
-        embed.set_author(name="Ailie's Log", icon_url=ctx.me.avatar_url)
-        embed.add_field(name=ctx.command, value=error, inline=False)
+        embed.set_author(
+            name=f"{ctx.me.name}'s Log", icon_url=ctx.me.avatar_url
+        )
 
         if agreement:
+            channel = self.bot.get_channel(int(os.getenv("FEEDBACK_CHANNEL")))
             embed.add_field(
-                name=f"by {ctx.author.name}",
-                value=f"`{ctx.author.id}`",
+                name=str(ctx.command).capitalize(),
+                value=error,
                 inline=False,
             )
+            embed.add_field(
+                name="By",
+                value=f"{ctx.author}",
+                inline=False,
+            )
+        else:
+            channel = self.bot.get_channel(int(os.getenv("ERROR_CHANNEL")))
+            embed.add_field(
+                name="Command",
+                value=ctx.command,
+                inline=False,
+            )
+            arguments = ""
+            if len(ctx.args) > 0:
+                for args in ctx.args:
+                    arguments = arguments + "\n" + str(args)
 
-        await author.send(embed=embed)
+            embed.add_field(
+                name="Arguments",
+                value=arguments,
+                inline=False,
+            )
+            embed.add_field(name="Error", value=error, inline=False)
+
+        await channel.send(embed=embed)
 
     # Execute when bot is ready
     @commands.Cog.listener()
@@ -90,7 +112,7 @@ class Bot(commands.Cog):
             )
         elif isinstance(error, commands.NotOwner):
             await ctx.send("That command is only for my awesome creator.")
-        elif isinstance(error, ConnectionResetError):
+        if isinstance(error, ConnectionResetError):
             await ctx.send("We just got rate limited by Discord *sad*")
         else:
             await self.notifyOwner(ctx, error)
@@ -100,7 +122,8 @@ class Bot(commands.Cog):
                 + "I've logged the bug. However, "
                 + "if it still happens, you might "
                 + "want to join the support server "
-                + "through the `feedback` command."
+                + "through the `server` command "
+                + "for a more thorough assistance."
             )
 
     # Check bot's latency
@@ -132,11 +155,50 @@ class Bot(commands.Cog):
     # Send feedback or issue to owner
     @commands.command(
         name="feedback",
-        brief="Sends server's link.",
-        description=("Gives out support server's link."),
-        aliases=["issue", "report", "problem", "complaint"],
+        brief="Sends feedback.",
+        description=(
+            "Sends feedback, issue, complaint. "
+            + "Basically anything that requires assistance. "
+            + "Do note that along with the feedback, "
+            + "your user info will also be sent."
+        ),
+        aliases=["issue", "report", "problem", "complaint", "suggest"],
     )
-    async def feedback(self, ctx):
+    async def feedback(self, ctx, *feedback):
+        # Check if user is initialized first
+        db_ailie = Database()
+        if not db_ailie.is_initialized(ctx.author.id):
+            await ctx.send(
+                "Do `ailie;initialize` or `a;initialize` first before anything!"
+            )
+            db_ailie.disconnect()
+            return
+
+        db_ailie.disconnect()
+
+        if feedback:
+            # Process complain
+            feedback = " ".join(feedback)
+            await self.notifyOwner(ctx, feedback, "agree")
+
+            # Mimic loading animation
+            await ctx.send(
+                f"Ding dong, <@{ctx.author.id}>! "
+                + "Your message has been logged. "
+                + "You might wanna join Ailie's server "
+                + "so you can resolve issues and "
+                + "keep updated on Ailie's updated. "
+                + "If so, then do `a;server`."
+            )
+        else:
+            await ctx.send("Can't send anything since you put no messages!")
+
+    @commands.command(
+        name="server",
+        brief="Sends server's invite link.",
+        description=("Sends an active invite link to Ailie's server."),
+    )
+    async def server(self, ctx):
         # Check if user is initialized first
         db_ailie = Database()
         if not db_ailie.is_initialized(ctx.author.id):
@@ -149,10 +211,8 @@ class Bot(commands.Cog):
         db_ailie.disconnect()
 
         await ctx.send(
-            "Hello, since it is hard to communicate with the users. "
-            + "A support server is made to resolve issues. "
-            + "So, here's the link to the support server, "
-            + "<https://discord.gg/fAbJAWHBh2>."
+            "Here's the link to Ailie's server, "
+            + f"<{os.getenv('SERVER_INVITE')}>."
         )
 
     # Retrieve Ailie's version
