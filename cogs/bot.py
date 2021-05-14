@@ -30,6 +30,7 @@ class Bot(commands.Cog):
                 value=f"{ctx.author}",
                 inline=False,
             )
+
         else:
             channel = self.bot.get_channel(int(os.getenv("ERROR_CHANNEL")))
             embed.add_field(
@@ -48,6 +49,11 @@ class Bot(commands.Cog):
                 inline=False,
             )
             embed.add_field(name="Error", value=error, inline=False)
+            embed.add_field(
+                name="By",
+                value=f"{ctx.author}",
+                inline=False,
+            )
 
         await channel.send(embed=embed)
 
@@ -112,7 +118,7 @@ class Bot(commands.Cog):
             )
         elif isinstance(error, commands.NotOwner):
             await ctx.send("That command is only for my awesome creator.")
-        if isinstance(error, ConnectionResetError):
+        elif isinstance(error, ConnectionResetError):
             await ctx.send("We just got rate limited by Discord *sad*")
         else:
             await self.notifyOwner(ctx, error)
