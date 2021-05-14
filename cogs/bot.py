@@ -149,7 +149,9 @@ class Bot(commands.Cog):
         db_ailie.disconnect()
 
         await ctx.send(
-            "Here's the link to the support server, "
+            "Hello, since it is hard to communicate with the users. "
+            + "A support server is made to resolve issues. "
+            + "So, here's the link to the support server, "
             + "<https://discord.gg/fAbJAWHBh2>."
         )
 
