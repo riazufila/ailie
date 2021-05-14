@@ -1075,7 +1075,7 @@ class PvP(commands.Cog):
                             "guardian_id": quitter_id,
                             "hero_name": quitter_hero
                         }
-                        choices.insert(0, [quitter_id, "5"])
+                        choices.insert(0, [quitter_id, "five"])
                         left = True
                     else:
                         return
