@@ -99,8 +99,8 @@ class Bot(commands.Cog):
                 "I encountered a bug. Don't worry. "
                 + "I've logged the bug. However, "
                 + "if it still happens, you might "
-                + "wanna send a feedback with "
-                + "the `feedback` command."
+                + "want to join the support server "
+                + "through the `feedback` command."
             )
 
     # Check bot's latency
@@ -132,16 +132,11 @@ class Bot(commands.Cog):
     # Send feedback or issue to owner
     @commands.command(
         name="feedback",
-        brief="Sends feedback.",
-        description=(
-            "Sends feedback, issue, complaint. "
-            + "Basically anything that requires assistance. "
-            + "Do note that along with the feedback, "
-            + "your User ID will also be sent."
-        ),
+        brief="Sends server's link.",
+        description=("Gives out support server's link."),
         aliases=["issue", "report", "problem", "complaint"],
     )
-    async def feedback(self, ctx, *feedback):
+    async def feedback(self, ctx):
         # Check if user is initialized first
         db_ailie = Database()
         if not db_ailie.is_initialized(ctx.author.id):
@@ -153,18 +148,10 @@ class Bot(commands.Cog):
 
         db_ailie.disconnect()
 
-        if feedback:
-            # Process complain
-            feedback = " ".join(feedback)
-            await self.notifyOwner(ctx, feedback, "agree")
-
-            # Mimic loading animation
-            await ctx.send(
-                f"Ding dong, <@{ctx.author.id}>! "
-                + "Your message has been logged."
-            )
-        else:
-            await ctx.send("Can't send anything since you put no messages!")
+        await ctx.send(
+            "Here's the link to the support server, "
+            + "<https://discord.gg/fAbJAWHBh2>."
+        )
 
     # Retrieve Ailie's version
     @commands.command(
