@@ -470,6 +470,14 @@ class PvP(commands.Cog):
             "speed": 0,
             "skill": 0,
             "normal": 20,
+            "regen_hp_attack": 0,
+            "regen_hp_hit": 0,
+            "debuff_basic_res": 0,
+            "debuff_light_res": 0,
+            "debuff_dark_res": 0,
+            "debuff_earth_res": 0,
+            "debuff_fire_res": 0,
+            "debuff_water_res": 0
         }
 
         hero_stats.update(extra_stats)
