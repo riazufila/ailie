@@ -621,6 +621,7 @@ class PvP(commands.Cog):
             + "the scope (default). To rank based on global, "
             + "put `global` as the scope."
         ),
+        aliases=["ra"]
     )
     async def rank(self, ctx, scope="server"):
         # Check if user is initialized first
@@ -708,7 +709,7 @@ class PvP(commands.Cog):
         name="trophy",
         brief="Check trophies.",
         description="Check the amount of your current trophies.",
-        aliases=["trophies"]
+        aliases=["tro"]
     )
     async def trophy(self, ctx, mention: discord.Member = None):
         # Check if user is initialized first
@@ -769,6 +770,7 @@ class PvP(commands.Cog):
             + "which may cause opponent "
             + "to miss their attacks. `Surrender` is used to surrender."
         ),
+        aliases=["ar"]
     )
     @commands.max_concurrency(1, per=commands.BucketType.channel, wait=False)
     async def arena(self, ctx, mention: discord.Member = None, *hero):

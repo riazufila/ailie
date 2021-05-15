@@ -45,6 +45,7 @@ class Book(commands.Cog):
             + "`type` can be either `hero` or `equip`. "
             + "Target can be any heroes or equipments."
         ),
+        aliases=["bo"],
     )
     async def book(self, ctx, type, *target):
         # Check if user is initialized first

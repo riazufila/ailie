@@ -70,7 +70,7 @@ class Guardian(commands.Cog):
         name="profile",
         brief="View profile.",
         description="View profile of yourself or someone else's.",
-        aliases=["prof"],
+        aliases=["pr"],
     )
     async def profile(self, ctx, mention: discord.Member = None):
         # Check if user is initialized first
@@ -164,7 +164,7 @@ class Guardian(commands.Cog):
             + "Mention is optional as it can be used to view "
             + "others' inventories instead."
         ),
-        aliases=["inv", "bag"],
+        aliases=["inv"],
     )
     async def inventory(
             self, ctx, type, *target):
@@ -357,7 +357,6 @@ class Guardian(commands.Cog):
             + "This is optional. If you set it, you'll see the "
             + "username you set in some commands."
         ),
-        aliases=["name", "ign"],
     )
     async def username(self, ctx, username):
         # Check if user is initialized first
@@ -481,7 +480,7 @@ class Guardian(commands.Cog):
             "This command needs to be issued before most of the other commands "
             + "can be used. Think of it as a registration process."
         ),
-        aliases=["init"],
+        aliases=["ini"],
     )
     async def initialize(self, ctx):
         db_ailie = Database()

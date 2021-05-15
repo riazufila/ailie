@@ -13,7 +13,7 @@ class PvE(commands.Cog):
         name="train",
         brief="Train heroes for EXP.",
         description="This command allows heroes to gain EXP.",
-        aliases=["exercise"],
+        aliases=["tra"],
     )
     @commands.cooldown(1, 30, commands.BucketType.user)
     async def train(self, ctx, *hero):

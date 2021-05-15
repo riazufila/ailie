@@ -168,7 +168,7 @@ class Bot(commands.Cog):
             + "Do note that along with the feedback, "
             + "your user info will also be sent."
         ),
-        aliases=["issue", "report", "problem", "complaint", "suggest"],
+        aliases=["fe"],
     )
     async def feedback(self, ctx, *feedback):
         # Check if user is initialized first

@@ -17,6 +17,7 @@ class Currency(commands.Cog):
             "Participate in racing Lana where a random amount "
             + "of gems from roughly 10 to 500 can be obtained."
         ),
+        aliases=["ra"]
     )
     @commands.cooldown(1, 20, commands.BucketType.user)
     async def race(self, ctx):
@@ -73,6 +74,7 @@ class Currency(commands.Cog):
             "Obtain roughly 10 to 1500 gems depending on "
             + "how much Little Princess likes you."
         ),
+        aliases=["pa"]
     )
     @commands.cooldown(1, 30, commands.BucketType.user)
     async def pat(self, ctx):
@@ -127,6 +129,7 @@ class Currency(commands.Cog):
             + "or less) to gain the exact amount back in return. That. "
             + "Or you lose the gems gambled."
         ),
+        aliases=["ga"]
     )
     async def gamble(self, ctx, gems: int):
         # Check if user is initialized first
@@ -212,7 +215,7 @@ class Currency(commands.Cog):
         description=(
             "Give a certain amount of gems that you obtain to someone else."
         ),
-        aliases=["give", "gift"],
+        aliases=["sh"],
     )
     @commands.cooldown(1, 10, commands.BucketType.user)
     async def share(self, ctx, gems: int, mention: discord.Member):
@@ -280,6 +283,7 @@ class Currency(commands.Cog):
             + "the scope (default). To rank based on global, "
             + "put `global` as the scope."
         ),
+        aliases=["ri"]
     )
     async def rich(self, ctx, scope="server"):
         # Check if user is initialized first
@@ -366,6 +370,7 @@ class Currency(commands.Cog):
         name="gems",
         brief="Check gems.",
         description="Check the amount of your current gems statistics.",
+        aliases=["ge"]
     )
     async def gems(self, ctx, mention: discord.Member = None):
         # Check if user is initialized first
@@ -419,6 +424,7 @@ class Currency(commands.Cog):
         name="hourly",
         brief="Hourly gems.",
         description="Claim hourly gems.",
+        aliases=["ho"]
     )
     async def hourly(self, ctx):
         # Check if user is initialized first
@@ -452,6 +458,7 @@ class Currency(commands.Cog):
         name="daily",
         brief="Daily gems.",
         description="Claim daily gems.",
+        aliases=["da"]
     )
     async def daily(self, ctx):
         # Check if user is initialized first
