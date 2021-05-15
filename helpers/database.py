@@ -615,6 +615,30 @@ class Database():
         else:
             return None
 
+    def get_equip_acquired_details(self, inventory_id, equip_id):
+        query = (
+            "SELECT equip_acquired_exp, equip_acquired_limit_break "
+            + "FROM equipments_acquired "
+            + "WHERE equip_id = %s and inventory_id = %s;"
+        )
+        data = [equip_id, inventory_id]
+        self.cursor.execute(query, data)
+
+        equipments_acquired_stats = self.cursor.fetchone()
+
+        exp = equipments_acquired_stats[0]
+        level = math.trunc((exp / 100) + 1)
+
+        if equipments_acquired_stats:
+            equip_acquired = {
+                "level": level,
+                "exp": exp,
+                "limit_break": equipments_acquired_stats[1],
+            }
+            return equip_acquired
+        else:
+            return None
+
     def get_hero_stats(self, hero_id):
         query = (
             "SELECT hero_stats, hero_buffs, hero_skill, hero_triggers "
@@ -625,6 +649,18 @@ class Database():
         hero_char = self.cursor.fetchone()
 
         return hero_char[0], hero_char[1], hero_char[2], hero_char[3]
+
+    def get_equip_stats(self, equip_id):
+        query = (
+            "SELECT equip_stats, equip_buffs, equip_skill, equip_triggers, "
+            + "equip_instant_triggers FROM equipments WHERE equip_id = %s;"
+        )
+        data = [equip_id]
+        self.cursor.execute(query, data)
+        equip_char = self.cursor.fetchone()
+
+        return equip_char[0], equip_char[1], \
+            equip_char[2], equip_char[3], equip_char[4]
 
     def get_hero_full_name(self, name):
         heroes = self.get_pool("heroes", "normal", [[], [], []])
@@ -1223,6 +1259,17 @@ class Database():
         data = [summon_count, guardian_id]
         self.cursor.execute(query, data)
         self.connection.commit()
+
+    def get_exclusive_weapon_id(self, hero_id):
+        query = "SELECT equip_id FROM heroes WHERE hero_id = %s;"
+        data = [hero_id]
+        self.cursor.execute(query, data)
+        equip_id = self.cursor.fetchone()
+
+        if isinstance(equip_id, tuple):
+            equip_id = equip_id[0]
+
+        return equip_id
 
     # Disconnect database
     def disconnect(self):

@@ -11,6 +11,13 @@ class PvP(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
+    def addWeaponStatsToHero(self, weapon, hero):
+        for h in hero:
+            if h in weapon:
+                hero[h] = hero[h] + weapon[h]
+
+        return hero
+
     def is_miss(self, speed):
         miss = random.choices(
             [True, False],
@@ -362,7 +369,7 @@ class PvP(commands.Cog):
             else:
                 s = stat
 
-            stats[s] = stats[s] + buffs[stat]
+            stats[s] = round(stats[s] + ((buffs[stat]/100) * stats[s]))
 
         return stats
 
@@ -525,6 +532,41 @@ class PvP(commands.Cog):
             "skill": 0,
             "speed": 0,
             "wsrs": 0,
+        }
+
+    def get_equip_information(self, guardian_id, hero):
+        db_ailie = Database()
+        inventory_id = db_ailie.get_inventory_id(guardian_id)
+        hero_full_name = db_ailie.get_hero_full_name(hero)
+        hero_id = db_ailie.get_hero_id(hero_full_name)
+        equip_id = db_ailie.get_exclusive_weapon_id(hero_id)
+
+        if not equip_id:
+            return None
+
+        obtained = db_ailie.is_equip_obtained(guardian_id, equip_id)
+
+        if not obtained:
+            return None
+
+        equip_acquired = db_ailie.get_equip_acquired_details(
+            inventory_id, equip_id
+        )
+        (
+            equip_stats,
+            equip_buffs,
+            equip_skill,
+            equip_triggers,
+            equip_instant_triggers
+        ) = db_ailie.get_equip_stats(equip_id)
+
+        return {
+            "stats": equip_stats,
+            "buffs": equip_buffs,
+            "weapon_skill": equip_skill,
+            "triggers": equip_triggers,
+            "acquired": equip_acquired,
+            "instant_triggers": equip_instant_triggers
         }
 
     def get_hero_information(self, guardian_id, hero):
@@ -854,6 +896,14 @@ class PvP(commands.Cog):
             db_ailie.disconnect()
             return
 
+        # If the mentioned player is the same player.
+        if challenger_id == opponent_id:
+            await ctx.send(
+                "Sike! You really thought I'm gonna let "
+                + f"you fight yourself eh, <@{challenger_id}>?"
+            )
+            return
+
         # Get users' hero information
         heroes = []
         for guardian_info in [
@@ -865,13 +915,16 @@ class PvP(commands.Cog):
             )
             heroes.append(hero_information)
 
-        # If the mentioned hero is the same hero.
-        if challenger_id == opponent_id:
-            await ctx.send(
-                "Sike! You really thought I'm gonna let "
-                + f"you fight yourself eh, <@{challenger_id}>?"
+        # Get users' exclusive weapon information
+        equips = []
+        for ewp_info in [
+            [challenger_id, hero],
+            [opponent_id, opponent_hero],
+        ]:
+            equip_information = self.get_equip_information(
+                ewp_info[0], ewp_info[1]
             )
-            return
+            equips.append(equip_information)
 
         # Set all the other information needed for a proper battle
         # Associate user details with the heroes
@@ -904,9 +957,35 @@ class PvP(commands.Cog):
                 hero["stats"], hero["acquired"]["level"], user_level)
             db_ailie.disconnect()
 
-        # Modify stats based on hero buffs
+        # Modify weapon stats depending on weapon level
+        # Weapon is not affected by user level
+        for equip in equips:
+            db_ailie = Database()
+            equip["stats"] = self.multiplyStatsWithLevels(
+                equip["stats"], equip["acquired"]["level"], 1)
+            db_ailie.disconnect()
+
+        # Add the stats from weapon to to hero
+        heroes[0]["stats"] = self.addWeaponStatsToHero(
+            equips[0]["stats"], heroes[0]["stats"])
+        heroes[1]["stats"] = self.addWeaponStatsToHero(
+            equips[1]["stats"], heroes[1]["stats"])
+
+        # Add weapon skill and instant triggers to heroes
+        heroes[0]["weapon_skill"] = equips[0]["weapon_skill"]
+        heroes[1]["weapon_skill"] = equips[1]["weapon_skill"]
+
+        heroes[0]["instant_triggers"] = equips[0]["instant_triggers"]
+        heroes[1]["instant_triggers"] = equips[1]["instant_triggers"]
+
+        # Modify stats based on buffs
         for hero in heroes:
             hero["stats"] = self.multiplyHeroBuffs(hero["stats"], hero["buffs"])
+
+        heroes[0]["stats"] = self.multiplyHeroBuffs(
+            heroes[0]["stats"], equips[0]["buffs"])
+        heroes[1]["stats"] = self.multiplyHeroBuffs(
+            heroes[1]["stats"], equips[1]["buffs"])
 
         # Update Max HP to a separate key
         for hero in heroes:
