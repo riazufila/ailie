@@ -751,7 +751,7 @@ class PvP(commands.Cog):
             color=discord.Color.purple()
         )
         embed.set_author(
-            name=f"{guardian_name}'s Gems", icon_url=guardian_avatar)
+            name=f"{guardian_name}'s Trophies", icon_url=guardian_avatar)
         await ctx.send(embed=embed)
 
     @commands.command(
