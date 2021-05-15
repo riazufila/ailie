@@ -470,14 +470,6 @@ class PvP(commands.Cog):
             "speed": 0,
             "skill": 0,
             "normal": 20,
-            "regen_hp_attack": 0,
-            "regen_hp_hit": 0,
-            "debuff_basic_res": 0,
-            "debuff_light_res": 0,
-            "debuff_dark_res": 0,
-            "debuff_earth_res": 0,
-            "debuff_fire_res": 0,
-            "debuff_water_res": 0
         }
 
         hero_stats.update(extra_stats)
@@ -1179,7 +1171,7 @@ class PvP(commands.Cog):
                                 + f"**{heroes[first]['hero_name']}** "
                                 + "used weapon skill and stunned "
                                 + f"**{heroes[second]['hero_name']}** "
-                                + "for 3 rounds!"
+                                + "for 3 of their turns!"
                             )
                             await asyncio.sleep(2)
                         else:
@@ -1247,6 +1239,12 @@ class PvP(commands.Cog):
 
                         # Break stunned condition after CS
                         heroes[second]["current_state"]["stunned"] = 0
+                        await ctx.send(
+                            f"{heroes[second]['color']} "
+                            + f"**{heroes[second]['hero_name']}** "
+                            + "broke free from stun!"
+                        )
+                        await asyncio.sleep(2)
                     else:
                         await ctx.send(
                             f"{heroes[first]['color']} "
@@ -1337,6 +1335,12 @@ class PvP(commands.Cog):
                 if heroes[first]["current_state"]["stunned"] != 0:
                     heroes[first]["current_state"]["stunned"] = \
                         heroes[first]["current_state"]["stunned"] - 1
+                    if heroes[first]["current_state"]["stunned"] == 0:
+                        await ctx.send(
+                            f"{heroes[first]['color']} "
+                            + f"**{heroes[first]['hero_name']}** "
+                            + "broke free from stun!"
+                        )
 
                 if heroes[first]["current_state"]["evade_cd"] != 0:
                     heroes[first]["current_state"]["evade_cd"] = \
