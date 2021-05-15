@@ -17,7 +17,7 @@ class Currency(commands.Cog):
             "Participate in racing Lana where a random amount "
             + "of gems from roughly 10 to 500 can be obtained."
         ),
-        aliases=["ra"]
+        aliases=["rac"]
     )
     @commands.cooldown(1, 20, commands.BucketType.user)
     async def race(self, ctx):

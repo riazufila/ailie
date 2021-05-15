@@ -543,20 +543,6 @@ class PvP(commands.Cog):
             hero_triggers,
         ) = db_ailie.get_hero_stats(hero_id)
 
-        # Put damage and the end of dictionary for hero_skill
-        buffer = {}
-        damage = None
-        for skill_percent in hero_skill:
-            if skill_percent == "damage":
-                damage = hero_skill[skill_percent]
-            else:
-                buffer[skill_percent] = hero_skill[skill_percent]
-
-        if damage:
-            buffer["damage"] = damage
-
-        hero_skill = buffer
-
         return {
             "stats": hero_stats,
             "buffs": hero_buffs,
@@ -621,7 +607,7 @@ class PvP(commands.Cog):
             + "the scope (default). To rank based on global, "
             + "put `global` as the scope."
         ),
-        aliases=["ra"]
+        aliases=["ran"]
     )
     async def rank(self, ctx, scope="server"):
         # Check if user is initialized first
