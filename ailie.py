@@ -15,7 +15,7 @@ if __name__ == "__main__":
     intents = discord.Intents.default()
     intents.members = True
     bot = commands.Bot(
-        command_prefix=["ailie;", "a;"],
+        command_prefix=["AILIE;", "Ailie;", "ailie;", "A;", "a;"],
         description="Guardian's collector.",
         help_command=Help(),
         intents=intents,
