@@ -432,6 +432,7 @@ class Guardian(commands.Cog):
         ),
         aliases=["li", "lb"]
     )
+    @commands.max_concurrency(1, per=commands.BucketType.user, wait=False)
     async def limitBreak(self, ctx, type, *target):
         # Check if user is initialized first
         db_ailie = Database()
@@ -442,7 +443,6 @@ class Guardian(commands.Cog):
             db_ailie.disconnect()
             return
 
-        proceed = True
         exists = True
         obtained = True
         max_lb = 10
@@ -454,8 +454,16 @@ class Guardian(commands.Cog):
 
         target = " ".join(target)
 
+        if len(target) < 4:
+            await ctx.send(
+                f"Yo, <@{ctx.author.id}>. "
+                + "At least put 4 characters please?"
+            )
+            db_ailie.disconnect()
+            return
+
         if type.lower() in ["heroes", "hero", "h"]:
-            type = "herp"
+            type = "hero"
             target_name = db_ailie.get_hero_full_name(target)
             if not target_name:
                 exists = False
@@ -498,8 +506,6 @@ class Guardian(commands.Cog):
             current_gems = db_ailie.get_gems(ctx.author.id)
 
             if current_gems < required_gems:
-                proceed = False
-            else:
                 await ctx.send(
                     f"<@{ctx.author.id}>, you only "
                     + f"have `{current_gems:,d}` "
@@ -510,53 +516,52 @@ class Guardian(commands.Cog):
                 db_ailie.disconnect()
                 return
 
-        if proceed:
-            # Get confirmation
-            await ctx.send(
-                    f"<@{ctx.author.id}>, confirm to limit break "
-                    + f"**{target_name}** from `{current_lb}` "
-                    + f"to `{current_lb + 1}` for "
-                    + f"`{required_gems:,d}` gems. `Y` or `N`?"
+        # Get confirmation
+        await ctx.send(
+                f"<@{ctx.author.id}>, confirm to limit break "
+                + f"**{target_name}** from `{current_lb}` "
+                + f"to `{current_lb + 1}` for "
+                + f"`{required_gems:,d}` gems. `Y` or `N`?"
+        )
+
+        # Function to confirm request
+        def confirm_request(message):
+            return (
+                message.author.id == ctx.author.id
+                and message.content.upper() in ["YES", "Y", "NO", "N"]
             )
 
-            # Function to confirm request
-            def confirm_request(message):
-                return (
-                    message.author.id == ctx.author.id
-                    and message.content.upper() in ["YES", "Y", "NO", "N"]
-                )
+        # Wait for confirmation
+        try:
+            msg = await self.bot.wait_for(
+                "message", check=confirm_request, timeout=30
+            )
 
-            # Wait for confirmation
-            try:
-                msg = await self.bot.wait_for(
-                    "message", check=confirm_request, timeout=30
-                )
-
-                # Request confirmed
-                if msg.content.upper() in ["YES", "Y"]:
-                    inventory_id = db_ailie.get_inventory_id(ctx.author.id)
-                    db_ailie.spend_gems(ctx.author.id, required_gems)
-                    if type == "hero":
-                        db_ailie.increase_limit_break_hero(
-                            inventory_id, target_id, current_lb)
-                    else:
-                        db_ailie.increase_limit_break_equip(
-                            inventory_id, target_id, current_lb)
-
-                    await ctx.send(
-                            f"Congratulations, <@{ctx.author.id}>! "
-                            + f"Your **{target_name}**'s current limit "
-                            + f"break is now `{current_lb + 1}`."
-                    )
-                # Change of mind
+            # Request confirmed
+            if msg.content.upper() in ["YES", "Y"]:
+                inventory_id = db_ailie.get_inventory_id(ctx.author.id)
+                db_ailie.spend_gems(ctx.author.id, required_gems)
+                if type == "hero":
+                    db_ailie.increase_limit_break_hero(
+                        inventory_id, target_id, current_lb)
                 else:
-                    await ctx.send(
-                        f"Maybe next time, <@{ctx.author.id}>.."
-                    )
-            except Exception:
+                    db_ailie.increase_limit_break_equip(
+                        inventory_id, target_id, current_lb)
+
                 await ctx.send(
-                    f"I guess you're away already, <@{ctx.author.id}>."
+                        f"Congratulations, <@{ctx.author.id}>! "
+                        + f"Your **{target_name}**'s current limit "
+                        + f"break is now `{current_lb + 1}`."
                 )
+            # Change of mind
+            else:
+                await ctx.send(
+                    f"Maybe next time, <@{ctx.author.id}>.."
+                )
+        except Exception:
+            await ctx.send(
+                f"I guess you're away already, <@{ctx.author.id}>."
+            )
 
     @commands.command(
         name="initialize",
