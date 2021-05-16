@@ -369,7 +369,10 @@ class PvP(commands.Cog):
             else:
                 s = stat
 
-            stats[s] = round(stats[s] + ((buffs[stat]/100) * stats[s]))
+            if s in ["attack", "def", 'hp']:
+                stats[s] = round(stats[s] + ((buffs[stat]/100) * stats[s]))
+            else:
+                stats[s] = stats[s] + buffs[stat]
 
         return stats
 
@@ -542,14 +545,22 @@ class PvP(commands.Cog):
         hero_full_name = db_ailie.get_hero_full_name(hero)
         hero_id = db_ailie.get_hero_id(hero_full_name)
         equip_id = db_ailie.get_exclusive_weapon_id(hero_id)
+        no_ewp = {
+            "stats": {},
+            "buffs": {},
+            "weapon_skill": {},
+            "triggers": {},
+            "acquired": {"level": {}},
+            "instant_triggers": {}
+        }
 
         if not equip_id:
-            return None
+            return no_ewp
 
         obtained = db_ailie.is_equip_obtained(guardian_id, equip_id)
 
         if not obtained:
-            return None
+            return no_ewp
 
         equip_acquired = db_ailie.get_equip_acquired_details(
             inventory_id, equip_id
@@ -963,8 +974,9 @@ class PvP(commands.Cog):
         # Weapon is not affected by user level
         for equip in equips:
             db_ailie = Database()
-            equip["stats"] = self.multiplyStatsWithLevels(
-                equip["stats"], equip["acquired"]["level"], 1)
+            if len(equip) != 0:
+                equip["stats"] = self.multiplyStatsWithLevels(
+                    equip["stats"], equip["acquired"]["level"], 1)
             db_ailie.disconnect()
 
         # Add the stats from weapon to to hero
@@ -1438,74 +1450,81 @@ class PvP(commands.Cog):
                 else:
                     pass
 
-                # If enemy is stunned
-                if heroes[first]["current_state"]["stunned"] != 0:
-                    await ctx.send(
-                        f"{heroes[first]['color']} "
-                        + f"**{heroes[first]['hero_name']}** "
-                        + "is stunned!"
-                    )
-                    await asyncio.sleep(2)
+                if not end:
+                    cs = "current_state"
 
-                # Update stats after multipliers
-                for hero in heroes:
-                    hero["stats"], hero["multipliers"], \
-                        hero["current_state"]["weapon_skill_cd"] = \
-                        self.updateStatsAfterMultiplierDebuff(
-                            hero, hero["multipliers"]
-                        )
-
-                # Update stats after debuffs
-                for hero in heroes:
-                    hero["stats"], hero["debuffs"], \
-                        hero["current_state"]["weapon_skill_cd"] = \
-                        self.updateStatsAfterMultiplierDebuff(
-                            hero, hero["debuffs"]
-                        )
-
-                # Update cooldown and more
-                if heroes[first]["current_state"]["weapon_skill_cd"] != 0:
-                    heroes[first]["current_state"]["weapon_skill_cd"] = \
-                        heroes[first]["current_state"]["weapon_skill_cd"] - 1
-
-                if heroes[first]["current_state"]["stunned"] != 0:
-                    heroes[first]["current_state"]["stunned"] = \
-                        heroes[first]["current_state"]["stunned"] - 1
-                    if heroes[first]["current_state"]["stunned"] == 0:
+                    # If enemy is stunned
+                    if heroes[first]["current_state"]["stunned"] != 0:
                         await ctx.send(
                             f"{heroes[first]['color']} "
                             + f"**{heroes[first]['hero_name']}** "
-                            + "broke free from stun!"
+                            + "is stunned!"
                         )
+                        await asyncio.sleep(2)
 
-                if heroes[first]["current_state"]["evade_cd"] != 0:
-                    heroes[first]["current_state"]["evade_cd"] = \
-                        heroes[first]["current_state"]["evade_cd"] - 1
+                    # Update stats after multipliers
+                    for hero in heroes:
+                        hero["stats"], hero["multipliers"], \
+                            hero["current_state"]["weapon_skill_cd"] = \
+                            self.updateStatsAfterMultiplierDebuff(
+                                hero, hero["multipliers"]
+                            )
 
-                if heroes[first]["current_state"]["on_normal_skill_cd"] != 0:
-                    heroes[first]["current_state"]["on_normal_skill_cd"] = \
-                        heroes[first]["current_state"]["on_normal_skill_cd"] - 1
+                    # Update stats after debuffs
+                    for hero in heroes:
+                        hero["stats"], hero["debuffs"], \
+                            hero["current_state"]["weapon_skill_cd"] = \
+                            self.updateStatsAfterMultiplierDebuff(
+                                hero, hero["debuffs"]
+                            )
 
-                if heroes[first]["current_state"]["on_hit_skill_cd"] != 0:
-                    heroes[first]["current_state"]["on_hit_skill_cd"] = \
-                        heroes[first]["current_state"]["on_hit_skill_cd"] - 1
+                    # Update cooldown and more
+                    if heroes[first]["current_state"]["weapon_skill_cd"] != 0:
+                        heroes[first]["current_state"]["weapon_skill_cd"] = \
+                            heroes[first]["current_state"]["weapon_skill_cd"] \
+                            - 1
 
-                onisc = "on_normal_instant_skill_cd"
-                if heroes[first]["current_state"][onisc] != 0:
-                    heroes[first]["current_state"][onisc] = \
-                        heroes[first]["current_state"][onisc] - 1
+                    if heroes[first]["current_state"]["stunned"] != 0:
+                        heroes[first]["current_state"]["stunned"] = \
+                            heroes[first]["current_state"]["stunned"] - 1
+                        if heroes[first]["current_state"]["stunned"] == 0:
+                            await ctx.send(
+                                f"{heroes[first]['color']} "
+                                + f"**{heroes[first]['hero_name']}** "
+                                + "broke free from stun!"
+                            )
 
-                ohisc = "on_hit_instants_skill_cd"
-                if heroes[first]["current_state"][ohisc] != 0:
-                    heroes[first]["current_state"][ohisc] = \
-                        heroes[first]["current_state"][ohisc] - 1
+                    if heroes[first]["current_state"]["evade_cd"] != 0:
+                        heroes[first]["current_state"]["evade_cd"] = \
+                            heroes[first]["current_state"]["evade_cd"] - 1
 
-                # Multiplier and debuff count
-                for multi_count in heroes[first]["multipliers"]:
-                    multi_count["count"] = multi_count["count"] - 1
+                    if heroes[first]["current_state"]["on_normal_skill_cd"] \
+                            != 0:
+                        heroes[first]["current_state"]["on_normal_skill_cd"] = \
+                            heroes[first][cs]["on_normal_skill_cd"] \
+                            - 1
 
-                for debuff_count in heroes[first]["debuffs"]:
-                    debuff_count["count"] = debuff_count["count"] - 1
+                    if heroes[first]["current_state"]["on_hit_skill_cd"] != 0:
+                        heroes[first]["current_state"]["on_hit_skill_cd"] = \
+                            heroes[first]["current_state"]["on_hit_skill_cd"] \
+                            - 1
+
+                    onisc = "on_normal_instant_skill_cd"
+                    if heroes[first]["current_state"][onisc] != 0:
+                        heroes[first]["current_state"][onisc] = \
+                            heroes[first]["current_state"][onisc] - 1
+
+                    ohisc = "on_hit_instants_skill_cd"
+                    if heroes[first]["current_state"][ohisc] != 0:
+                        heroes[first]["current_state"][ohisc] = \
+                            heroes[first]["current_state"][ohisc] - 1
+
+                    # Multiplier and debuff count
+                    for multi_count in heroes[first]["multipliers"]:
+                        multi_count["count"] = multi_count["count"] - 1
+
+                    for debuff_count in heroes[first]["debuffs"]:
+                        debuff_count["count"] = debuff_count["count"] - 1
 
                 # If it ends, then break.
                 if end:
