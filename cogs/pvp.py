@@ -274,7 +274,7 @@ class PvP(commands.Cog):
 
             await ctx.send(
                 f"{actor['color']} **{actor['hero_name']}** used "
-                + f"{move_type} and `dealt {total_damage:,d}` "
+                + f"{move_type} and dealt `{total_damage:,d}` "
                 + f"{damage_type}!"
             )
             await asyncio.sleep(2)
@@ -488,6 +488,8 @@ class PvP(commands.Cog):
             "weapon_skill_cd": 5,
             "on_normal_skill_cd": 5,
             "on_hit_skill_cd": 5,
+            "on_normal_instant_skill_cd": 1,
+            "on_hit_instants_skill_cd": 1,
             "evade_cd": 0,
             "stunned": 0,
         }
@@ -794,7 +796,7 @@ class PvP(commands.Cog):
             + "to draw its skill on your opponent and cause them "
             + "to be `stunned`."
             + "\n`CHAIN SKILL` can be used only on `stunned` opponents."
-            + "\n`EVADe` is used to increase `speed` for a while "
+            + "\n`EVADE` is used to increase `speed` for a while "
             + "which may cause opponent "
             + "to miss their attacks. `Surrender` is used to surrender."
         ),
@@ -1176,6 +1178,27 @@ class PvP(commands.Cog):
                         heroes[first]["current_state"]["stunned"] == 0:
                     move_type = "attack"
                     percent_damage = heroes[first]["stats"]["normal"]
+                    onisc = "on_normal_instant_skill_cd"
+                    ohisc = "on_hit_instants_skill_cd"
+
+                    # Trigger instants buffs on attack
+                    if heroes[first]["current_state"][onisc] \
+                            == 0:
+                        if "on_normal" in heroes[first]["instant_triggers"]:
+                            heroes = await self.goingToAttackPleaseBuff(
+                                ctx, heroes, first, second,
+                                heroes[first]["instant_triggers"]["on_normal"],
+                            )
+                        heroes[first]["current_state"][onisc] = 1
+
+                    # Trigger instant buffs to victim
+                    if heroes[second]["current_state"][ohisc] == 0:
+                        if "on_hit" in heroes[second]["instant_triggers"]:
+                            heroes = await self.gotHitPleaseBuff(
+                                ctx, heroes, first, second,
+                                heroes[second]["instant_triggers"]["on_hit"],
+                            )
+                        heroes[second]["current_state"][ohisc] = 1
 
                     # Trigger buffs on attack
                     if heroes[first]["current_state"]["on_normal_skill_cd"] \
@@ -1208,6 +1231,28 @@ class PvP(commands.Cog):
                 elif choice[1].lower() in ["w", "ws", "2"] and \
                         heroes[first]["current_state"]["stunned"] == 0:
                     if heroes[first]["current_state"]["weapon_skill_cd"] == 0:
+                        onisc = "on_normal_instant_skill_cd"
+                        ohisc = "on_hit_instants_skill_cd"
+
+                        # Trigger instants buffs on attack
+                        if heroes[first]["current_state"][onisc] \
+                                == 0:
+                            if "on_normal" in heroes[first]["instant_triggers"]:
+                                heroes = await self.goingToAttackPleaseBuff(
+                                    ctx, heroes, first, second,
+                                    heroes[first]["instant_triggers"]["on_normal"],
+                                )
+                            heroes[first]["current_state"][onisc] = 1
+
+                        # Trigger instant buffs to victim
+                        if heroes[second]["current_state"][ohisc] == 0:
+                            if "on_hit" in heroes[second]["instant_triggers"]:
+                                heroes = await self.gotHitPleaseBuff(
+                                    ctx, heroes, first, second,
+                                    heroes[second]["instant_triggers"]["on_hit"],
+                                )
+                            heroes[second]["current_state"][ohisc] = 1
+
                         # Trigger buffs on attack
                         cs = "current_state"
                         if heroes[first][cs]["on_normal_skill_cd"] \
@@ -1270,6 +1315,30 @@ class PvP(commands.Cog):
                             percent_damage = None
 
                         cs = "current_state"
+                        onisc = "on_normal_instant_skill_cd"
+                        ohisc = "on_hit_instants_skill_cd"
+
+                        # Trigger instants buffs on attack
+                        if heroes[first]["current_state"][onisc] \
+                                == 0:
+                            if "on_normal" in heroes[first]["instant_triggers"]:
+                                heroes = await self.goingToAttackPleaseBuff(
+                                    ctx, heroes, first, second,
+                                    heroes[first]["instant_triggers"]
+                                    ["on_normal"],
+                                )
+                            heroes[first]["current_state"][onisc] = 1
+
+                        # Trigger instant buffs to victim
+                        if heroes[second]["current_state"][ohisc] == 0:
+                            if "on_hit" in heroes[second]["instant_triggers"]:
+                                heroes = await self.gotHitPleaseBuff(
+                                    ctx, heroes, first, second,
+                                    heroes[second]["instant_triggers"]
+                                    ["on_hit"],
+                                )
+                            heroes[second]["current_state"][ohisc] = 1
+
                         # Trigger buffs on attack
                         if heroes[first][cs]["on_normal_skill_cd"] \
                                 == 0:
@@ -1420,6 +1489,16 @@ class PvP(commands.Cog):
                 if heroes[first]["current_state"]["on_hit_skill_cd"] != 0:
                     heroes[first]["current_state"]["on_hit_skill_cd"] = \
                         heroes[first]["current_state"]["on_hit_skill_cd"] - 1
+
+                onisc = "on_normal_instant_skill_cd"
+                if heroes[first]["current_state"][onisc] != 0:
+                    heroes[first]["current_state"][onisc] = \
+                        heroes[first]["current_state"][onisc] - 1
+
+                ohisc = "on_hit_instants_skill_cd"
+                if heroes[first]["current_state"][ohisc] != 0:
+                    heroes[first]["current_state"][ohisc] = \
+                        heroes[first]["current_state"][ohisc] - 1
 
                 # Multiplier and debuff count
                 for multi_count in heroes[first]["multipliers"]:
