@@ -116,10 +116,6 @@ class Bot(commands.Cog):
             await ctx.send(f"Yo, <@{ctx.author.id}>! CHILL?")
         elif isinstance(error, commands.NotOwner):
             await ctx.send("That command is only for my awesome creator.")
-        elif isinstance(error, ConnectionResetError) or isinstance(
-            error, aiohttp.ClientOSError
-        ):
-            await ctx.send("We just got rate limited by Discord *sad*")
         else:
             await self.notifyOwner(ctx, error)
 
@@ -130,6 +126,17 @@ class Bot(commands.Cog):
                 + "want to join the support server "
                 + "through the `server` command "
                 + "for a more thorough assistance."
+            )
+
+    @commands.Cog.listener()
+    async def on_error(self, event, *args, **kwargs):
+        message = args[0]
+
+        if isinstance(event, ConnectionResetError) or isinstance(
+            event, aiohttp.ClientOSError
+        ):
+            await self.bot.send_message(
+                message.channel, "We just got rate limited by Discord *sad*"
             )
 
     # Check bot's latency
