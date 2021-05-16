@@ -711,6 +711,15 @@ class Database():
             if name.lower() in hero.lower():
                 return hero[4:]
 
+    def get_equip_full_name(self, name):
+        equips = self.equipments = self.get_pool(
+                "equipments", "normal", [[], [], [], [], []])
+
+        for equip in equips[4]:
+            if equip.startswith("★★★★★ [Ex] "):
+                if name.lower() in equip.lower():
+                    return equip[11:]
+
     def has_ewp(self, guardian_id, hero_name):
         hero_id = self.get_hero_id(hero_name)
 
