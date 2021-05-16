@@ -161,8 +161,8 @@ class Guardian(commands.Cog):
         description=(
             "Open inventory to check what you have collected so far."
             + "`type` can be either `hero` or `equip`. "
-            + "Mention is optional as it can be used to view "
-            + "others' inventories instead."
+            + "`target` is optional as it can be used to view "
+            + "your specific hero statistics."
         ),
         aliases=["inv"],
     )
@@ -184,8 +184,9 @@ class Guardian(commands.Cog):
         header = ""
         exists = False
         hero_name = ""
-        hero_acquired = {}
-        hero_stats = hero_buffs = hero_skill = hero_on_hit = hero_on_normal = {}
+        acquired = {}
+        stats = buffs = skill = on_hit = on_normal \
+            = on_normal_instant = on_hit_instant = {}
 
         if target:
             target = " ".join(target)
@@ -229,30 +230,30 @@ class Guardian(commands.Cog):
             else:
                 hero_id = db_ailie.get_hero_id(hero_name)
                 (
-                    hero_stats,
-                    hero_buffs,
-                    hero_skill,
-                    hero_triggers,
+                    stats,
+                    buffs,
+                    skill,
+                    triggers,
                 ) = db_ailie.get_hero_stats(hero_id)
 
-                for trigger in hero_triggers:
+                for trigger in triggers:
                     if trigger == "on_hit":
-                        hero_on_hit = hero_triggers[trigger]
+                        on_hit = triggers[trigger]
                     else:
-                        hero_on_normal = hero_triggers[trigger]
+                        on_normal = triggers[trigger]
 
                 inventory_id = db_ailie.get_inventory_id(guardian_id)
                 if db_ailie.is_hero_obtained(guardian_id, hero_id):
                     user_level = db_ailie.get_user_level(guardian_id)
-                    hero_acquired = db_ailie.get_hero_acquired_details(
+                    acquired = db_ailie.get_hero_acquired_details(
                         inventory_id, hero_id
                     )
-                    hero_stats = self.heroStatsLevel(
-                        hero_stats, hero_acquired["level"], user_level
+                    stats = self.heroStatsLevel(
+                        stats, acquired["level"], user_level
                     )
                 else:
                     exists = False
-        elif type in ["equipments", "equips", "equip", "eq", "e"]:
+        elif type in ["equipments", "equips", "equip", "eq", "e"] and target:
             await ctx.send(
                 f"Sorry, <@{ctx.author.id}>. Further information on equipments "
                 + "are still under maintenance."
@@ -287,20 +288,20 @@ class Guardian(commands.Cog):
             embed = discord.Embed(color=discord.Color.purple())
             embed.set_author(
                 icon_url=self.bot.user.avatar_url,
-                name=f"Lvl {hero_acquired['level']} {hero_name}",
+                name=f"Lvl {acquired['level']} {hero_name}",
             )
             embed.add_field(
                 name="Hero EXP 💪",
-                value=f"`{hero_acquired['exp']:,d}`"
+                value=f"`{acquired['exp']:,d}`"
             )
 
             # Set output
             for info in [
-                hero_stats,
-                hero_buffs,
-                hero_skill,
-                hero_on_hit,
-                hero_on_normal,
+                stats,
+                buffs,
+                skill,
+                on_hit,
+                on_normal,
             ]:
                 information = ""
                 info_title = ""
@@ -308,13 +309,13 @@ class Guardian(commands.Cog):
                     all = False
                     party = ""
 
-                    if info == hero_stats:
+                    if info == stats:
                         info_title = "Stats 📋"
-                    elif info == hero_buffs:
+                    elif info == buffs:
                         info_title = "Buffs ✨"
-                    elif info == hero_skill:
+                    elif info == skill:
                         info_title = "Chain Skill 🔗"
-                    elif info == hero_on_hit:
+                    elif info == on_hit:
                         info_title = "On Hit 🛡️"
                     else:
                         info_title = "On Attack ⚔️"

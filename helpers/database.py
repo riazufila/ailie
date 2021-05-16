@@ -438,7 +438,8 @@ class Database():
 
     def hero_inventory(self, guardian_id):
         query = (
-            "SELECT h.hero_star, h.hero_name FROM guardians g "
+            "SELECT h.hero_star, h.hero_name, h.hero_id "
+            + "FROM guardians g "
             + "INNER JOIN inventories i ON g.guardian_id = i.guardian_id "
             + "INNER JOIN heroes_acquired ha "
             + "ON i.inventory_id = ha.inventory_id "
@@ -450,19 +451,29 @@ class Database():
         hero_inventory = self.cursor.fetchall()
         hero_buffer = [[], [], []]
 
+        inventory_id = self.get_inventory_id(guardian_id)
+
+        hero_with_level = []
         for hero in hero_inventory:
-            if hero[0] == 3:
-                hero_buffer[2].append("★★★ " + hero[1])
-            if hero[0] == 2:
-                hero_buffer[1].append("★★ " + hero[1])
-            if hero[0] == 1:
-                hero_buffer[0].append("★ " + hero[1])
+            acquired = self.get_hero_acquired_details(inventory_id, hero[2])
+            hero_with_level.append(
+                [acquired["level"], hero[0], hero[1], hero[2]])
+
+        hero_inventory = sorted(hero_with_level, reverse=True)
+        for hero in hero_inventory:
+            if hero[1] == 3:
+                hero_buffer[2].append(f"Lvl {hero[0]} ★★★ {hero[2]}")
+            if hero[1] == 2:
+                hero_buffer[1].append("Lvl {hero[0]} ★★ {hero[2]}")
+            if hero[1] == 1:
+                hero_buffer[0].append("Lvl {hero[0]} ★ {hero[2]}")
 
         return hero_buffer
 
     def equip_inventory(self, guardian_id):
         query = (
-            "SELECT eq.equip_star, eq.equip_exclusive, eq.equip_name "
+            "SELECT eq.equip_star, eq.equip_exclusive, "
+            + "eq.equip_name, eq.equip_id "
             + "FROM guardians g "
             + "INNER JOIN inventories i ON g.guardian_id = i.guardian_id "
             + "INNER JOIN equipments_acquired ea "
@@ -475,21 +486,36 @@ class Database():
         equip_inventory = self.cursor.fetchall()
         equip_buffer = [[], [], [], [], [], []]
 
+        inventory_id = self.get_inventory_id(guardian_id)
+
+        equip_with_level = []
         for equip in equip_inventory:
-            if equip[1]:
-                if equip[0] == 5:
-                    equip_buffer[5].append("★★★★★ [Ex] " + equip[2])
-                if equip[0] == 4:
-                    equip_buffer[4].append("★★★★ [Ex] " + equip[2])
+            acquired = self.get_equip_acquired_details(inventory_id, equip[3])
+            equip_with_level.append(
+                [acquired["level"], equip[0], equip[1], equip[2], equip[3]])
+
+        equip_inventory = sorted(equip_with_level, reverse=True)
+        for equip in equip_inventory:
+            if equip[2]:
+                if equip[1] == 5:
+                    equip_buffer[5].append(
+                        f"Lvl {equip[0]} ★★★★★ [Ex] {equip[3]}")
+                if equip[1] == 4:
+                    equip_buffer[4].append(
+                        f"Lvl {equip[0]} ★★★★ [Ex] {equip[3]}")
             else:
-                if equip[0] == 5:
-                    equip_buffer[3].append("★★★★★ " + equip[2])
-                if equip[0] == 4:
-                    equip_buffer[2].append("★★★★ " + equip[2])
-                if equip[0] == 3:
-                    equip_buffer[1].append("★★★ " + equip[2])
-                if equip[0] == 2:
-                    equip_buffer[0].append("★★ " + equip[2])
+                if equip[1] == 5:
+                    equip_buffer[3].append(
+                        f"Lvl {equip[0]} ★★★★★  {equip[3]}")
+                if equip[1] == 4:
+                    equip_buffer[2].append(
+                        f"Lvl {equip[0]} ★★★★ {equip[3]}")
+                if equip[1] == 3:
+                    equip_buffer[1].append(
+                        f"Lvl {equip[0]} ★★★ {equip[3]}")
+                if equip[1] == 2:
+                    equip_buffer[0].append(
+                        f"Lvl {equip[0]} ★★ {equip[3]}")
 
         return equip_buffer
 
