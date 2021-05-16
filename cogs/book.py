@@ -69,10 +69,12 @@ class Book(commands.Cog):
                 return
 
             exists = False
-            hero_name = ""
-            hero_stats = (
-                hero_buffs
-            ) = hero_skill = hero_on_hit = hero_on_normal = {}
+            full_name = ""
+            stats = (
+                buffs
+            ) = (
+                skill
+            ) = on_hit = on_normal = on_normal_instant = on_hit_instant = {}
         else:
             await ctx.send("No hero or equipment mentioned.")
             db_ailie.disconnect()
@@ -80,31 +82,51 @@ class Book(commands.Cog):
 
         if type in ["heroes", "hero", "h"]:
             exists = True
-            hero_name = db_ailie.get_hero_full_name(target)
+            full_name = db_ailie.get_hero_full_name(target)
 
-            if not hero_name:
+            if not full_name:
                 exists = False
             else:
-                hero_id = db_ailie.get_hero_id(hero_name)
+                hero_id = db_ailie.get_hero_id(full_name)
                 (
-                    hero_stats,
-                    hero_buffs,
-                    hero_skill,
-                    hero_triggers,
+                    stats,
+                    buffs,
+                    skill,
+                    triggers,
                 ) = db_ailie.get_hero_stats(hero_id)
 
-                for trigger in hero_triggers:
+                for trigger in triggers:
                     if trigger == "on_hit":
-                        hero_on_hit = hero_triggers[trigger]
+                        on_hit = triggers[trigger]
                     else:
-                        hero_on_normal = hero_triggers[trigger]
-
+                        on_normal = triggers[trigger]
         elif type in ["equipments", "equips", "equip", "eq", "e"]:
-            await ctx.send(
-                f"Sorry, <@{ctx.author.id}>. Book on equipments are "
-                + "still under maintenance."
-            )
-            return
+            exists = True
+            full_name = db_ailie.get_equip_full_name(target)
+
+            if not full_name:
+                exists = False
+            else:
+                equip_id = db_ailie.get_equip_id(full_name)
+                (
+                    stats,
+                    buffs,
+                    skill,
+                    triggers,
+                    instant_triggers,
+                ) = db_ailie.get_equip_stats(equip_id)
+
+                for trigger in triggers:
+                    if trigger == "on_hit":
+                        on_hit = triggers[trigger]
+                    else:
+                        on_normal = triggers[trigger]
+
+                for instant_trigger in instant_triggers:
+                    if instant_trigger == "on_hit":
+                        on_hit_instant = instant_triggers[instant_trigger]
+                    else:
+                        on_normal_instant = instant_triggers[instant_trigger]
         else:
             await ctx.send("Please specify the type as hero or equipment.")
             return
@@ -112,16 +134,18 @@ class Book(commands.Cog):
         if exists:
             embed = discord.Embed(color=discord.Color.purple())
             embed.set_author(
-                icon_url=self.bot.user.avatar_url, name=f"Lvl 1 {hero_name}"
+                icon_url=self.bot.user.avatar_url, name=f"Lvl 1 {full_name}"
             )
 
             # Set output
             for info in [
-                hero_stats,
-                hero_buffs,
-                hero_skill,
-                hero_on_hit,
-                hero_on_normal,
+                stats,
+                buffs,
+                skill,
+                on_hit,
+                on_normal,
+                on_hit_instant,
+                on_normal_instant,
             ]:
                 information = ""
                 info_title = ""
@@ -129,16 +153,20 @@ class Book(commands.Cog):
                     all = False
                     party = ""
 
-                    if info == hero_stats:
+                    if info == stats:
                         info_title = "Stats 📋"
-                    elif info == hero_buffs:
+                    elif info == buffs:
                         info_title = "Buffs ✨"
-                    elif info == hero_skill:
+                    elif info == skill:
                         info_title = "Chain Skill 🔗"
-                    elif info == hero_on_hit:
+                    elif info == on_hit:
                         info_title = "On Hit 🛡️"
-                    else:
+                    elif info == on_normal:
                         info_title = "On Attack ⚔️"
+                    elif info == on_hit_instant:
+                        info_title = "On Hit Instant 🛡️⚡"
+                    else:
+                        info_title = "On Attack Instant ⚔️⚡"
 
                     if i.startswith("all"):
                         buffer = i[4:]
