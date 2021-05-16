@@ -404,22 +404,22 @@ class PvP(commands.Cog):
                 increase = 10
                 stats[stat] = round(
                     stats[stat]
-                    + ((increase/100) * stats[stat] * (hero_level - 1))
-                    + ((increase/100) * stats[stat] * (user_level - 1))
+                    + ((increase/100) * stats[stat] * hero_level)
+                    + ((increase/100) * stats[stat] * user_level)
                 )
             elif stat in ["hp"]:
                 increase = 5
                 stats[stat] = round(
                     stats[stat]
-                    + ((increase/100) * stats[stat] * (hero_level - 1))
-                    + ((increase/100) * stats[stat] * (user_level - 1))
+                    + ((increase/100) * stats[stat] * hero_level)
+                    + ((increase/100) * stats[stat] * user_level)
                 )
             elif stat in ["def"]:
                 increase = 2
                 stats[stat] = round(
                     stats[stat]
-                    + ((increase/100) * stats[stat] * (hero_level - 1))
-                    + ((increase/100) * stats[stat] * (user_level - 1))
+                    + ((increase/100) * stats[stat] * hero_level)
+                    + ((increase/100) * stats[stat] * user_level)
                 )
             else:
                 pass

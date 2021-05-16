@@ -17,22 +17,22 @@ class Guardian(commands.Cog):
                 increase = 10
                 stats[stat] = round(
                     stats[stat]
-                    + ((increase/100) * stats[stat] * (hero_level - 1))
-                    + ((increase/100) * stats[stat] * (user_level - 1))
+                    + ((increase/100) * stats[stat] * hero_level)
+                    + ((increase/100) * stats[stat] * user_level)
                 )
             elif stat in ["hp"]:
                 increase = 5
                 stats[stat] = round(
                     stats[stat]
-                    + ((increase/100) * stats[stat] * (hero_level - 1))
-                    + ((increase/100) * stats[stat] * (user_level - 1))
+                    + ((increase/100) * stats[stat] * hero_level)
+                    + ((increase/100) * stats[stat] * user_level)
                 )
             elif stat in ["def"]:
                 increase = 2
                 stats[stat] = round(
                     stats[stat]
-                    + ((increase/100) * stats[stat] * (hero_level - 1))
-                    + ((increase/100) * stats[stat] * (user_level - 1))
+                    + ((increase/100) * stats[stat] * hero_level)
+                    + ((increase/100) * stats[stat] * user_level)
                 )
             else:
                 pass
@@ -324,6 +324,8 @@ class Guardian(commands.Cog):
             await ctx.send(embed=embed)
         elif target and in_bag:
             embed = discord.Embed(color=discord.Color.purple())
+            if acquired["level"] == 0:
+                acquired["level"] = "Z"
             embed.set_author(
                 icon_url=self.bot.user.avatar_url,
                 name=f"Lvl {acquired['level']} {full_name}",
@@ -446,7 +448,7 @@ class Guardian(commands.Cog):
 
         exists = True
         obtained = True
-        max_lb = 10
+        max_lb = 9
         target_id = None
 
         if not target:
@@ -630,8 +632,8 @@ class Guardian(commands.Cog):
         current_exp = acquired["exp"]
         lb = acquired["limit_break"]
 
-        level = math.trunc((current_exp / 100) + 1)
-        max_level = ((4900 * (lb + 1)) / 100) + (lb + 1)
+        level = math.trunc((current_exp + exp_to_increase) / 100)
+        max_level = ((5000 + (5000 * lb)) / 100)
 
         if level > max_level:
             await ctx.send(
@@ -677,8 +679,8 @@ class Guardian(commands.Cog):
             # Request confirmed
             if msg.content.upper() in ["YES", "Y"]:
                 db_ailie.spend_gems(ctx.author.id, gems_required)
-                print(exp_to_increase)
-                db_ailie.update_equip_exp(ctx.author.id, equip_full_name, exp_to_increase)
+                db_ailie.update_equip_exp(
+                    ctx.author.id, equip_full_name, exp_to_increase)
 
                 await ctx.send(
                         f"Congratulations, <@{ctx.author.id}>! "
