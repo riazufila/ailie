@@ -11,8 +11,8 @@ class PvE(commands.Cog):
 
     @commands.command(
         name="train",
-        brief="Train heroes for EXP.",
-        description="This command allows heroes to gain EXP.",
+        brief="Train heroes.",
+        description="Train heroes to gain EXP.",
         aliases=["tra"],
     )
     @commands.cooldown(1, 30, commands.BucketType.user)
@@ -44,7 +44,7 @@ class PvE(commands.Cog):
         hero_full_name = db_ailie.get_hero_full_name(hero)
 
         if not hero_full_name:
-            await ctx.send("No such heroes exists.")
+            await ctx.send("No such hero exists.")
             db_ailie.disconnect()
             return
 
@@ -112,6 +112,51 @@ class PvE(commands.Cog):
                 "You're taking too long to type, "
                 + f"<@{ctx.author.id}>. Ain't waiting for you!"
             )
+
+    @commands.command(
+        name="enhance",
+        brief="Enhance equipments.",
+        description="Enhance equipments for EXP.",
+        aliases=["en"],
+    )
+    async def enhance(self, ctx, *equipment):
+        # Check if user is initialized first
+        db_ailie = Database()
+        if not db_ailie.is_initialized(ctx.author.id):
+            await ctx.send(
+                "Do `ailie;initialize` or `a;initialize` first before anything!"
+            )
+            db_ailie.disconnect()
+            return
+
+        if not equipment:
+            await ctx.send("You need to specify an equipment to enhance.")
+            db_ailie.disconnect()
+            return
+
+        equipment = " ".join(equipment)
+
+        if len(equipment) < 4:
+            await ctx.send(
+                f"Yo, <@{ctx.author.id}>. "
+                + "At least put 4 characters please?"
+            )
+            db_ailie.disconnect()
+            return
+
+        equip_full_name = db_ailie.get_equip_full_name(equipment)
+
+        if not equip_full_name:
+            await ctx.send("No such equipment exists.")
+            db_ailie.disconnect()
+            return
+
+        equip_id = db_ailie.get_equip_id(equip_full_name)
+
+        if not db_ailie.is_hero_obtained(ctx.author.id, equip_id):
+            await ctx.send(f"You dont have that hero, <@{ctx.author.id}>!")
+            db_ailie.disconnect()
+            return
 
 
 def setup(bot):
