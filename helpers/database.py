@@ -463,6 +463,9 @@ class Database():
 
         hero_inventory = sorted(hero_with_level, reverse=True)
         for hero in hero_inventory:
+            if hero[0] == 0:
+                hero[0] = "Z"
+
             if hero[4]:
                 ewp_ind = " 🗡️"
             else:
@@ -507,6 +510,9 @@ class Database():
 
         equip_inventory = sorted(equip_with_level, reverse=True)
         for equip in equip_inventory:
+            if equip[0] == 0:
+                equip[0] = "Z"
+
             if equip[5]:
                 hero_ind = " 👊"
             else:
@@ -645,7 +651,7 @@ class Database():
         heroes_acquired_stats = self.cursor.fetchone()
 
         exp = heroes_acquired_stats[0]
-        level = math.trunc((exp / 100) + 1)
+        level = math.trunc(exp / 100)
 
         if heroes_acquired_stats:
             hero_acquired = {
@@ -668,15 +674,14 @@ class Database():
 
         equipments_acquired_stats = self.cursor.fetchone()
 
-        lb = equipments_acquired_stats[1]
         exp = equipments_acquired_stats[0]
-        level = math.trunc(((exp / 100) + 1) + (lb * 1))
+        level = math.trunc(exp / 100)
 
         if equipments_acquired_stats:
             equip_acquired = {
                 "level": level,
                 "exp": exp,
-                "limit_break": lb
+                "limit_break": equipments_acquired_stats[1]
             }
             return equip_acquired
         else:
@@ -834,8 +839,8 @@ class Database():
         exp = self.get_hero_exp(guardian_id, hero_name) + exp
         lb = self.get_hero_limit_break(guardian_id, hero_name)
 
-        level = math.trunc((exp / 100) + 1)
-        max_level = ((4900 * (lb + 1)) / 100) + (lb + 1)
+        level = math.trunc(exp / 100)
+        max_level = ((5000 + (5000 * lb)) / 100)
 
         if level < max_level:
             query = (
@@ -848,7 +853,7 @@ class Database():
                 "UPDATE heroes_acquired SET hero_acquired_exp = %s "
                 + "WHERE inventory_id = %s AND hero_id = %s;"
             )
-            data = [(4900 * (lb + 1)), inventory_id, hero_id]
+            data = [(5000 + (5000 * lb)), inventory_id, hero_id]
 
         self.cursor.execute(query, data)
         self.connection.commit()
@@ -859,8 +864,8 @@ class Database():
         exp = self.get_equip_exp(guardian_id, equip_name) + exp
         lb = self.get_equip_limit_break(guardian_id, equip_name)
 
-        level = math.trunc((((exp * lb) / 100) + 1) + (lb * 1))
-        max_level = math.trunc((((4900 * lb) / 100) + 1) + (lb * 1))
+        level = math.trunc(exp / 100)
+        max_level = ((5000 + (5000 * lb)) / 100)
 
         if level < max_level:
             query = (
@@ -873,7 +878,7 @@ class Database():
                 "UPDATE equipments_acquired SET equip_acquired_exp = %s "
                 + "WHERE inventory_id = %s AND equip_id = %s;"
             )
-            data = [(4900 * (lb + 1)), inventory_id, equip_id]
+            data = [(5000 + (5000 * lb)), inventory_id, equip_id]
 
         self.cursor.execute(query, data)
         self.connection.commit()
@@ -1192,8 +1197,8 @@ class Database():
         user_exp = user_exp + exp
 
         # Set max level
-        max_level = 500
-        max_exp = (max_level - 1) * 100
+        max_level = 482
+        max_exp = max_level * 100
 
         if user_exp >= max_exp:
             user_exp = max_exp
@@ -1209,7 +1214,7 @@ class Database():
     def get_user_level(self, guardian_id):
         user_exp = self.get_user_exp(guardian_id)
 
-        level = math.trunc((user_exp / 100) + 1)
+        level = math.trunc(user_exp / 100)
 
         return level
 
