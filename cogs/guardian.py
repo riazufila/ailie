@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import math
 import discord
 from discord.ext import commands
 from helpers.database import Database
@@ -552,6 +553,137 @@ class Guardian(commands.Cog):
                         f"Congratulations, <@{ctx.author.id}>! "
                         + f"Your **{target_name}**'s current limit "
                         + f"break is now `{current_lb + 1}`."
+                )
+            # Change of mind
+            else:
+                await ctx.send(
+                    f"Maybe next time, <@{ctx.author.id}>.."
+                )
+        except Exception:
+            await ctx.send(
+                f"I guess you're away already, <@{ctx.author.id}>."
+            )
+
+    @commands.command(
+        name="enhance",
+        brief="Enhance equipments.",
+        description=(
+            "Enhance equipments for EXP. `level_increase` is "
+            + "the amount of level increase that is aim on "
+            + "the equipment. `equipment` is the equipment "
+            + "to be enhanced."
+        ),
+        aliases=["en"],
+    )
+    @commands.max_concurrency(1, per=commands.BucketType.user, wait=False)
+    @commands.is_owner()
+    async def enhance(self, ctx, level_increase: int, *equipment):
+        # Check if user is initialized first
+        db_ailie = Database()
+        if not db_ailie.is_initialized(ctx.author.id):
+            await ctx.send(
+                "Do `ailie;initialize` or `a;initialize` first before anything!"
+            )
+            db_ailie.disconnect()
+            return
+
+        if level_increase <= 0:
+            await ctx.send(f"Are you insane, <@{ctx.author.id}>?")
+            db_ailie.disconnect()
+            return
+
+        if not equipment:
+            await ctx.send("You need to specify an equipment to enhance.")
+            db_ailie.disconnect()
+            return
+
+        equipment = " ".join(equipment)
+
+        if len(equipment) < 4:
+            await ctx.send(
+                f"Yo, <@{ctx.author.id}>. "
+                + "At least put 4 characters please?"
+            )
+            db_ailie.disconnect()
+            return
+
+        equip_full_name = db_ailie.get_equip_full_name(equipment)
+
+        if not equip_full_name:
+            await ctx.send("No such equipment exists.")
+            db_ailie.disconnect()
+            return
+
+        equip_id = db_ailie.get_equip_id(equip_full_name)
+
+        if not db_ailie.is_equip_obtained(ctx.author.id, equip_id):
+            await ctx.send(f"You dont have that equipment, <@{ctx.author.id}>!")
+            db_ailie.disconnect()
+            return
+
+        exp_to_increase = level_increase * 100
+
+        inventory_id = db_ailie.get_inventory_id(ctx.author.id)
+        acquired = db_ailie.get_equip_acquired_details(inventory_id, equip_id)
+
+        current_level = acquired["level"]
+        current_exp = acquired["exp"]
+        lb = acquired["limit_break"]
+
+        level = math.trunc((current_exp / 100) + 1)
+        max_level = ((4900 * (lb + 1)) / 100) + (lb + 1)
+
+        if level > max_level:
+            await ctx.send(
+                f"You can't increase that much, <@{ctx.author.id}>. "
+                + f"Your max level for that equipment is {max_level}."
+            )
+            db_ailie.disconnect()
+            return
+
+        gems_required = level_increase * 2700
+        current_gems = db_ailie.get_gems(ctx.author.id)
+
+        if gems_required > current_gems:
+            await ctx.send(
+                f"Oof, poor guys <@{ctx.author.id}>.. "
+                + f"You need {gems_required:,d} gems "
+                + f"and you only have {current_gems:,d} gems. Sad life."
+            )
+            db_ailie.disconnect()
+            return
+
+        # Get confirmation
+        await ctx.send(
+                f"<@{ctx.author.id}>, confirm to enhance "
+                + f"**{equip_full_name}** from `{current_level}` "
+                + f"to `{current_level + level_increase}` for "
+                + f"`{gems_required:,d}` gems. `Y` or `N`?"
+        )
+
+        # Function to confirm request
+        def confirm_request(message):
+            return (
+                message.author.id == ctx.author.id
+                and message.content.upper() in ["YES", "Y", "NO", "N"]
+            )
+
+        # Wait for confirmation
+        try:
+            msg = await self.bot.wait_for(
+                "message", check=confirm_request, timeout=30
+            )
+
+            # Request confirmed
+            if msg.content.upper() in ["YES", "Y"]:
+                db_ailie.spend_gems(ctx.author.id, gems_required)
+                print(exp_to_increase)
+                db_ailie.update_equip_exp(ctx.author.id, equip_full_name, exp_to_increase)
+
+                await ctx.send(
+                        f"Congratulations, <@{ctx.author.id}>! "
+                        + f"Your **{equip_full_name}**'s current level "
+                        + f"is now `{current_level + level_increase}`."
                 )
             # Change of mind
             else:

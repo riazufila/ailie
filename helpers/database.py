@@ -668,14 +668,15 @@ class Database():
 
         equipments_acquired_stats = self.cursor.fetchone()
 
+        lb = equipments_acquired_stats[1]
         exp = equipments_acquired_stats[0]
-        level = math.trunc((exp / 100) + 1)
+        level = math.trunc(((exp / 100) + 1) + (lb * 1))
 
         if equipments_acquired_stats:
             equip_acquired = {
                 "level": level,
                 "exp": exp,
-                "limit_break": equipments_acquired_stats[1],
+                "limit_break": lb
             }
             return equip_acquired
         else:
@@ -858,8 +859,8 @@ class Database():
         exp = self.get_equip_exp(guardian_id, equip_name) + exp
         lb = self.get_equip_limit_break(guardian_id, equip_name)
 
-        level = math.trunc((exp / 100) + 1)
-        max_level = ((4900 * (lb + 1)) / 100) + (lb + 1)
+        level = math.trunc((((exp * lb) / 100) + 1) + (lb * 1))
+        max_level = math.trunc((((4900 * lb) / 100) + 1) + (lb * 1))
 
         if level < max_level:
             query = (
