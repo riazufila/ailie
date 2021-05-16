@@ -306,7 +306,28 @@ class PvP(commands.Cog):
                 )
                 await asyncio.sleep(2)
 
-        return actor["stats"]["hp"], victim["stats"]["hp"], end, winner, loser
+                if move_type == "weapon skill":
+                    victim["current_state"]["stunned"] = 3
+                    await ctx.send(
+                        f"{actor['color']} "
+                        + f"**{actor['hero_name']}** "
+                        + "used weapon skill and stunned "
+                        + f"**{victim['hero_name']}** "
+                        + "for 3 of their turns!"
+                    )
+                    await asyncio.sleep(2)
+
+                if move_type == "chain skill":
+                    # Break stunned condition after CS
+                    victim["current_state"]["stunned"] = 0
+                    await ctx.send(
+                        f"{victim['color']} "
+                        + f"**{victim['hero_name']}** "
+                        + "broke free from stun!"
+                    )
+                    await asyncio.sleep(2)
+
+        return victim, end, winner, loser
 
     async def heal(self, ctx, hero, buff_percent):
         # Calculate heals
@@ -1017,14 +1038,14 @@ class PvP(commands.Cog):
         end = False
         winner = {}
         loser = {}
-        round = 1
+        round_num = 1
         left = False
         while True:
             # Show available moves for each player
             embed = discord.Embed(color=discord.Color.purple())
             embed.set_author(
                 icon_url=self.bot.user.avatar_url,
-                name=f"Round {round}"
+                name=f"Round {round_num}"
             )
             embed.set_footer(
                 text=(
@@ -1061,8 +1082,10 @@ class PvP(commands.Cog):
                     cs_cd = "❌"
 
                 # Display the moves
+                hp_percentage = round((hero["stats"]["hp"] / hero["max_hp"]) * 100)
                 hp = (
-                    f"**HP**\n`{hero['stats']['hp']:,d}`/`{hero['max_hp']:,d}`"
+                    f"**HP {hp_percentage}%**\n"
+                    + f"`{hero['stats']['hp']:,d}`/`{hero['max_hp']:,d}`"
                 )
                 moves = (
                     "**Moves**"
@@ -1079,9 +1102,21 @@ class PvP(commands.Cog):
 
             await asyncio.sleep(1)
             await ctx.send(embed=embed)
+            await asyncio.sleep(5)
+
+            # Increase attack on round 16 and later
+            if round_num > 15:
+                for hero in heroes:
+                    hero["stats"]["attack"] = hero["stats"]["attack"] \
+                        + ((20 / 100) * hero["stats"]["attack"])
+
+                await ctx.send(
+                    "*Every heroes felt the tension and "
+                    + "increased their attack by 20%!*"
+                )
+                await asyncio.sleep(1)
 
             # Prompt for each player to enter their move
-            await asyncio.sleep(5)
             msg = await ctx.send(
                 f"<@{heroes[0]['guardian_id']}> and "
                 + f"<@{heroes[1]['guardian_id']}>, please go ahead and "
@@ -1147,7 +1182,7 @@ class PvP(commands.Cog):
                         + f"<@{quitter_id}>!"
                     )
 
-                    if round >= 3:
+                    if round_num >= 3:
                         winner = {
                             "guardian_id": winner_id,
                             "hero_name": winner_hero
@@ -1232,8 +1267,7 @@ class PvP(commands.Cog):
                         heroes[second]["current_state"]["on_hit_skill_cd"] = 5
 
                     # Deal damage
-                    heroes[first]["stats"]["hp"], \
-                        heroes[second]["stats"]["hp"], \
+                    heroes[second], \
                         end, winner, loser = await self.attack(
                             ctx, heroes[first], heroes[second],
                             move_type, percent_damage
@@ -1243,6 +1277,12 @@ class PvP(commands.Cog):
                 elif choice[1].lower() in ["w", "ws", "2"] and \
                         heroes[first]["current_state"]["stunned"] == 0:
                     if heroes[first]["current_state"]["weapon_skill_cd"] == 0:
+                        move_type = "weapon skill"
+                        if "damage" in heroes[first]["weapon_skill"]:
+                            percent_damage = \
+                                heroes[first]["weapon_skill"]["damage"]
+                        else:
+                            percent_damage = 100
                         onisc = "on_normal_instant_skill_cd"
                         ohisc = "on_hit_instants_skill_cd"
 
@@ -1288,25 +1328,14 @@ class PvP(commands.Cog):
                             heroes[second]["current_state"]["on_hit_skill_cd"] \
                                 = 5
 
-                        # Weapon Skill calculations
-                        miss = self.is_miss(heroes[second]["stats"]["speed"])
-                        if not miss:
-                            heroes[second]["current_state"]["stunned"] = 3
-                            await ctx.send(
-                                f"{heroes[first]['color']} "
-                                + f"**{heroes[first]['hero_name']}** "
-                                + "used weapon skill and stunned "
-                                + f"**{heroes[second]['hero_name']}** "
-                                + "for 3 of their turns!"
+                        # Deal damage
+                        if percent_damage is not None:
+                            heroes[second], \
+                                end, winner, loser = await self.attack(
+                                ctx, heroes[first], heroes[second],
+                                move_type, percent_damage
                             )
-                            await asyncio.sleep(2)
-                        else:
-                            await ctx.send(
-                                f"{heroes[first]['color']} "
-                                + f"**{heroes[first]['hero_name']}** "
-                                + "missed!"
-                            )
-                            await asyncio.sleep(2)
+
                         heroes[first]["current_state"]["weapon_skill_cd"] = \
                             self.calcWeapSkillCooldown(
                                 5, heroes[first]["stats"]["wsrs"])
@@ -1380,21 +1409,11 @@ class PvP(commands.Cog):
 
                         # Deal damage
                         if percent_damage is not None:
-                            heroes[first]["stats"]["hp"], \
-                                heroes[second]["stats"]["hp"], \
+                            heroes[second], \
                                 end, winner, loser = await self.attack(
                                 ctx, heroes[first], heroes[second],
                                 move_type, percent_damage
                             )
-
-                        # Break stunned condition after CS
-                        heroes[second]["current_state"]["stunned"] = 0
-                        await ctx.send(
-                            f"{heroes[second]['color']} "
-                            + f"**{heroes[second]['hero_name']}** "
-                            + "broke free from stun!"
-                        )
-                        await asyncio.sleep(2)
                     else:
                         await ctx.send(
                             f"{heroes[first]['color']} "
@@ -1436,7 +1455,7 @@ class PvP(commands.Cog):
                         f"<@{heroes[first]['guardian_id']}> surrendered!")
                     await asyncio.sleep(2)
 
-                    if round >= 3:
+                    if round_num >= 3:
                         winner = {
                             "guardian_id": heroes[second]["guardian_id"],
                             "hero_name": heroes[second]["hero_name"]
@@ -1534,7 +1553,7 @@ class PvP(commands.Cog):
 
             if not end:
                 # Increase round count
-                round = round + 1
+                round_num = round_num + 1
             else:
                 if winner and loser:
                     trophy_win = 25
