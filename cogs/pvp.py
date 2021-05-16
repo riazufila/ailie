@@ -1082,7 +1082,8 @@ class PvP(commands.Cog):
                     cs_cd = "❌"
 
                 # Display the moves
-                hp_percentage = round((hero["stats"]["hp"] / hero["max_hp"]) * 100)
+                hp_percentage = round(
+                    (hero["stats"]["hp"] / hero["max_hp"]) * 100)
                 hp = (
                     f"**HP {hp_percentage}%**\n"
                     + f"`{hero['stats']['hp']:,d}`/`{hero['max_hp']:,d}`"
