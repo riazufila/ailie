@@ -423,13 +423,16 @@ class Guardian(commands.Cog):
 
     @commands.command(
         name="limitbreak",
-        brief="Limit breaks a hero to extend the level cap.",
+        brief="Limit breaks a hero or equipment to extend the level cap.",
         description=(
             "Extends the capability of an already overly powerful hero "
-            + "by increasing its level cap."
+            + "or equipment by increasing its level cap. `type` "
+            + "can be either `hero` or `equip`. `target` is the hero "
+            + "or equipment to limit break."
         ),
+        aliases=["li", "lb"]
     )
-    async def limitBreak(self, ctx, *target):
+    async def limitBreak(self, ctx, type, *target):
         # Check if user is initialized first
         db_ailie = Database()
         if not db_ailie.is_initialized(ctx.author.id):
@@ -439,51 +442,79 @@ class Guardian(commands.Cog):
             db_ailie.disconnect()
             return
 
-        proceed = False
+        proceed = True
+        exists = True
+        obtained = True
+        max_lb = 10
+        target_id = None
+
+        if not target:
+            await ctx.send("Please specify a hero or equipment.")
+            return
+
         target = " ".join(target)
 
-        # Check if target is obtained
-        hero_name = db_ailie.get_hero_full_name(target)
-
-        if hero_name and target:
-            hero_id = db_ailie.get_hero_id(hero_name)
-            obtained = db_ailie.is_hero_obtained(ctx.author.id, hero_id)
-
-            if obtained:
-                current_lb = db_ailie.get_hero_limit_break(
-                    ctx.author.id, hero_name)
-                required_gems = (current_lb + 1) * 50000
-                current_gems = db_ailie.get_gems(ctx.author.id)
-
-                if current_lb >= 10:
-                    await ctx.send("You can't limit break that beast anymore.")
-                    return
-                if current_gems > required_gems:
-                    proceed = True
-                else:
-                    await ctx.send(
-                        f"<@{ctx.author.id}>, you only "
-                        + f"have `{current_gems:,d}` "
-                        + f"💎 and you need `{required_gems:,d}` 💎 to limit "
-                        + f"break **{hero_name}** from `{current_lb}` to "
-                        + f"`{current_lb + 1}`."
-                    )
-                    db_ailie.disconnect()
-                    return
+        if type.lower() in ["heroes", "hero", "h"]:
+            type = "herp"
+            target_name = db_ailie.get_hero_full_name(target)
+            if not target_name:
+                exists = False
             else:
-                await ctx.send(f"<@{ctx.author.id}>, you don't have that hero.")
+                target_id = db_ailie.get_hero_id(target_name)
+                obtained = db_ailie.is_hero_obtained(ctx.author.id, target_id)
+        elif type.lower() in \
+                ["equipments", "equipment", "equips", "equip", "eq", "e"]:
+            type = "equip"
+            target_name = db_ailie.get_equip_full_name(target)
+            if not target_name:
+                exists = False
+            else:
+                target_id = db_ailie.get_equip_id(target_name)
+                obtained = db_ailie.is_equip_obtained(ctx.author.id, target_id)
+        else:
+            await ctx.send("Only heroes and equipments can be limit broken.")
+            return
+
+        if not exists:
+            await ctx.send("The target you specified does not exist!")
+            return
+
+        if not obtained:
+            await ctx.send("You don't have the target you specified!")
+            return
+        else:
+            if type == "hero":
+                current_lb = db_ailie.get_hero_limit_break(
+                    ctx.author.id, target_name)
+            else:
+                current_lb = db_ailie.get_equip_limit_break(
+                    ctx.author.id, target_name)
+
+            if current_lb >= max_lb:
+                await ctx.send("You can't limit break that beast anymore.")
+                return
+
+            required_gems = (current_lb + 1) * 50000
+            current_gems = db_ailie.get_gems(ctx.author.id)
+
+            if current_gems < required_gems:
+                proceed = False
+            else:
+                await ctx.send(
+                    f"<@{ctx.author.id}>, you only "
+                    + f"have `{current_gems:,d}` "
+                    + f"gems and you need `{required_gems:,d}` 💎 to limit "
+                    + f"break **{target_name}** from `{current_lb}` to "
+                    + f"`{current_lb + 1}`."
+                )
                 db_ailie.disconnect()
                 return
-        else:
-            await ctx.send(f"<@{ctx.author.id}>, what hero is that?")
-            db_ailie.disconnect()
-            return
 
         if proceed:
             # Get confirmation
             await ctx.send(
                     f"<@{ctx.author.id}>, confirm to limit break "
-                    + f"**{hero_name}** from `{current_lb}` "
+                    + f"**{target_name}** from `{current_lb}` "
                     + f"to `{current_lb + 1}` for "
                     + f"`{required_gems:,d}` gems. `Y` or `N`?"
             )
@@ -505,11 +536,16 @@ class Guardian(commands.Cog):
                 if msg.content.upper() in ["YES", "Y"]:
                     inventory_id = db_ailie.get_inventory_id(ctx.author.id)
                     db_ailie.spend_gems(ctx.author.id, required_gems)
-                    db_ailie.increase_limit_break_hero(
-                        inventory_id, hero_id, current_lb)
+                    if type == "hero":
+                        db_ailie.increase_limit_break_hero(
+                            inventory_id, target_id, current_lb)
+                    else:
+                        db_ailie.increase_limit_break_equip(
+                            inventory_id, target_id, current_lb)
+
                     await ctx.send(
                             f"Congratulations, <@{ctx.author.id}>! "
-                            + f"Your **{hero_name}**'s current limit "
+                            + f"Your **{target_name}**'s current limit "
                             + f"break is now `{current_lb + 1}`."
                     )
                 # Change of mind
