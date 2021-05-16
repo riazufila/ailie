@@ -1436,8 +1436,8 @@ class PvP(commands.Cog):
                         await ctx.send(
                             f"{heroes[first]['color']} "
                             + f"**{heroes[first]['hero_name']}** "
-                            + "tries to evade the next attack "
-                            + "in the nearest time!"
+                            + "tries to evade the attack "
+                            + "in next turn!"
                         )
                         await asyncio.sleep(2)
                     else:

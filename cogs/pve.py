@@ -11,8 +11,8 @@ class PvE(commands.Cog):
 
     @commands.command(
         name="train",
-        brief="Train heroes for EXP.",
-        description="This command allows heroes to gain EXP.",
+        brief="Train heroes.",
+        description="Train heroes to gain EXP.",
         aliases=["tra"],
     )
     @commands.cooldown(1, 30, commands.BucketType.user)
@@ -44,7 +44,7 @@ class PvE(commands.Cog):
         hero_full_name = db_ailie.get_hero_full_name(hero)
 
         if not hero_full_name:
-            await ctx.send("No such heroes exists.")
+            await ctx.send("No such hero exists.")
             db_ailie.disconnect()
             return
 

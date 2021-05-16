@@ -668,14 +668,15 @@ class Database():
 
         equipments_acquired_stats = self.cursor.fetchone()
 
+        lb = equipments_acquired_stats[1]
         exp = equipments_acquired_stats[0]
-        level = math.trunc((exp / 100) + 1)
+        level = math.trunc(((exp / 100) + 1) + (lb * 1))
 
         if equipments_acquired_stats:
             equip_acquired = {
                 "level": level,
                 "exp": exp,
-                "limit_break": equipments_acquired_stats[1],
+                "limit_break": lb
             }
             return equip_acquired
         else:
@@ -776,6 +777,23 @@ class Database():
 
         return exp
 
+    def get_equip_exp(self, guardian_id, equip_name):
+        equip_id = self.get_equip_id(equip_name)
+        inventory_id = self.get_inventory_id(guardian_id)
+
+        query = (
+            "SELECT equip_acquired_exp FROM equipments_acquired "
+            + "WHERE inventory_id = %s AND equip_id = %s;"
+        )
+        data = [inventory_id, equip_id]
+        self.cursor.execute(query, data)
+        exp = self.cursor.fetchone()
+
+        if isinstance(exp, tuple):
+            exp = exp[0]
+
+        return exp
+
     def get_hero_limit_break(self, guardian_id, hero_name):
         hero_id = self.get_hero_id(hero_name)
         inventory_id = self.get_inventory_id(guardian_id)
@@ -785,6 +803,23 @@ class Database():
             + "WHERE inventory_id = %s AND hero_id = %s;"
         )
         data = [inventory_id, hero_id]
+        self.cursor.execute(query, data)
+        lb = self.cursor.fetchone()
+
+        if isinstance(lb, tuple):
+            lb = lb[0]
+
+        return lb
+
+    def get_equip_limit_break(self, guardian_id, equip_name):
+        equip_id = self.get_equip_id(equip_name)
+        inventory_id = self.get_inventory_id(guardian_id)
+
+        query = (
+            "SELECT equip_acquired_limit_break FROM equipments_acquired "
+            + "WHERE inventory_id = %s AND equip_id = %s;"
+        )
+        data = [inventory_id, equip_id]
         self.cursor.execute(query, data)
         lb = self.cursor.fetchone()
 
@@ -818,6 +853,31 @@ class Database():
         self.cursor.execute(query, data)
         self.connection.commit()
 
+    def update_equip_exp(self, guardian_id, equip_name, exp):
+        equip_id = self.get_equip_id(equip_name)
+        inventory_id = self.get_inventory_id(guardian_id)
+        exp = self.get_equip_exp(guardian_id, equip_name) + exp
+        lb = self.get_equip_limit_break(guardian_id, equip_name)
+
+        level = math.trunc((((exp * lb) / 100) + 1) + (lb * 1))
+        max_level = math.trunc((((4900 * lb) / 100) + 1) + (lb * 1))
+
+        if level < max_level:
+            query = (
+                "UPDATE equipments_acquired SET equip_acquired_exp = %s "
+                + "WHERE inventory_id = %s AND equip_id = %s;"
+            )
+            data = [exp, inventory_id, equip_id]
+        else:
+            query = (
+                "UPDATE equipments_acquired SET equip_acquired_exp = %s "
+                + "WHERE inventory_id = %s AND equip_id = %s;"
+            )
+            data = [(4900 * (lb + 1)), inventory_id, equip_id]
+
+        self.cursor.execute(query, data)
+        self.connection.commit()
+
     def increase_limit_break_hero(self, inventory_id, hero_id, current_lb):
         new_lb = current_lb + 1
         query = (
@@ -825,6 +885,16 @@ class Database():
             + "WHERE inventory_id = %s AND hero_id = %s"
         )
         data = [new_lb, inventory_id, hero_id]
+        self.cursor.execute(query, data)
+        self.connection.commit()
+
+    def increase_limit_break_equip(self, inventory_id, equip_id, current_lb):
+        new_lb = current_lb + 1
+        query = (
+            "UPDATE equipments_acquired SET equip_acquired_limit_break = %s "
+            + "WHERE inventory_id = %s AND equip_id = %s"
+        )
+        data = [new_lb, inventory_id, equip_id]
         self.cursor.execute(query, data)
         self.connection.commit()
 

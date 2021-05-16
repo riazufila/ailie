@@ -113,10 +113,7 @@ class Bot(commands.Cog):
             await asyncio.sleep(0.5)
             await msg.edit(content=msg.content + " Will that help?")
         elif isinstance(error, commands.MaxConcurrencyReached):
-            await ctx.send(
-                f"Yo, <@{ctx.author.id}>! CHILL? "
-                + "Someone is already doing that command!"
-            )
+            await ctx.send(f"Yo, <@{ctx.author.id}>! CHILL?")
         elif isinstance(error, commands.NotOwner):
             await ctx.send("That command is only for my awesome creator.")
         elif isinstance(error, ConnectionResetError) or isinstance(
