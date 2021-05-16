@@ -455,6 +455,9 @@ class Guardian(commands.Cog):
                 required_gems = (current_lb + 1) * 50000
                 current_gems = db_ailie.get_gems(ctx.author.id)
 
+                if current_lb >= 10:
+                    await ctx.send("You can't limit break that beast anymore.")
+                    return
                 if current_gems > required_gems:
                     proceed = True
                 else:
