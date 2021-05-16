@@ -456,17 +456,24 @@ class Database():
         hero_with_level = []
         for hero in hero_inventory:
             acquired = self.get_hero_acquired_details(inventory_id, hero[2])
+            ewp_id = self.get_exclusive_weapon_id(hero[2])
+            obtained = self.is_equip_obtained(guardian_id, ewp_id)
             hero_with_level.append(
-                [acquired["level"], hero[0], hero[1], hero[2]])
+                [acquired["level"], hero[0], hero[1], hero[2], obtained])
 
         hero_inventory = sorted(hero_with_level, reverse=True)
         for hero in hero_inventory:
+            if hero[4]:
+                ewp_ind = " 🗡️"
+            else:
+                ewp_ind = ""
+
             if hero[1] == 3:
-                hero_buffer[2].append(f"Lvl {hero[0]} ★★★ {hero[2]}")
+                hero_buffer[2].append(f"Lvl {hero[0]} ★★★ {hero[2]}{ewp_ind}")
             if hero[1] == 2:
-                hero_buffer[1].append("Lvl {hero[0]} ★★ {hero[2]}")
+                hero_buffer[1].append("Lvl {hero[0]} ★★ {hero[2]}{ewp_ind}")
             if hero[1] == 1:
-                hero_buffer[0].append("Lvl {hero[0]} ★ {hero[2]}")
+                hero_buffer[0].append("Lvl {hero[0]} ★ {hero[2]}{ewp_ind}")
 
         return hero_buffer
 
@@ -491,31 +498,40 @@ class Database():
         equip_with_level = []
         for equip in equip_inventory:
             acquired = self.get_equip_acquired_details(inventory_id, equip[3])
+            hero_id = self.get_hero_id_for_exclusive_weapon(equip[3])
+            obtained = self.is_hero_obtained(guardian_id, hero_id)
             equip_with_level.append(
-                [acquired["level"], equip[0], equip[1], equip[2], equip[3]])
+                [acquired["level"], equip[0], equip[1],
+                    equip[2], equip[3], obtained]
+            )
 
         equip_inventory = sorted(equip_with_level, reverse=True)
         for equip in equip_inventory:
+            if equip[5]:
+                hero_ind = " 👊"
+            else:
+                hero_ind = ""
+
             if equip[2]:
                 if equip[1] == 5:
                     equip_buffer[5].append(
-                        f"Lvl {equip[0]} ★★★★★ [Ex] {equip[3]}")
+                        f"Lvl {equip[0]} ★★★★★ [Ex] {equip[3]}{hero_ind}")
                 if equip[1] == 4:
                     equip_buffer[4].append(
-                        f"Lvl {equip[0]} ★★★★ [Ex] {equip[3]}")
+                        f"Lvl {equip[0]} ★★★★ [Ex] {equip[3]}{hero_ind}")
             else:
                 if equip[1] == 5:
                     equip_buffer[3].append(
-                        f"Lvl {equip[0]} ★★★★★  {equip[3]}")
+                        f"Lvl {equip[0]} ★★★★★  {equip[3]}{hero_ind}")
                 if equip[1] == 4:
                     equip_buffer[2].append(
-                        f"Lvl {equip[0]} ★★★★ {equip[3]}")
+                        f"Lvl {equip[0]} ★★★★ {equip[3]}{hero_ind}")
                 if equip[1] == 3:
                     equip_buffer[1].append(
-                        f"Lvl {equip[0]} ★★★ {equip[3]}")
+                        f"Lvl {equip[0]} ★★★ {equip[3]}{hero_ind}")
                 if equip[1] == 2:
                     equip_buffer[0].append(
-                        f"Lvl {equip[0]} ★★ {equip[3]}")
+                        f"Lvl {equip[0]} ★★ {equip[3]}{hero_ind}")
 
         return equip_buffer
 
@@ -1296,6 +1312,17 @@ class Database():
             equip_id = equip_id[0]
 
         return equip_id
+
+    def get_hero_id_for_exclusive_weapon(self, equip_id):
+        query = "SELECT hero_id FROM heroes WHERE equip_id = %s;"
+        data = [equip_id]
+        self.cursor.execute(query, data)
+        hero_id = self.cursor.fetchone()
+
+        if isinstance(hero_id, tuple):
+            hero_id = hero_id[0]
+
+        return hero_id
 
     # Disconnect database
     def disconnect(self):
