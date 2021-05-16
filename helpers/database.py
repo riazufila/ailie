@@ -438,7 +438,8 @@ class Database():
 
     def hero_inventory(self, guardian_id):
         query = (
-            "SELECT h.hero_star, h.hero_name FROM guardians g "
+            "SELECT h.hero_star, h.hero_name, h.hero_id "
+            + "FROM guardians g "
             + "INNER JOIN inventories i ON g.guardian_id = i.guardian_id "
             + "INNER JOIN heroes_acquired ha "
             + "ON i.inventory_id = ha.inventory_id "
@@ -450,19 +451,36 @@ class Database():
         hero_inventory = self.cursor.fetchall()
         hero_buffer = [[], [], []]
 
+        inventory_id = self.get_inventory_id(guardian_id)
+
+        hero_with_level = []
         for hero in hero_inventory:
-            if hero[0] == 3:
-                hero_buffer[2].append("★★★ " + hero[1])
-            if hero[0] == 2:
-                hero_buffer[1].append("★★ " + hero[1])
-            if hero[0] == 1:
-                hero_buffer[0].append("★ " + hero[1])
+            acquired = self.get_hero_acquired_details(inventory_id, hero[2])
+            ewp_id = self.get_exclusive_weapon_id(hero[2])
+            obtained = self.is_equip_obtained(guardian_id, ewp_id)
+            hero_with_level.append(
+                [acquired["level"], hero[0], hero[1], hero[2], obtained])
+
+        hero_inventory = sorted(hero_with_level, reverse=True)
+        for hero in hero_inventory:
+            if hero[4]:
+                ewp_ind = " 🗡️"
+            else:
+                ewp_ind = ""
+
+            if hero[1] == 3:
+                hero_buffer[2].append(f"Lvl {hero[0]} ★★★ {hero[2]}{ewp_ind}")
+            if hero[1] == 2:
+                hero_buffer[1].append("Lvl {hero[0]} ★★ {hero[2]}{ewp_ind}")
+            if hero[1] == 1:
+                hero_buffer[0].append("Lvl {hero[0]} ★ {hero[2]}{ewp_ind}")
 
         return hero_buffer
 
     def equip_inventory(self, guardian_id):
         query = (
-            "SELECT eq.equip_star, eq.equip_exclusive, eq.equip_name "
+            "SELECT eq.equip_star, eq.equip_exclusive, "
+            + "eq.equip_name, eq.equip_id "
             + "FROM guardians g "
             + "INNER JOIN inventories i ON g.guardian_id = i.guardian_id "
             + "INNER JOIN equipments_acquired ea "
@@ -475,21 +493,45 @@ class Database():
         equip_inventory = self.cursor.fetchall()
         equip_buffer = [[], [], [], [], [], []]
 
+        inventory_id = self.get_inventory_id(guardian_id)
+
+        equip_with_level = []
         for equip in equip_inventory:
-            if equip[1]:
-                if equip[0] == 5:
-                    equip_buffer[5].append("★★★★★ [Ex] " + equip[2])
-                if equip[0] == 4:
-                    equip_buffer[4].append("★★★★ [Ex] " + equip[2])
+            acquired = self.get_equip_acquired_details(inventory_id, equip[3])
+            hero_id = self.get_hero_id_for_exclusive_weapon(equip[3])
+            obtained = self.is_hero_obtained(guardian_id, hero_id)
+            equip_with_level.append(
+                [acquired["level"], equip[0], equip[1],
+                    equip[2], equip[3], obtained]
+            )
+
+        equip_inventory = sorted(equip_with_level, reverse=True)
+        for equip in equip_inventory:
+            if equip[5]:
+                hero_ind = " 👊"
             else:
-                if equip[0] == 5:
-                    equip_buffer[3].append("★★★★★ " + equip[2])
-                if equip[0] == 4:
-                    equip_buffer[2].append("★★★★ " + equip[2])
-                if equip[0] == 3:
-                    equip_buffer[1].append("★★★ " + equip[2])
-                if equip[0] == 2:
-                    equip_buffer[0].append("★★ " + equip[2])
+                hero_ind = ""
+
+            if equip[2]:
+                if equip[1] == 5:
+                    equip_buffer[5].append(
+                        f"Lvl {equip[0]} ★★★★★ [Ex] {equip[3]}{hero_ind}")
+                if equip[1] == 4:
+                    equip_buffer[4].append(
+                        f"Lvl {equip[0]} ★★★★ [Ex] {equip[3]}{hero_ind}")
+            else:
+                if equip[1] == 5:
+                    equip_buffer[3].append(
+                        f"Lvl {equip[0]} ★★★★★  {equip[3]}{hero_ind}")
+                if equip[1] == 4:
+                    equip_buffer[2].append(
+                        f"Lvl {equip[0]} ★★★★ {equip[3]}{hero_ind}")
+                if equip[1] == 3:
+                    equip_buffer[1].append(
+                        f"Lvl {equip[0]} ★★★ {equip[3]}{hero_ind}")
+                if equip[1] == 2:
+                    equip_buffer[0].append(
+                        f"Lvl {equip[0]} ★★ {equip[3]}{hero_ind}")
 
         return equip_buffer
 
@@ -615,6 +657,30 @@ class Database():
         else:
             return None
 
+    def get_equip_acquired_details(self, inventory_id, equip_id):
+        query = (
+            "SELECT equip_acquired_exp, equip_acquired_limit_break "
+            + "FROM equipments_acquired "
+            + "WHERE equip_id = %s and inventory_id = %s;"
+        )
+        data = [equip_id, inventory_id]
+        self.cursor.execute(query, data)
+
+        equipments_acquired_stats = self.cursor.fetchone()
+
+        exp = equipments_acquired_stats[0]
+        level = math.trunc((exp / 100) + 1)
+
+        if equipments_acquired_stats:
+            equip_acquired = {
+                "level": level,
+                "exp": exp,
+                "limit_break": equipments_acquired_stats[1],
+            }
+            return equip_acquired
+        else:
+            return None
+
     def get_hero_stats(self, hero_id):
         query = (
             "SELECT hero_stats, hero_buffs, hero_skill, hero_triggers "
@@ -626,12 +692,33 @@ class Database():
 
         return hero_char[0], hero_char[1], hero_char[2], hero_char[3]
 
+    def get_equip_stats(self, equip_id):
+        query = (
+            "SELECT equip_stats, equip_buffs, equip_skill, equip_triggers, "
+            + "equip_instant_triggers FROM equipments WHERE equip_id = %s;"
+        )
+        data = [equip_id]
+        self.cursor.execute(query, data)
+        equip_char = self.cursor.fetchone()
+
+        return equip_char[0], equip_char[1], \
+            equip_char[2], equip_char[3], equip_char[4]
+
     def get_hero_full_name(self, name):
         heroes = self.get_pool("heroes", "normal", [[], [], []])
 
         for hero in heroes[2]:
             if name.lower() in hero.lower():
                 return hero[4:]
+
+    def get_equip_full_name(self, name):
+        equips = self.equipments = self.get_pool(
+                "equipments", "normal", [[], [], [], [], []])
+
+        for equip in equips[4]:
+            if equip.startswith("★★★★★ [Ex] "):
+                if name.lower() in equip.lower():
+                    return equip[11:]
 
     def has_ewp(self, guardian_id, hero_name):
         hero_id = self.get_hero_id(hero_name)
@@ -1223,6 +1310,28 @@ class Database():
         data = [summon_count, guardian_id]
         self.cursor.execute(query, data)
         self.connection.commit()
+
+    def get_exclusive_weapon_id(self, hero_id):
+        query = "SELECT equip_id FROM heroes WHERE hero_id = %s;"
+        data = [hero_id]
+        self.cursor.execute(query, data)
+        equip_id = self.cursor.fetchone()
+
+        if isinstance(equip_id, tuple):
+            equip_id = equip_id[0]
+
+        return equip_id
+
+    def get_hero_id_for_exclusive_weapon(self, equip_id):
+        query = "SELECT hero_id FROM heroes WHERE equip_id = %s;"
+        data = [equip_id]
+        self.cursor.execute(query, data)
+        hero_id = self.cursor.fetchone()
+
+        if isinstance(hero_id, tuple):
+            hero_id = hero_id[0]
+
+        return hero_id
 
     # Disconnect database
     def disconnect(self):

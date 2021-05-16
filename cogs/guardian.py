@@ -9,7 +9,7 @@ class Guardian(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    def heroStatsLevel(self, stats, hero_level, user_level):
+    def statsLevel(self, stats, hero_level, user_level):
         # Increase overall stats
         for stat in stats:
             if stat in ["attack"]:
@@ -70,7 +70,7 @@ class Guardian(commands.Cog):
         name="profile",
         brief="View profile.",
         description="View profile of yourself or someone else's.",
-        aliases=["prof"],
+        aliases=["pr"],
     )
     async def profile(self, ctx, mention: discord.Member = None):
         # Check if user is initialized first
@@ -161,10 +161,10 @@ class Guardian(commands.Cog):
         description=(
             "Open inventory to check what you have collected so far."
             + "`type` can be either `hero` or `equip`. "
-            + "Mention is optional as it can be used to view "
-            + "others' inventories instead."
+            + "`target` is optional as it can be used to view "
+            + "your specific hero statistics."
         ),
-        aliases=["inv", "bag"],
+        aliases=["inv"],
     )
     async def inventory(
             self, ctx, type, *target):
@@ -183,9 +183,11 @@ class Guardian(commands.Cog):
         inventory = []
         header = ""
         exists = False
-        hero_name = ""
-        hero_acquired = {}
-        hero_stats = hero_buffs = hero_skill = hero_on_hit = hero_on_normal = {}
+        in_bag = False
+        full_name = ""
+        acquired = {}
+        stats = buffs = skill = on_hit = on_normal \
+            = on_normal_instant = on_hit_instant = {}
 
         if target:
             target = " ".join(target)
@@ -221,43 +223,79 @@ class Guardian(commands.Cog):
             else:
                 header = "Epic Exclusive Equipment"
         elif type in ["heroes", "hero", "h"] and target:
+            type = "Hero"
             exists = True
-            hero_name = db_ailie.get_hero_full_name(target)
+            full_name = db_ailie.get_hero_full_name(target)
 
-            if not hero_name:
+            if not full_name:
                 exists = False
             else:
-                hero_id = db_ailie.get_hero_id(hero_name)
+                hero_id = db_ailie.get_hero_id(full_name)
                 (
-                    hero_stats,
-                    hero_buffs,
-                    hero_skill,
-                    hero_triggers,
+                    stats,
+                    buffs,
+                    skill,
+                    triggers,
                 ) = db_ailie.get_hero_stats(hero_id)
 
-                for trigger in hero_triggers:
+                for trigger in triggers:
                     if trigger == "on_hit":
-                        hero_on_hit = hero_triggers[trigger]
+                        on_hit = triggers[trigger]
                     else:
-                        hero_on_normal = hero_triggers[trigger]
+                        on_normal = triggers[trigger]
 
                 inventory_id = db_ailie.get_inventory_id(guardian_id)
                 if db_ailie.is_hero_obtained(guardian_id, hero_id):
                     user_level = db_ailie.get_user_level(guardian_id)
-                    hero_acquired = db_ailie.get_hero_acquired_details(
+                    acquired = db_ailie.get_hero_acquired_details(
                         inventory_id, hero_id
                     )
-                    hero_stats = self.heroStatsLevel(
-                        hero_stats, hero_acquired["level"], user_level
+                    stats = self.statsLevel(
+                        stats, acquired["level"], user_level
                     )
+                    in_bag = True
                 else:
-                    exists = False
-        elif type in ["equipments", "equips", "equip", "eq", "e"]:
-            await ctx.send(
-                f"Sorry, <@{ctx.author.id}>. Further information on equipments "
-                + "are still under maintenance."
-            )
-            return
+                    in_bag = False
+        elif type in ["equipments", "equips", "equip", "eq", "e"] and target:
+            type = "Equip"
+            exists = True
+            full_name = db_ailie.get_equip_full_name(target)
+
+            if not full_name:
+                exists = False
+            else:
+                equip_id = db_ailie.get_equip_id(full_name)
+                (
+                    stats,
+                    buffs,
+                    skill,
+                    triggers,
+                    instant_triggers
+                ) = db_ailie.get_equip_stats(equip_id)
+
+                for trigger in triggers:
+                    if trigger == "on_hit":
+                        on_hit = triggers[trigger]
+                    else:
+                        on_normal = triggers[trigger]
+
+                for instant_trigger in instant_triggers:
+                    if instant_trigger == "on_hit":
+                        on_hit_instant = instant_triggers[instant_trigger]
+                    else:
+                        on_normal_instant = instant_triggers[instant_trigger]
+
+                inventory_id = db_ailie.get_inventory_id(guardian_id)
+                if db_ailie.is_equip_obtained(guardian_id, equip_id):
+                    acquired = db_ailie.get_equip_acquired_details(
+                        inventory_id, equip_id
+                    )
+                    stats = self.statsLevel(
+                        stats, acquired["level"], 0
+                    )
+                    in_bag = True
+                else:
+                    in_bag = False
         else:
             await ctx.send(
                 "There's only inventories for heroes and equipments, "
@@ -283,24 +321,26 @@ class Guardian(commands.Cog):
                 inline=False,
             )
             await ctx.send(embed=embed)
-        elif target and exists:
+        elif target and in_bag:
             embed = discord.Embed(color=discord.Color.purple())
             embed.set_author(
                 icon_url=self.bot.user.avatar_url,
-                name=f"Lvl {hero_acquired['level']} {hero_name}",
+                name=f"Lvl {acquired['level']} {full_name}",
             )
             embed.add_field(
-                name="Hero EXP 💪",
-                value=f"`{hero_acquired['exp']:,d}`"
+                name=f"{type} EXP 💪",
+                value=f"`{acquired['exp']:,d}`"
             )
 
             # Set output
             for info in [
-                hero_stats,
-                hero_buffs,
-                hero_skill,
-                hero_on_hit,
-                hero_on_normal,
+                stats,
+                buffs,
+                skill,
+                on_hit,
+                on_normal,
+                on_hit_instant,
+                on_normal_instant
             ]:
                 information = ""
                 info_title = ""
@@ -308,16 +348,20 @@ class Guardian(commands.Cog):
                     all = False
                     party = ""
 
-                    if info == hero_stats:
+                    if info == stats:
                         info_title = "Stats 📋"
-                    elif info == hero_buffs:
+                    elif info == buffs:
                         info_title = "Buffs ✨"
-                    elif info == hero_skill:
+                    elif info == skill:
                         info_title = "Chain Skill 🔗"
-                    elif info == hero_on_hit:
+                    elif info == on_hit:
                         info_title = "On Hit 🛡️"
-                    else:
+                    elif info == on_normal:
                         info_title = "On Attack ⚔️"
+                    elif info == on_hit_instant:
+                        info_title = "On Hit Instant 🛡️⚡"
+                    else:
+                        info_title = "On Attack Instant ⚔️⚡"
 
                     if i.startswith("all"):
                         buffer = i[4:]
@@ -344,6 +388,8 @@ class Guardian(commands.Cog):
                     )
 
             await ctx.send(embed=embed)
+        elif not exists:
+            await ctx.send("The target you stated doesn't exist.")
         else:
             await ctx.send("You don't own the target you stated.")
 
@@ -357,7 +403,6 @@ class Guardian(commands.Cog):
             + "This is optional. If you set it, you'll see the "
             + "username you set in some commands."
         ),
-        aliases=["name", "ign"],
     )
     async def username(self, ctx, username):
         # Check if user is initialized first
@@ -481,7 +526,7 @@ class Guardian(commands.Cog):
             "This command needs to be issued before most of the other commands "
             + "can be used. Think of it as a registration process."
         ),
-        aliases=["init"],
+        aliases=["ini"],
     )
     async def initialize(self, ctx):
         db_ailie = Database()

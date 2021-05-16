@@ -471,7 +471,7 @@ class Summon(commands.Cog):
             "Check the current pickup heroes and equipments. "
             + "This changes every two weeks or so."
             ),
-        aliases=["pickup"]
+        aliases=["ba"]
     )
     async def banner(self, ctx):
         # Check if user is initialized first

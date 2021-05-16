@@ -11,6 +11,13 @@ class PvP(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
+    def addWeaponStatsToHero(self, weapon, hero):
+        for h in hero:
+            if h in weapon:
+                hero[h] = hero[h] + weapon[h]
+
+        return hero
+
     def is_miss(self, speed):
         miss = random.choices(
             [True, False],
@@ -267,7 +274,7 @@ class PvP(commands.Cog):
 
             await ctx.send(
                 f"{actor['color']} **{actor['hero_name']}** used "
-                + f"{move_type} and `dealt {total_damage:,d}` "
+                + f"{move_type} and dealt `{total_damage:,d}` "
                 + f"{damage_type}!"
             )
             await asyncio.sleep(2)
@@ -299,7 +306,28 @@ class PvP(commands.Cog):
                 )
                 await asyncio.sleep(2)
 
-        return actor["stats"]["hp"], victim["stats"]["hp"], end, winner, loser
+                if move_type == "weapon skill":
+                    victim["current_state"]["stunned"] = 3
+                    await ctx.send(
+                        f"{actor['color']} "
+                        + f"**{actor['hero_name']}** "
+                        + "used weapon skill and stunned "
+                        + f"**{victim['hero_name']}** "
+                        + "for 3 of their turns!"
+                    )
+                    await asyncio.sleep(2)
+
+                if move_type == "chain skill":
+                    # Break stunned condition after CS
+                    victim["current_state"]["stunned"] = 0
+                    await ctx.send(
+                        f"{victim['color']} "
+                        + f"**{victim['hero_name']}** "
+                        + "broke free from stun!"
+                    )
+                    await asyncio.sleep(2)
+
+        return victim, end, winner, loser
 
     async def heal(self, ctx, hero, buff_percent):
         # Calculate heals
@@ -362,7 +390,10 @@ class PvP(commands.Cog):
             else:
                 s = stat
 
-            stats[s] = stats[s] + buffs[stat]
+            if s in ["attack", "def", 'hp']:
+                stats[s] = round(stats[s] + ((buffs[stat]/100) * stats[s]))
+            else:
+                stats[s] = stats[s] + buffs[stat]
 
         return stats
 
@@ -481,6 +512,8 @@ class PvP(commands.Cog):
             "weapon_skill_cd": 5,
             "on_normal_skill_cd": 5,
             "on_hit_skill_cd": 5,
+            "on_normal_instant_skill_cd": 1,
+            "on_hit_instants_skill_cd": 1,
             "evade_cd": 0,
             "stunned": 0,
         }
@@ -527,6 +560,49 @@ class PvP(commands.Cog):
             "wsrs": 0,
         }
 
+    def get_equip_information(self, guardian_id, hero):
+        db_ailie = Database()
+        inventory_id = db_ailie.get_inventory_id(guardian_id)
+        hero_full_name = db_ailie.get_hero_full_name(hero)
+        hero_id = db_ailie.get_hero_id(hero_full_name)
+        equip_id = db_ailie.get_exclusive_weapon_id(hero_id)
+        no_ewp = {
+            "stats": {},
+            "buffs": {},
+            "weapon_skill": {},
+            "triggers": {},
+            "acquired": {"level": {}},
+            "instant_triggers": {}
+        }
+
+        if not equip_id:
+            return no_ewp
+
+        obtained = db_ailie.is_equip_obtained(guardian_id, equip_id)
+
+        if not obtained:
+            return no_ewp
+
+        equip_acquired = db_ailie.get_equip_acquired_details(
+            inventory_id, equip_id
+        )
+        (
+            equip_stats,
+            equip_buffs,
+            equip_skill,
+            equip_triggers,
+            equip_instant_triggers
+        ) = db_ailie.get_equip_stats(equip_id)
+
+        return {
+            "stats": equip_stats,
+            "buffs": equip_buffs,
+            "weapon_skill": equip_skill,
+            "triggers": equip_triggers,
+            "acquired": equip_acquired,
+            "instant_triggers": equip_instant_triggers
+        }
+
     def get_hero_information(self, guardian_id, hero):
         db_ailie = Database()
         inventory_id = db_ailie.get_inventory_id(guardian_id)
@@ -542,20 +618,6 @@ class PvP(commands.Cog):
             hero_skill,
             hero_triggers,
         ) = db_ailie.get_hero_stats(hero_id)
-
-        # Put damage and the end of dictionary for hero_skill
-        buffer = {}
-        damage = None
-        for skill_percent in hero_skill:
-            if skill_percent == "damage":
-                damage = hero_skill[skill_percent]
-            else:
-                buffer[skill_percent] = hero_skill[skill_percent]
-
-        if damage:
-            buffer["damage"] = damage
-
-        hero_skill = buffer
 
         return {
             "stats": hero_stats,
@@ -621,6 +683,7 @@ class PvP(commands.Cog):
             + "the scope (default). To rank based on global, "
             + "put `global` as the scope."
         ),
+        aliases=["ran"]
     )
     async def rank(self, ctx, scope="server"):
         # Check if user is initialized first
@@ -708,7 +771,7 @@ class PvP(commands.Cog):
         name="trophy",
         brief="Check trophies.",
         description="Check the amount of your current trophies.",
-        aliases=["trophies"]
+        aliases=["tro"]
     )
     async def trophy(self, ctx, mention: discord.Member = None):
         # Check if user is initialized first
@@ -751,7 +814,7 @@ class PvP(commands.Cog):
             color=discord.Color.purple()
         )
         embed.set_author(
-            name=f"{guardian_name}'s Gems", icon_url=guardian_avatar)
+            name=f"{guardian_name}'s Trophies", icon_url=guardian_avatar)
         await ctx.send(embed=embed)
 
     @commands.command(
@@ -765,10 +828,11 @@ class PvP(commands.Cog):
             + "to draw its skill on your opponent and cause them "
             + "to be `stunned`."
             + "\n`CHAIN SKILL` can be used only on `stunned` opponents."
-            + "\n`EVADe` is used to increase `speed` for a while "
+            + "\n`EVADE` is used to increase `speed` for a while "
             + "which may cause opponent "
             + "to miss their attacks. `Surrender` is used to surrender."
         ),
+        aliases=["ar"]
     )
     @commands.max_concurrency(1, per=commands.BucketType.channel, wait=False)
     async def arena(self, ctx, mention: discord.Member = None, *hero):
@@ -866,6 +930,14 @@ class PvP(commands.Cog):
             db_ailie.disconnect()
             return
 
+        # If the mentioned player is the same player.
+        if challenger_id == opponent_id:
+            await ctx.send(
+                "Sike! You really thought I'm gonna let "
+                + f"you fight yourself eh, <@{challenger_id}>?"
+            )
+            return
+
         # Get users' hero information
         heroes = []
         for guardian_info in [
@@ -877,13 +949,16 @@ class PvP(commands.Cog):
             )
             heroes.append(hero_information)
 
-        # If the mentioned hero is the same hero.
-        if challenger_id == opponent_id:
-            await ctx.send(
-                "Sike! You really thought I'm gonna let "
-                + f"you fight yourself eh, <@{challenger_id}>?"
+        # Get users' exclusive weapon information
+        equips = []
+        for ewp_info in [
+            [challenger_id, hero],
+            [opponent_id, opponent_hero],
+        ]:
+            equip_information = self.get_equip_information(
+                ewp_info[0], ewp_info[1]
             )
-            return
+            equips.append(equip_information)
 
         # Set all the other information needed for a proper battle
         # Associate user details with the heroes
@@ -916,9 +991,36 @@ class PvP(commands.Cog):
                 hero["stats"], hero["acquired"]["level"], user_level)
             db_ailie.disconnect()
 
-        # Modify stats based on hero buffs
+        # Modify weapon stats depending on weapon level
+        # Weapon is not affected by user level
+        for equip in equips:
+            db_ailie = Database()
+            if len(equip) != 0:
+                equip["stats"] = self.multiplyStatsWithLevels(
+                    equip["stats"], equip["acquired"]["level"], 1)
+            db_ailie.disconnect()
+
+        # Add the stats from weapon to to hero
+        heroes[0]["stats"] = self.addWeaponStatsToHero(
+            equips[0]["stats"], heroes[0]["stats"])
+        heroes[1]["stats"] = self.addWeaponStatsToHero(
+            equips[1]["stats"], heroes[1]["stats"])
+
+        # Add weapon skill and instant triggers to heroes
+        heroes[0]["weapon_skill"] = equips[0]["weapon_skill"]
+        heroes[1]["weapon_skill"] = equips[1]["weapon_skill"]
+
+        heroes[0]["instant_triggers"] = equips[0]["instant_triggers"]
+        heroes[1]["instant_triggers"] = equips[1]["instant_triggers"]
+
+        # Modify stats based on buffs
         for hero in heroes:
             hero["stats"] = self.multiplyHeroBuffs(hero["stats"], hero["buffs"])
+
+        heroes[0]["stats"] = self.multiplyHeroBuffs(
+            heroes[0]["stats"], equips[0]["buffs"])
+        heroes[1]["stats"] = self.multiplyHeroBuffs(
+            heroes[1]["stats"], equips[1]["buffs"])
 
         # Update Max HP to a separate key
         for hero in heroes:
@@ -936,14 +1038,14 @@ class PvP(commands.Cog):
         end = False
         winner = {}
         loser = {}
-        round = 1
+        round_num = 1
         left = False
         while True:
             # Show available moves for each player
             embed = discord.Embed(color=discord.Color.purple())
             embed.set_author(
                 icon_url=self.bot.user.avatar_url,
-                name=f"Round {round}"
+                name=f"Round {round_num}"
             )
             embed.set_footer(
                 text=(
@@ -980,8 +1082,11 @@ class PvP(commands.Cog):
                     cs_cd = "❌"
 
                 # Display the moves
+                hp_percentage = round(
+                    (hero["stats"]["hp"] / hero["max_hp"]) * 100)
                 hp = (
-                    f"**HP**\n`{hero['stats']['hp']:,d}`/`{hero['max_hp']:,d}`"
+                    f"**HP {hp_percentage}%**\n"
+                    + f"`{hero['stats']['hp']:,d}`/`{hero['max_hp']:,d}`"
                 )
                 moves = (
                     "**Moves**"
@@ -998,9 +1103,21 @@ class PvP(commands.Cog):
 
             await asyncio.sleep(1)
             await ctx.send(embed=embed)
+            await asyncio.sleep(5)
+
+            # Increase attack on round 16 and later
+            if round_num > 15:
+                for hero in heroes:
+                    hero["stats"]["attack"] = hero["stats"]["attack"] \
+                        + ((20 / 100) * hero["stats"]["attack"])
+
+                await ctx.send(
+                    "*Every heroes felt the tension and "
+                    + "increased their attack by 20%!*"
+                )
+                await asyncio.sleep(1)
 
             # Prompt for each player to enter their move
-            await asyncio.sleep(5)
             msg = await ctx.send(
                 f"<@{heroes[0]['guardian_id']}> and "
                 + f"<@{heroes[1]['guardian_id']}>, please go ahead and "
@@ -1066,7 +1183,7 @@ class PvP(commands.Cog):
                         + f"<@{quitter_id}>!"
                     )
 
-                    if round >= 3:
+                    if round_num >= 3:
                         winner = {
                             "guardian_id": winner_id,
                             "hero_name": winner_hero
@@ -1109,6 +1226,27 @@ class PvP(commands.Cog):
                         heroes[first]["current_state"]["stunned"] == 0:
                     move_type = "attack"
                     percent_damage = heroes[first]["stats"]["normal"]
+                    onisc = "on_normal_instant_skill_cd"
+                    ohisc = "on_hit_instants_skill_cd"
+
+                    # Trigger instants buffs on attack
+                    if heroes[first]["current_state"][onisc] \
+                            == 0:
+                        if "on_normal" in heroes[first]["instant_triggers"]:
+                            heroes = await self.goingToAttackPleaseBuff(
+                                ctx, heroes, first, second,
+                                heroes[first]["instant_triggers"]["on_normal"],
+                            )
+                        heroes[first]["current_state"][onisc] = 1
+
+                    # Trigger instant buffs to victim
+                    if heroes[second]["current_state"][ohisc] == 0:
+                        if "on_hit" in heroes[second]["instant_triggers"]:
+                            heroes = await self.gotHitPleaseBuff(
+                                ctx, heroes, first, second,
+                                heroes[second]["instant_triggers"]["on_hit"],
+                            )
+                        heroes[second]["current_state"][ohisc] = 1
 
                     # Trigger buffs on attack
                     if heroes[first]["current_state"]["on_normal_skill_cd"] \
@@ -1130,8 +1268,7 @@ class PvP(commands.Cog):
                         heroes[second]["current_state"]["on_hit_skill_cd"] = 5
 
                     # Deal damage
-                    heroes[first]["stats"]["hp"], \
-                        heroes[second]["stats"]["hp"], \
+                    heroes[second], \
                         end, winner, loser = await self.attack(
                             ctx, heroes[first], heroes[second],
                             move_type, percent_damage
@@ -1141,6 +1278,36 @@ class PvP(commands.Cog):
                 elif choice[1].lower() in ["w", "ws", "2"] and \
                         heroes[first]["current_state"]["stunned"] == 0:
                     if heroes[first]["current_state"]["weapon_skill_cd"] == 0:
+                        move_type = "weapon skill"
+                        if "damage" in heroes[first]["weapon_skill"]:
+                            percent_damage = \
+                                heroes[first]["weapon_skill"]["damage"]
+                        else:
+                            percent_damage = 100
+                        onisc = "on_normal_instant_skill_cd"
+                        ohisc = "on_hit_instants_skill_cd"
+
+                        # Trigger instants buffs on attack
+                        if heroes[first]["current_state"][onisc] \
+                                == 0:
+                            if "on_normal" in heroes[first]["instant_triggers"]:
+                                heroes = await self.goingToAttackPleaseBuff(
+                                    ctx, heroes, first, second,
+                                    heroes[first]["instant_triggers"]
+                                    ["on_normal"],
+                                )
+                            heroes[first]["current_state"][onisc] = 1
+
+                        # Trigger instant buffs to victim
+                        if heroes[second]["current_state"][ohisc] == 0:
+                            if "on_hit" in heroes[second]["instant_triggers"]:
+                                heroes = await self.gotHitPleaseBuff(
+                                    ctx, heroes, first, second,
+                                    heroes[second]["instant_triggers"]
+                                    ["on_hit"],
+                                )
+                            heroes[second]["current_state"][ohisc] = 1
+
                         # Trigger buffs on attack
                         cs = "current_state"
                         if heroes[first][cs]["on_normal_skill_cd"] \
@@ -1162,25 +1329,14 @@ class PvP(commands.Cog):
                             heroes[second]["current_state"]["on_hit_skill_cd"] \
                                 = 5
 
-                        # Weapon Skill calculations
-                        miss = self.is_miss(heroes[second]["stats"]["speed"])
-                        if not miss:
-                            heroes[second]["current_state"]["stunned"] = 3
-                            await ctx.send(
-                                f"{heroes[first]['color']} "
-                                + f"**{heroes[first]['hero_name']}** "
-                                + "used weapon skill and stunned "
-                                + f"**{heroes[second]['hero_name']}** "
-                                + "for 3 rounds!"
+                        # Deal damage
+                        if percent_damage is not None:
+                            heroes[second], \
+                                end, winner, loser = await self.attack(
+                                ctx, heroes[first], heroes[second],
+                                move_type, percent_damage
                             )
-                            await asyncio.sleep(2)
-                        else:
-                            await ctx.send(
-                                f"{heroes[first]['color']} "
-                                + f"**{heroes[first]['hero_name']}** "
-                                + "missed!"
-                            )
-                            await asyncio.sleep(2)
+
                         heroes[first]["current_state"]["weapon_skill_cd"] = \
                             self.calcWeapSkillCooldown(
                                 5, heroes[first]["stats"]["wsrs"])
@@ -1203,6 +1359,30 @@ class PvP(commands.Cog):
                             percent_damage = None
 
                         cs = "current_state"
+                        onisc = "on_normal_instant_skill_cd"
+                        ohisc = "on_hit_instants_skill_cd"
+
+                        # Trigger instants buffs on attack
+                        if heroes[first]["current_state"][onisc] \
+                                == 0:
+                            if "on_normal" in heroes[first]["instant_triggers"]:
+                                heroes = await self.goingToAttackPleaseBuff(
+                                    ctx, heroes, first, second,
+                                    heroes[first]["instant_triggers"]
+                                    ["on_normal"],
+                                )
+                            heroes[first]["current_state"][onisc] = 1
+
+                        # Trigger instant buffs to victim
+                        if heroes[second]["current_state"][ohisc] == 0:
+                            if "on_hit" in heroes[second]["instant_triggers"]:
+                                heroes = await self.gotHitPleaseBuff(
+                                    ctx, heroes, first, second,
+                                    heroes[second]["instant_triggers"]
+                                    ["on_hit"],
+                                )
+                            heroes[second]["current_state"][ohisc] = 1
+
                         # Trigger buffs on attack
                         if heroes[first][cs]["on_normal_skill_cd"] \
                                 == 0:
@@ -1230,15 +1410,11 @@ class PvP(commands.Cog):
 
                         # Deal damage
                         if percent_damage is not None:
-                            heroes[first]["stats"]["hp"], \
-                                heroes[second]["stats"]["hp"], \
+                            heroes[second], \
                                 end, winner, loser = await self.attack(
                                 ctx, heroes[first], heroes[second],
                                 move_type, percent_damage
                             )
-
-                        # Break stunned condition after CS
-                        heroes[second]["current_state"]["stunned"] = 0
                     else:
                         await ctx.send(
                             f"{heroes[first]['color']} "
@@ -1280,7 +1456,7 @@ class PvP(commands.Cog):
                         f"<@{heroes[first]['guardian_id']}> surrendered!")
                     await asyncio.sleep(2)
 
-                    if round >= 3:
+                    if round_num >= 3:
                         winner = {
                             "guardian_id": heroes[second]["guardian_id"],
                             "hero_name": heroes[second]["hero_name"]
@@ -1296,58 +1472,81 @@ class PvP(commands.Cog):
                 else:
                     pass
 
-                # If enemy is stunned
-                if heroes[first]["current_state"]["stunned"] != 0:
-                    await ctx.send(
-                        f"{heroes[first]['color']} "
-                        + f"**{heroes[first]['hero_name']}** "
-                        + "is stunned!"
-                    )
-                    await asyncio.sleep(2)
+                if not end:
+                    cs = "current_state"
 
-                # Update stats after multipliers
-                for hero in heroes:
-                    hero["stats"], hero["multipliers"], \
-                        hero["current_state"]["weapon_skill_cd"] = \
-                        self.updateStatsAfterMultiplierDebuff(
-                            hero, hero["multipliers"]
+                    # If enemy is stunned
+                    if heroes[first]["current_state"]["stunned"] != 0:
+                        await ctx.send(
+                            f"{heroes[first]['color']} "
+                            + f"**{heroes[first]['hero_name']}** "
+                            + "is stunned!"
                         )
+                        await asyncio.sleep(2)
 
-                # Update stats after debuffs
-                for hero in heroes:
-                    hero["stats"], hero["debuffs"], \
-                        hero["current_state"]["weapon_skill_cd"] = \
-                        self.updateStatsAfterMultiplierDebuff(
-                            hero, hero["debuffs"]
-                        )
+                    # Update stats after multipliers
+                    for hero in heroes:
+                        hero["stats"], hero["multipliers"], \
+                            hero["current_state"]["weapon_skill_cd"] = \
+                            self.updateStatsAfterMultiplierDebuff(
+                                hero, hero["multipliers"]
+                            )
 
-                # Update cooldown and more
-                if heroes[first]["current_state"]["weapon_skill_cd"] != 0:
-                    heroes[first]["current_state"]["weapon_skill_cd"] = \
-                        heroes[first]["current_state"]["weapon_skill_cd"] - 1
+                    # Update stats after debuffs
+                    for hero in heroes:
+                        hero["stats"], hero["debuffs"], \
+                            hero["current_state"]["weapon_skill_cd"] = \
+                            self.updateStatsAfterMultiplierDebuff(
+                                hero, hero["debuffs"]
+                            )
 
-                if heroes[first]["current_state"]["stunned"] != 0:
-                    heroes[first]["current_state"]["stunned"] = \
-                        heroes[first]["current_state"]["stunned"] - 1
+                    # Update cooldown and more
+                    if heroes[first]["current_state"]["weapon_skill_cd"] != 0:
+                        heroes[first]["current_state"]["weapon_skill_cd"] = \
+                            heroes[first]["current_state"]["weapon_skill_cd"] \
+                            - 1
 
-                if heroes[first]["current_state"]["evade_cd"] != 0:
-                    heroes[first]["current_state"]["evade_cd"] = \
-                        heroes[first]["current_state"]["evade_cd"] - 1
+                    if heroes[first]["current_state"]["stunned"] != 0:
+                        heroes[first]["current_state"]["stunned"] = \
+                            heroes[first]["current_state"]["stunned"] - 1
+                        if heroes[first]["current_state"]["stunned"] == 0:
+                            await ctx.send(
+                                f"{heroes[first]['color']} "
+                                + f"**{heroes[first]['hero_name']}** "
+                                + "broke free from stun!"
+                            )
 
-                if heroes[first]["current_state"]["on_normal_skill_cd"] != 0:
-                    heroes[first]["current_state"]["on_normal_skill_cd"] = \
-                        heroes[first]["current_state"]["on_normal_skill_cd"] - 1
+                    if heroes[first]["current_state"]["evade_cd"] != 0:
+                        heroes[first]["current_state"]["evade_cd"] = \
+                            heroes[first]["current_state"]["evade_cd"] - 1
 
-                if heroes[first]["current_state"]["on_hit_skill_cd"] != 0:
-                    heroes[first]["current_state"]["on_hit_skill_cd"] = \
-                        heroes[first]["current_state"]["on_hit_skill_cd"] - 1
+                    if heroes[first]["current_state"]["on_normal_skill_cd"] \
+                            != 0:
+                        heroes[first]["current_state"]["on_normal_skill_cd"] = \
+                            heroes[first][cs]["on_normal_skill_cd"] \
+                            - 1
 
-                # Multiplier and debuff count
-                for multi_count in heroes[first]["multipliers"]:
-                    multi_count["count"] = multi_count["count"] - 1
+                    if heroes[first]["current_state"]["on_hit_skill_cd"] != 0:
+                        heroes[first]["current_state"]["on_hit_skill_cd"] = \
+                            heroes[first]["current_state"]["on_hit_skill_cd"] \
+                            - 1
 
-                for debuff_count in heroes[first]["debuffs"]:
-                    debuff_count["count"] = debuff_count["count"] - 1
+                    onisc = "on_normal_instant_skill_cd"
+                    if heroes[first]["current_state"][onisc] != 0:
+                        heroes[first]["current_state"][onisc] = \
+                            heroes[first]["current_state"][onisc] - 1
+
+                    ohisc = "on_hit_instants_skill_cd"
+                    if heroes[first]["current_state"][ohisc] != 0:
+                        heroes[first]["current_state"][ohisc] = \
+                            heroes[first]["current_state"][ohisc] - 1
+
+                    # Multiplier and debuff count
+                    for multi_count in heroes[first]["multipliers"]:
+                        multi_count["count"] = multi_count["count"] - 1
+
+                    for debuff_count in heroes[first]["debuffs"]:
+                        debuff_count["count"] = debuff_count["count"] - 1
 
                 # If it ends, then break.
                 if end:
@@ -1355,7 +1554,7 @@ class PvP(commands.Cog):
 
             if not end:
                 # Increase round count
-                round = round + 1
+                round_num = round_num + 1
             else:
                 if winner and loser:
                     trophy_win = 25

@@ -307,7 +307,6 @@ class Guild(commands.Cog):
         name="guild",
         brief="Show Guild details.",
         description="Display all the members in your Guild.",
-        aliases=["member"],
     )
     async def guild(self, ctx):
         # Check if user is initialized first
