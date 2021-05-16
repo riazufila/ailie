@@ -70,7 +70,7 @@ class Guardian(commands.Cog):
         name="profile",
         brief="View profile.",
         description="View profile of yourself or someone else's.",
-        aliases=["pr"],
+        aliases=["pr", "prof"],
     )
     async def profile(self, ctx, mention: discord.Member = None):
         # Check if user is initialized first
