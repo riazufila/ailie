@@ -1252,7 +1252,8 @@ class PvP(commands.Cog):
                             if "on_normal" in heroes[first]["instant_triggers"]:
                                 heroes = await self.goingToAttackPleaseBuff(
                                     ctx, heroes, first, second,
-                                    heroes[first]["instant_triggers"]["on_normal"],
+                                    heroes[first]["instant_triggers"]
+                                    ["on_normal"],
                                 )
                             heroes[first]["current_state"][onisc] = 1
 
@@ -1261,7 +1262,8 @@ class PvP(commands.Cog):
                             if "on_hit" in heroes[second]["instant_triggers"]:
                                 heroes = await self.gotHitPleaseBuff(
                                     ctx, heroes, first, second,
-                                    heroes[second]["instant_triggers"]["on_hit"],
+                                    heroes[second]["instant_triggers"]
+                                    ["on_hit"],
                                 )
                             heroes[second]["current_state"][ohisc] = 1
 

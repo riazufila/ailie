@@ -3,6 +3,7 @@
 import os
 import asyncio
 import discord
+import aiohttp
 from discord.ext import commands
 from helpers.database import Database
 
@@ -118,7 +119,9 @@ class Bot(commands.Cog):
             )
         elif isinstance(error, commands.NotOwner):
             await ctx.send("That command is only for my awesome creator.")
-        elif isinstance(error, ConnectionResetError):
+        elif isinstance(error, ConnectionResetError) or isinstance(
+            error, aiohttp.ClientOSError
+        ):
             await ctx.send("We just got rate limited by Discord *sad*")
         else:
             await self.notifyOwner(ctx, error)
