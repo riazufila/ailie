@@ -15,7 +15,7 @@ class PvE(commands.Cog):
         description="Train heroes to gain EXP.",
         aliases=["tra"],
     )
-    @commands.cooldown(1, 30, commands.BucketType.user)
+    @commands.cooldown(1, 45, commands.BucketType.user)
     async def train(self, ctx, *hero):
         # Check if user is initialized first
         db_ailie = Database()
@@ -82,7 +82,7 @@ class PvE(commands.Cog):
                 "message", check=confirm_training, timeout=30
             )
 
-            exp = random.randint(1, 10)
+            exp = random.randint(40, 60)
 
             if msg.content == training_typing_picked:
                 reply = [
