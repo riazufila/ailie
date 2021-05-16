@@ -578,7 +578,6 @@ class Guardian(commands.Cog):
         aliases=["en"],
     )
     @commands.max_concurrency(1, per=commands.BucketType.user, wait=False)
-    @commands.is_owner()
     async def enhance(self, ctx, level_increase: int, *equipment):
         # Check if user is initialized first
         db_ailie = Database()
