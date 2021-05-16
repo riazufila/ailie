@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import math
 import random
 from discord.ext import commands
 from helpers.database import Database
@@ -55,6 +56,27 @@ class PvE(commands.Cog):
             db_ailie.disconnect()
             return
 
+        highest_exp_gain = 60
+        lowest_exp_gain = 40
+
+        hero_current_exp = db_ailie.get_hero_exp(ctx.author.id, hero_full_name)
+        hero_lb = db_ailie.get_hero_limit_break(ctx.author.id, hero_full_name)
+        max_exp = 5000 + (5000 * hero_lb)
+        max_exp_can_gain = max_exp - hero_current_exp
+
+        if max_exp_can_gain == 0:
+            await ctx.send(
+                f"Stop being greedy, <@{ctx.author.id}>! "
+                + "You're already at max level. *sigh*"
+            )
+            db_ailie.disconnect()
+            return
+
+        if max_exp_can_gain < 40:
+            highest_exp_gain = lowest_exp_gain = max_exp_can_gain
+        elif max_exp_can_gain < 60:
+            highest_exp_gain = max_exp_can_gain
+
         training_typing = [
             "Must protect Little Princess!",
             "I hope Future Princess gets nerfed..",
@@ -82,7 +104,7 @@ class PvE(commands.Cog):
                 "message", check=confirm_training, timeout=30
             )
 
-            exp = random.randint(40, 60)
+            exp = random.randint(lowest_exp_gain, highest_exp_gain)
 
             if msg.content == training_typing_picked:
                 reply = [
