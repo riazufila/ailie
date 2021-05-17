@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import asyncio
 import random
 import discord
 from discord.ext import commands
@@ -629,6 +630,109 @@ class Currency(commands.Cog):
 
         await ctx.send(f"<@{ctx.author.id}>, you bought {amount} {item_name}!")
         db_ailie.disconnect()
+
+    @commands.command(
+        name="wish",
+        brief="Wishes for gems.",
+        description=(
+            "You wished so hard using `Princess Amulet` that you get gems."
+        ),
+        aliases=["wi"]
+    )
+    # @commands.cooldown(1, 30, commands.BucketType.user)
+    async def wish(self, ctx):
+        # Check if user is initialized first
+        db_ailie = Database()
+        if not db_ailie.is_initialized(ctx.author.id):
+            await ctx.send(
+                "Do `ailie;initialize` or `a;initialize` "
+                + "first before anything!"
+            )
+            db_ailie.disconnect()
+            return
+
+        amount_amulet = db_ailie.has_princess_amulet_amount(ctx.author.id)
+
+        if not amount_amulet:
+            await ctx.send(
+                f"Sorry, <@{ctx.author.id}>. You need `Princess Amulet` "
+                + "to `wish`. Buy one from `a;shop`. "
+                + "If you have gems that is. HAHA!"
+            )
+            db_ailie.disconnect()
+            return
+
+        # Variables initialized
+        gems_to_obtain = []
+        weight = [70, 15, 10, 2.5, 1.75, 0.50, 0.25]
+        counter = 1
+        min_gems_to_gain = 2500
+        gems = 0
+
+        # Fill gems to obtain list with many random increasing numbers
+        while counter < 8:
+            gems_to_obtain.append(
+                random.randint(min_gems_to_gain, min_gems_to_gain + 500))
+            min_gems_to_gain = min_gems_to_gain * 2
+            counter += 1
+
+        # Choose gems from list with weights
+        gems_obtained = random.choices(gems_to_obtain, weight, k=1)
+
+        # Assign gem amount from array to single variable
+        for gems in gems_obtained:
+            gems = gems
+
+        # Store and display gems obtained
+        reply = [
+            "You wished to get the maximum amount of gems "
+            + "this command can you. "
+            + f"You get.. nothing, <@{ctx.author.id}>.",
+            "Oops! `Princess Amulet` broke. "
+            + f"No gems for you, <@{ctx.author.id}>.",
+            f"You wished hard and got `{gems:,d}` gems, <@{ctx.author.id}>.",
+            "You wish and wished and wished Little Princess "
+            + f"never had to suffer and got `{gems:,d}` gems while "
+            + f"doing so, <@{ctx.author.id}>.",
+            f"While wishing you saw `{gems:,d}` gems infront of you, "
+            f"<@{ctx.author.id}>. Miracle?",
+            "You wished to be the richest Guardian and got "
+            + f"yourself `{gems:,d}` gems, <@{ctx.author.id}>."
+        ]
+
+        buffer = [reply[0], reply[1]]
+        broke = False
+        chosen_reply = random.choice(reply)
+
+        if chosen_reply in buffer:
+            msg = await ctx.send(chosen_reply)
+            await asyncio.sleep(3)
+
+            # Calculate chance to break
+            broke = random.choices([True, False], [35, 65], k=1)
+
+            # Assign list to variable
+            for b in broke:
+                broke = b
+
+            if broke:
+                await msg.reply(
+                    "Yeah, I'm serious. Your `Princess Amulet` broke, "
+                    + f"<@{ctx.author.id}>. Sad."
+                )
+            else:
+                await msg.reply(
+                    f"Just kidding. You've gotten `{gems:,d}` gems, "
+                    + f"<@{ctx.author.id}>. Scared?"
+                )
+        else:
+            await ctx.send(chosen_reply)
+            broke = False
+
+        if not broke:
+            db_ailie.store_gems(ctx.author.id, gems)
+            db_ailie.update_user_exp(ctx.author.id, 10)
+            db_ailie.disconnect()
 
 
 def setup(bot):

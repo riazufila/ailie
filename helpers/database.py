@@ -1502,7 +1502,47 @@ class Database():
         self.cursor.execute(query, data)
         self.connection.commit()
 
+    def has_princess_amulet_amount(self, guardian_id):
+        item_id = self.get_item_id("Princess Amulet")
+        inventory_id = self.get_inventory_id(guardian_id)
+        query = (
+            "SELECT item_acquired_quantity FROM items_acquired "
+            + "WHERE item_id = %s AND inventory_id = %s;"
+        )
+        data = [item_id, inventory_id]
+        self.cursor.execute(query, data)
+        amount = self.cursor.fetchone()
 
+        if isinstance(amount, tuple):
+            amount = amount[0]
+
+        if amount <= 0:
+            return False
+        else:
+            return amount
+
+    def princess_amulet_break(self, guardian_id):
+        amount = self.has_princess_amulet_amount(guardian_id)
+        item_id = self.get_item_id("Princess Amulet")
+        inventory_id = self.get_inventory_id(guardian_id)
+
+        amount = amount - 1
+
+        if amount <= 0:
+            query = (
+                "DELETE FROM items_acquired WHERE inventory_id = %s "
+                + "AND item_id = %s;"
+            )
+            data = [inventory_id, item_id]
+        else:
+            query = (
+                "UPDATE items_acquired SET item_acquired_quantity = %s "
+                + "WHERE inventory_id = %s AND item_id = %s;"
+                    )
+            data = [amount, inventory_id, item_id]
+
+        self.cursor.execute(query, data)
+        self.connection.commit()
 
     # Disconnect database
     def disconnect(self):
