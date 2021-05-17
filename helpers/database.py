@@ -1408,6 +1408,48 @@ class Database():
 
         return hero_id
 
+    def get_item_id(self, item_name):
+        shop_items = self.get_shop_items()
+
+        for shop_item in shop_items:
+            if item_name.lower() in shop_item[0].lower():
+                query = "SELECT item_id FROM items WHERE item_name = %s;"
+                data = [shop_item[0]]
+                self.cursor.execute(query, data)
+                item_id = self.cursor.fetchone()
+
+                if isinstance(item_id, tuple):
+                    item_id = item_id[0]
+
+                return item_id
+
+    def get_shop_items(self):
+        query = "SELECT item_name, item_price FROM items;"
+        self.cursor.execute(query)
+        shop_items = self.cursor.fetchall()
+
+        return shop_items
+
+    def get_shop_item_detailed(self, item_name):
+        item_id = self.get_item_id(item_name)
+
+        if not item_id:
+            return None
+
+        query = (
+            "SELECT item_name, item_price, item_description "
+            + "FROM items WHERE item_id = %s;"
+        )
+        data = [item_id]
+        self.cursor.execute(query, data)
+        shop_item = self.cursor.fetchone()
+
+        return shop_item
+
+    def buy_items(self, guardian_id, item_name, amount):
+        item_id = self.get_item_id(item_name)
+
+
     # Disconnect database
     def disconnect(self):
         self.cursor.close()

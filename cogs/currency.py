@@ -216,7 +216,7 @@ class Currency(commands.Cog):
         description=(
             "Give a certain amount of gems that you obtain to someone else."
         ),
-        aliases=["sh"],
+        aliases=["sha"],
     )
     @commands.cooldown(1, 10, commands.BucketType.user)
     async def share(self, ctx, gems: int, mention: discord.Member):
@@ -493,6 +493,143 @@ class Currency(commands.Cog):
                 f"One can be so greedy, <@{ctx.author.id}>. "
                 + f"`{cd}` left before reset."
             )
+
+    @commands.command(
+        name="shop",
+        brief="Look through shop.",
+        description="View items sold in shop.",
+        aliases=["sho"]
+    )
+    @commands.cooldown(1, 5, commands.BucketType.user)
+    async def shop(self, ctx, *item):
+        # Check if user is initialized first
+        db_ailie = Database()
+        if not db_ailie.is_initialized(ctx.author.id):
+            await ctx.send(
+                "Do `ailie;initialize` or `a;initialize` "
+                + "first before anything!"
+            )
+            db_ailie.disconnect()
+            return
+
+        if item:
+            item = " ".join(item)
+
+            if len(item) < 4:
+                await ctx.send(
+                    f"Yo, <@{ctx.author.id}>. "
+                    + "At least put 4 characters please?"
+                )
+                db_ailie.disconnect()
+                return
+
+            item_details = db_ailie.get_shop_item_detailed(item)
+
+            if not item_details:
+                await ctx.send(
+                    f"Are you sure that item exist, <@{ctx.author.id}>?")
+                db_ailie.disconnect()
+                return
+
+            embed = discord.Embed(
+                description=(
+                    f"**Name**: `{item_details[0]}`"
+                    + f"\n**Price**: `{item_details[1]:,d}` 💎"
+                    + f"\n\n**Description**:\n`{item_details[2]}`"
+                ),
+                color=discord.Color.purple()
+            )
+            embed.set_author(
+                name=f"{ctx.me.name}'s Shop",
+                icon_url=ctx.me.avatar_url
+            )
+            await ctx.send(embed=embed)
+        else:
+            shop_items = db_ailie.get_shop_items()
+
+            counter = 1
+            buffer_total = []
+            for shop_item in shop_items:
+                buffer = \
+                    f"{counter}. **{shop_item[0]}** - `{shop_item[1]:,d}` 💎"
+                buffer_total.append(buffer)
+                counter += 1
+
+            embed = discord.Embed(
+                description=("\n".join(buffer_total)),
+                color=discord.Color.purple()
+            )
+            embed.set_author(
+                name=f"{ctx.me.name}'s Shop",
+                icon_url=ctx.me.avatar_url
+            )
+            await ctx.send(embed=embed)
+
+        db_ailie.disconnect()
+
+    @commands.command(
+        name="buy",
+        brief="Buy items in shop.",
+        description="Buy items from shop to use in your adventure.",
+        aliases=["bu"]
+    )
+    @commands.cooldown(1, 5, commands.BucketType.user)
+    async def buy(self, ctx, amount: int, *item):
+        # Check if user is initialized first
+        db_ailie = Database()
+        if not db_ailie.is_initialized(ctx.author.id):
+            await ctx.send(
+                "Do `ailie;initialize` or `a;initialize` "
+                + "first before anything!"
+            )
+            db_ailie.disconnect()
+            return
+
+        if amount <= 0:
+            await ctx.send(
+                "Are you testing me?"
+            )
+            db_ailie.disconnect()
+            return
+
+        if not item:
+            await ctx.send(
+                "Forgot to specify the item, I assume? "
+                + "Do something correctly for once. *sigh*"
+            )
+            db_ailie.disconnect()
+            return
+
+        item = " ".join(item)
+        item_details = db_ailie.get_shop_item_detailed(item)
+
+        if not item_details:
+            await ctx.send(
+                f"Are you sure that item exist, <@{ctx.author.id}>? "
+                + "Please, please, please, do better!"
+            )
+            db_ailie.disconnect()
+            return
+
+        item_name = item_details[0]
+        item_price = item_details[1]
+        gems_required = item_price * amount
+
+        current_gems = db_ailie.get_gems(ctx.author.id)
+
+        if gems_required > current_gems:
+            await ctx.send(
+                "Go collect more gems, you need `{gems_required:,d}` gems."
+            )
+            db_ailie.disconnect()
+            return
+
+        db_ailie.spend_gems(ctx.author.id, gems_required)
+        db_ailie.store_spent_gems(ctx.author.id, gems_required)
+        db_ailie.buy_items(ctx.author.id, item_name, amount)
+
+
+
 
 
 def setup(bot):
