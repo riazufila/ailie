@@ -47,6 +47,7 @@ class Book(commands.Cog):
         ),
         aliases=["bo"],
     )
+    @commands.cooldown(1, 5, commands.BucketType.user)
     async def book(self, ctx, type, *target):
         # Check if user is initialized first
         db_ailie = Database()

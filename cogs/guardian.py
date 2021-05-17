@@ -73,6 +73,7 @@ class Guardian(commands.Cog):
         description="View profile of yourself or someone else's.",
         aliases=["pr", "prof"],
     )
+    @commands.cooldown(1, 5, commands.BucketType.user)
     async def profile(self, ctx, mention: discord.Member = None):
         # Check if user is initialized first
         db_ailie = Database()
@@ -167,6 +168,7 @@ class Guardian(commands.Cog):
         ),
         aliases=["inv"],
     )
+    @commands.cooldown(1, 5, commands.BucketType.user)
     async def inventory(
             self, ctx, type, *target):
         # Check if user is initialized first
@@ -407,6 +409,7 @@ class Guardian(commands.Cog):
             + "username you set in some commands."
         ),
     )
+    @commands.cooldown(1, 5, commands.BucketType.user)
     async def username(self, ctx, username):
         # Check if user is initialized first
         db_ailie = Database()
@@ -436,6 +439,7 @@ class Guardian(commands.Cog):
         aliases=["li", "lb"]
     )
     @commands.max_concurrency(1, per=commands.BucketType.user, wait=False)
+    @commands.cooldown(1, 5, commands.BucketType.user)
     async def limitBreak(self, ctx, type, *target):
         # Check if user is initialized first
         db_ailie = Database()
@@ -578,6 +582,7 @@ class Guardian(commands.Cog):
         aliases=["en"],
     )
     @commands.max_concurrency(1, per=commands.BucketType.user, wait=False)
+    @commands.cooldown(1, 5, commands.BucketType.user)
     async def enhance(self, ctx, level_increase: int, *equipment):
         # Check if user is initialized first
         db_ailie = Database()
@@ -705,6 +710,7 @@ class Guardian(commands.Cog):
         ),
         aliases=["ini"],
     )
+    @commands.cooldown(1, 5, commands.BucketType.user)
     async def initialize(self, ctx):
         db_ailie = Database()
 

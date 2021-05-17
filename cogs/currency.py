@@ -19,7 +19,7 @@ class Currency(commands.Cog):
         ),
         aliases=["rac"]
     )
-    @commands.cooldown(1, 20, commands.BucketType.user)
+    @commands.cooldown(1, 30, commands.BucketType.user)
     async def race(self, ctx):
         # Check if user is initialized first
         db_ailie = Database()
@@ -33,11 +33,11 @@ class Currency(commands.Cog):
 
         # Variables initialized
         gems_to_obtain = []
-        counter = 0
+        counter = 200
         gems = 0
 
         # Fill gems to obtain list with many random increasing numbers
-        while counter < 500:
+        while counter < 700:
             gems_to_obtain.append(random.randint(counter + 10, counter + 100))
             counter += 100
 
@@ -76,7 +76,7 @@ class Currency(commands.Cog):
         ),
         aliases=["pa"]
     )
-    @commands.cooldown(1, 30, commands.BucketType.user)
+    @commands.cooldown(1, 45, commands.BucketType.user)
     async def pat(self, ctx):
         # Check if user is initialized first
         db_ailie = Database()
@@ -89,11 +89,11 @@ class Currency(commands.Cog):
 
         # Variables initialized
         gems_to_obtain = []
-        counter = 0
+        counter = 1000
         gems = 0
 
         # Fill gems to obtain list with many random increasing numbers
-        while counter < 1500:
+        while counter < 2500:
             gems_to_obtain.append(random.randint(counter + 10, counter + 500))
             counter += 500
 
@@ -131,6 +131,7 @@ class Currency(commands.Cog):
         ),
         aliases=["ga"]
     )
+    @commands.cooldown(1, 5, commands.BucketType.user)
     async def gamble(self, ctx, gems: int):
         # Check if user is initialized first
         db_ailie = Database()
@@ -285,6 +286,7 @@ class Currency(commands.Cog):
         ),
         aliases=["ri"]
     )
+    @commands.cooldown(1, 5, commands.BucketType.user)
     async def rich(self, ctx, scope="server"):
         # Check if user is initialized first
         db_ailie = Database()
@@ -372,6 +374,7 @@ class Currency(commands.Cog):
         description="Check the amount of your current gems statistics.",
         aliases=["ge"]
     )
+    @commands.cooldown(1, 5, commands.BucketType.user)
     async def gems(self, ctx, mention: discord.Member = None):
         # Check if user is initialized first
         db_ailie = Database()
@@ -426,6 +429,7 @@ class Currency(commands.Cog):
         description="Claim hourly gems.",
         aliases=["ho"]
     )
+    @commands.cooldown(1, 5, commands.BucketType.user)
     async def hourly(self, ctx):
         # Check if user is initialized first
         db_ailie = Database()
@@ -460,6 +464,7 @@ class Currency(commands.Cog):
         description="Claim daily gems.",
         aliases=["da"]
     )
+    @commands.cooldown(1, 5, commands.BucketType.user)
     async def daily(self, ctx):
         # Check if user is initialized first
         db_ailie = Database()

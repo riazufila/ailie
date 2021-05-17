@@ -448,18 +448,24 @@ class Summon(commands.Cog):
         boxes = iter(boxes)
         for box in boxes:
             if one_or_ten == 10:
-                # Add two entry per request to lower occurance of rate limits
+                # Add five entry per request to lower occurance of rate limits
                 await msg.edit(
-                        content=msg.content
-                        + f"\n{counter}. {box}\n{counter + 1}. {next(boxes)}")
-                await asyncio.sleep(1.5)
-                counter += 2
+                    content=msg.content
+                    + f"\n{counter}. {box}"
+                    + f"\n{counter + 1}. {next(boxes)}"
+                    + f"\n{counter + 2}. {next(boxes)}"
+                    + f"\n{counter + 3}. {next(boxes)}"
+                    + f"\n{counter + 4}. {next(boxes)}"
+                )
+                await asyncio.sleep(2)
+                counter += 5
             else:
                 await msg.edit(content=msg.content + f"\n{counter}. {box}")
-                await asyncio.sleep(1.5)
+                await asyncio.sleep(2)
                 counter += 1
 
         # Send the reply to fellow guardian
+        await asyncio.sleep(1)
         msg = await msg.reply(reply)
         await msg.add_reaction("💎")
 
@@ -473,6 +479,7 @@ class Summon(commands.Cog):
             ),
         aliases=["ba"]
     )
+    @commands.cooldown(1, 5, commands.BucketType.user)
     async def banner(self, ctx):
         # Check if user is initialized first
         db_ailie = Database()
@@ -529,7 +536,7 @@ class Summon(commands.Cog):
         ),
         aliases=["s"]
     )
-    @commands.cooldown(1, 20, commands.BucketType.user)
+    @commands.cooldown(1, 30, commands.BucketType.user)
     @commands.max_concurrency(1, per=commands.BucketType.channel, wait=False)
     async def summon(self, ctx, type, count: int, *target):
         # Check if user is initialized first

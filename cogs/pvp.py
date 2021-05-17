@@ -685,6 +685,7 @@ class PvP(commands.Cog):
         ),
         aliases=["ran"]
     )
+    @commands.cooldown(1, 5, commands.BucketType.user)
     async def rank(self, ctx, scope="server"):
         # Check if user is initialized first
         db_ailie = Database()
@@ -773,6 +774,7 @@ class PvP(commands.Cog):
         description="Check the amount of your current trophies.",
         aliases=["tro"]
     )
+    @commands.cooldown(1, 5, commands.BucketType.user)
     async def trophy(self, ctx, mention: discord.Member = None):
         # Check if user is initialized first
         db_ailie = Database()
@@ -835,6 +837,7 @@ class PvP(commands.Cog):
         aliases=["ar"]
     )
     @commands.max_concurrency(1, per=commands.BucketType.channel, wait=False)
+    @commands.cooldown(1, 5, commands.BucketType.user)
     async def arena(self, ctx, mention: discord.Member = None, *hero):
         # Check if mention is present
         if not mention:
@@ -1101,7 +1104,7 @@ class PvP(commands.Cog):
                     value=f"{hp}\n\n{moves}"
                 )
 
-            await asyncio.sleep(1)
+            await asyncio.sleep(2)
             await ctx.send(embed=embed)
             await asyncio.sleep(5)
 
@@ -1115,7 +1118,7 @@ class PvP(commands.Cog):
                     "*Every heroes felt the tension and "
                     + "increased their attack by 20%!*"
                 )
-                await asyncio.sleep(1)
+                await asyncio.sleep(2)
 
             # Prompt for each player to enter their move
             msg = await ctx.send(
@@ -1123,11 +1126,11 @@ class PvP(commands.Cog):
                 + f"<@{heroes[1]['guardian_id']}>, please go ahead and "
                 + "choose your moves.. in.."
             )
-            await asyncio.sleep(1)
+            await asyncio.sleep(2)
             await msg.edit(content=msg.content + "\n3..")
-            await asyncio.sleep(1)
+            await asyncio.sleep(2)
             await msg.edit(content=msg.content + "\n2..")
-            await asyncio.sleep(1)
+            await asyncio.sleep(2)
             await msg.edit(content=msg.content + "\n1!")
 
             players = [heroes[0]["guardian_id"], heroes[1]["guardian_id"]]
