@@ -187,6 +187,7 @@ class Guardian(commands.Cog):
         header = ""
         exists = False
         in_bag = False
+        ind = ""
         full_name = ""
         acquired = {}
         stats = buffs = skill = on_hit = on_normal \
@@ -262,6 +263,14 @@ class Guardian(commands.Cog):
                     stats = self.statsLevel(
                         stats, acquired["level"], user_level
                     )
+                    ewp_id = db_ailie.get_exclusive_weapon_id(hero_id)
+                    hero_ewp_set = db_ailie.is_equip_obtained(
+                        ctx.author.id, ewp_id)
+                    if hero_ewp_set:
+                        ind = " 🗡️"
+                    else:
+                        ind = ""
+
                     in_bag = True
                 else:
                     in_bag = False
@@ -302,6 +311,15 @@ class Guardian(commands.Cog):
                     stats = self.statsLevel(
                         stats, acquired["level"], 0
                     )
+                    hero_id = db_ailie.get_hero_id_for_exclusive_weapon(
+                        equip_id)
+                    hero_ewp_set = db_ailie.is_hero_obtained(
+                        ctx.author.id, hero_id)
+                    if hero_ewp_set:
+                        ind = " 👊"
+                    else:
+                        ind = ""
+
                     in_bag = True
                 else:
                     in_bag = False
@@ -341,7 +359,7 @@ class Guardian(commands.Cog):
                 acquired["level"] = "Z"
             embed.set_author(
                 icon_url=self.bot.user.avatar_url,
-                name=f"Lvl {acquired['level']} {full_name}",
+                name=f"Lvl {acquired['level']} {full_name}{ind}",
             )
             embed.add_field(
                 name=f"{type} EXP 💪",
