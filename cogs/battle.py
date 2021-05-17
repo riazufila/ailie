@@ -7,7 +7,7 @@ from discord.ext import commands
 from helpers.database import Database
 
 
-class PvP(commands.Cog):
+class Battle(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
@@ -673,151 +673,6 @@ class PvP(commands.Cog):
             return False
 
         return True
-
-    @commands.command(
-        name="rank",
-        brief="Show PvP ranks.",
-        description=(
-            "Rank users based on the server you're in or globally. "
-            + "To rank based on the server you're in, put `server` as "
-            + "the scope (default). To rank based on global, "
-            + "put `global` as the scope."
-        ),
-        aliases=["ran"]
-    )
-    @commands.cooldown(1, 5, commands.BucketType.user)
-    async def rank(self, ctx, scope="server"):
-        # Check if user is initialized first
-        db_ailie = Database()
-        if not db_ailie.is_initialized(ctx.author.id):
-            await ctx.send(
-                "Do `ailie;initialize` or `a;initialize` "
-                + "first before anything!"
-            )
-            db_ailie.disconnect()
-            return
-
-        # Get members in discord server that is initialized
-        guardian_with_trophy = []
-        logical_whereabouts = ""
-        output = ""
-
-        if scope.lower() in ["server"]:
-            logical_whereabouts = ctx.guild.name
-            for member in ctx.guild.members:
-                if db_ailie.is_initialized(member.id):
-                    trophy = db_ailie.get_trophy(member.id)
-                    level = db_ailie.get_user_level(member.id)
-                    if trophy > 0:
-                        buffer = [trophy, str(member), member.id, level]
-                        guardian_with_trophy.append(buffer)
-        elif scope.lower() in ["global", "all"]:
-            await ctx.send(
-                "Global rank will take a while to produce.. "
-                + f"Please wait, <@{ctx.author.id}>."
-            )
-            logical_whereabouts = "Global"
-            for guild in self.bot.guilds:
-                for member in guild.members:
-                    if db_ailie.is_initialized(member.id):
-                        trophy = db_ailie.get_trophy(member.id)
-                        level = db_ailie.get_user_level(member.id)
-                        if trophy > 0:
-                            buffer = [trophy, str(member), member.id, level]
-                            if buffer not in guardian_with_trophy:
-                                guardian_with_trophy.append(buffer)
-        else:
-            await ctx.send(
-                f"Dear, <@{ctx.author.id}>. You can only specify `server` "
-                + "or `global`."
-            )
-
-        # If no one has trophy
-        if not guardian_with_trophy:
-            await ctx.send("No one has trophies.")
-            db_ailie.disconnect()
-            return
-
-        # Display richest user in discord server
-        guardian_with_trophy_sorted = sorted(guardian_with_trophy, reverse=True)
-        guardian_with_trophy = guardian_with_trophy_sorted[:10]
-        counter = 1
-        for barbarian in guardian_with_trophy:
-            if counter == 1:
-                output = output \
-                    + f"{counter}. {barbarian[0]:,d} 🏆 - " \
-                    + f"Lvl {barbarian[3]} `{barbarian[1]}`"
-            else:
-                output = output + \
-                        f"\n{counter}. {barbarian[0]:,d} 🏆 - " \
-                        + f"Lvl {barbarian[3]} `{barbarian[1]}`"
-
-            # Get username if any
-            username = db_ailie.get_username(barbarian[2])
-            if username is not None:
-                output = output + f" a.k.a. `{username}`"
-
-            counter += 1
-
-        embed = discord.Embed(color=discord.Color.purple())
-        embed.set_author(name="Ailie", icon_url=ctx.me.avatar_url)
-        embed.add_field(
-            name=f"Barbarians in {logical_whereabouts}!", value=output)
-
-        db_ailie.disconnect()
-
-        await ctx.send(embed=embed)
-
-    @commands.command(
-        name="trophy",
-        brief="Check trophies.",
-        description="Check the amount of your current trophies.",
-        aliases=["tro"]
-    )
-    @commands.cooldown(1, 5, commands.BucketType.user)
-    async def trophy(self, ctx, mention: discord.Member = None):
-        # Check if user is initialized first
-        db_ailie = Database()
-        if not db_ailie.is_initialized(ctx.author.id):
-            await ctx.send(
-                "Do `ailie;initialize` or `a;initialize` "
-                + "first before anything!"
-            )
-            db_ailie.disconnect()
-            return
-
-        # Check if person mentioned is initialized
-        if mention:
-            if not db_ailie.is_initialized(mention.id):
-                await ctx.send(f"{mention.mention} is not initialized yet!")
-                db_ailie.disconnect()
-                return
-
-        if mention is None:
-            guardian_id = ctx.author.id
-            guardian_name = ctx.author.name
-            guardian_avatar = ctx.author.avatar_url
-        else:
-            guardian_id = mention.id
-            guardian_name = mention.name
-            guardian_avatar = mention.avatar_url
-
-        # Display trophies
-        trophies = db_ailie.get_trophy(guardian_id)
-        wins = db_ailie.get_arena_wins(guardian_id)
-        losses = db_ailie.get_arena_losses(guardian_id)
-        db_ailie.disconnect()
-        embed = discord.Embed(
-            description=(
-                f"**Trophies**: `{trophies:,d}`"
-                + f"\n**Wins**: `{wins:,d}`"
-                + f"\n**Losses**: `{losses:,d}`"
-            ),
-            color=discord.Color.purple()
-        )
-        embed.set_author(
-            name=f"{guardian_name}'s Trophies", icon_url=guardian_avatar)
-        await ctx.send(embed=embed)
 
     @commands.command(
         name="arena",
@@ -1607,4 +1462,4 @@ class PvP(commands.Cog):
 
 
 def setup(bot):
-    bot.add_cog(PvP(bot))
+    bot.add_cog(Battle(bot))
