@@ -226,7 +226,7 @@ class Guardian(commands.Cog):
                 header = "Epic Exclusive Equipments"
             else:
                 header = "Epic Exclusive Equipment"
-        if type.lower() in ["items", "item", "i"] and not target:
+        elif type.lower() in ["items", "item", "i"] and not target:
             inventory = db_ailie.item_inventory(guardian_id)
             if len(inventory[len(inventory) - 1]) > 1:
                 header = "Items"
