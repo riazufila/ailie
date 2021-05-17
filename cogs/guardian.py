@@ -162,7 +162,7 @@ class Guardian(commands.Cog):
         brief="View inventory.",
         description=(
             "Open inventory to check what you have collected so far."
-            + "`type` can be either `hero` or `equip`. "
+            + "`type` can be either `hero`, `equip`, or `item`. "
             + "`target` is optional as it can be used to view "
             + "your specific hero statistics."
         ),
@@ -225,6 +225,12 @@ class Guardian(commands.Cog):
                 header = "Epic Exclusive Equipments"
             else:
                 header = "Epic Exclusive Equipment"
+        if type.lower() in ["items", "item", "i"] and not target:
+            inventory = db_ailie.item_inventory(guardian_id)
+            if len(inventory[len(inventory) - 1]) > 1:
+                header = "Items"
+            else:
+                header = "Item"
         elif type in ["heroes", "hero", "h"] and target:
             type = "Hero"
             exists = True
@@ -299,9 +305,14 @@ class Guardian(commands.Cog):
                     in_bag = True
                 else:
                     in_bag = False
+        elif type in ["items", "item", "i"] and target:
+            await ctx.send(
+                "Please use `a;shop` to check the items in detail.")
+            db_ailie.disconnect()
+            return
         else:
             await ctx.send(
-                "There's only inventories for heroes and equipments, "
+                "There's only inventories for heroes, equipments, and items "
                 + f"<@{ctx.author.id}>."
             )
             db_ailie.disconnect()

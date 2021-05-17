@@ -480,6 +480,28 @@ class Database():
 
         return hero_buffer
 
+    def item_inventory(self, guardian_id):
+        query = (
+            "SELECT it.item_name, ita.item_acquired_quantity "
+            + "FROM guardians gu "
+            + "INNER JOIN inventories i "
+            + "ON gu.guardian_id = i.guardian_id "
+            + "INNER JOIN items_acquired ita "
+            + "ON i.inventory_id = ita.inventory_id "
+            + "INNER JOIN items it "
+            + "ON ita.item_id = it.item_id "
+            + "WHERE gu.guardian_id = %s ORDER BY it.item_name;"
+        )
+        data = [guardian_id]
+        self.cursor.execute(query, data)
+        all_items = self.cursor.fetchall()
+
+        buffer = [[]]
+        for item in all_items:
+            buffer[0].append(f"**{item[0]}** - `{item[1]:,d}`")
+
+        return buffer
+
     def equip_inventory(self, guardian_id):
         query = (
             "SELECT eq.equip_star, eq.equip_exclusive, "
@@ -1479,6 +1501,8 @@ class Database():
 
         self.cursor.execute(query, data)
         self.connection.commit()
+
+
 
     # Disconnect database
     def disconnect(self):
