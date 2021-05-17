@@ -121,7 +121,7 @@ class Bot(commands.Cog):
                 "We are being rate limited. Nothing can be helped here. "
                 + "Please wait and try again."
             )
-        elif commands.bot_has_permissions():
+        elif not commands.bot_has_permissions():
             await ctx.send(
                 "Please check that I have the permission, "
                 + "`View Channels`, `Send Messages`, `Embed Links` "
