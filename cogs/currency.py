@@ -268,7 +268,6 @@ class Currency(commands.Cog):
 
         # Transfer gems from sender to receiver
         db_ailie.spend_gems(ctx.author.id, gems)
-        db_ailie.store_spent_gems(ctx.author.id, gems)
         db_ailie.store_gems(mention.id, gems)
         db_ailie.update_user_exp(ctx.author.id, 5)
         await ctx.send(
