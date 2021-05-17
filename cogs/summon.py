@@ -439,7 +439,7 @@ class Summon(commands.Cog):
     async def summonDisplay(self, ctx, one_or_ten, boxes, reply):
         msg = await ctx.send(
                 f"Wait up, <@{ctx.author.id}>. Summoning {one_or_ten} now..")
-        await asyncio.sleep(3)
+        await asyncio.sleep(1)
 
         # Declare counter
         counter = 1
@@ -448,6 +448,7 @@ class Summon(commands.Cog):
         for box in boxes:
             if one_or_ten == 10:
                 # Add five entry per request to lower occurance of rate limits
+                await asyncio.sleep(2)
                 await msg.edit(
                     content=msg.content
                     + f"\n{counter}. {box}"
@@ -456,15 +457,14 @@ class Summon(commands.Cog):
                     + f"\n{counter + 3}. {next(boxes)}"
                     + f"\n{counter + 4}. {next(boxes)}"
                 )
-                await asyncio.sleep(2)
                 counter += 5
             else:
-                await msg.edit(content=msg.content + f"\n{counter}. {box}")
                 await asyncio.sleep(2)
+                await msg.edit(content=msg.content + f"\n{counter}. {box}")
                 counter += 1
 
         # Send the reply to fellow guardian
-        await asyncio.sleep(1)
+        await asyncio.sleep(2)
         msg = await msg.reply(reply)
         await msg.add_reaction("💎")
 
