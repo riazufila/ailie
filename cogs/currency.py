@@ -665,7 +665,7 @@ class Currency(commands.Cog):
         gems_to_obtain = []
         weight = [70, 15, 10, 2.5, 1.75, 0.50, 0.25]
         counter = 1
-        min_gems_to_gain = 2500
+        min_gems_to_gain = 1000
         gems = 0
 
         # Fill gems to obtain list with many random increasing numbers
