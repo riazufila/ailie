@@ -479,6 +479,7 @@ class Summon(commands.Cog):
             ),
         aliases=["ba"]
     )
+    @commands.cooldown(1, 5, commands.BucketType.user)
     async def banner(self, ctx):
         # Check if user is initialized first
         db_ailie = Database()
@@ -535,7 +536,7 @@ class Summon(commands.Cog):
         ),
         aliases=["s"]
     )
-    @commands.cooldown(1, 20, commands.BucketType.user)
+    @commands.cooldown(1, 30, commands.BucketType.user)
     @commands.max_concurrency(1, per=commands.BucketType.channel, wait=False)
     async def summon(self, ctx, type, count: int, *target):
         # Check if user is initialized first

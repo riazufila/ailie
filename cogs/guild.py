@@ -16,6 +16,7 @@ class Guild(commands.Cog):
         brief="Create a Guild.",
         description="Creates a Guild which can be joined by up to 30 members."
     )
+    @commands.cooldown(1, 5, commands.BucketType.user)
     async def create(self, ctx, guild_name):
         # Check if user is initialized first
         db_ailie = Database()
@@ -63,6 +64,7 @@ class Guild(commands.Cog):
             + "share the Guild ID with you. It can be obtained when "
             + "using `a;profile`, `a;guild`, and maybe more.")
         )
+    @commands.cooldown(1, 5, commands.BucketType.user)
     async def join(self, ctx, guild_id: int):
         # Check if user is initialized first
         db_ailie = Database()
@@ -155,6 +157,7 @@ class Guild(commands.Cog):
             + "in the said Guild, the Guild will be banished."
         )
     )
+    @commands.cooldown(1, 5, commands.BucketType.user)
     async def quit(self, ctx):
         # Check if user is initialized first
         db_ailie = Database()
@@ -203,6 +206,7 @@ class Guild(commands.Cog):
             + "Currently, there are only `Guild Master`, `Elder`, and `Member`."
         )
     )
+    @commands.cooldown(1, 5, commands.BucketType.user)
     async def promote(self, ctx, mention: discord.Member, *position):
         # Check if user is initialized first
         db_ailie = Database()
@@ -308,6 +312,7 @@ class Guild(commands.Cog):
         brief="Show Guild details.",
         description="Display all the members in your Guild.",
     )
+    @commands.cooldown(1, 5, commands.BucketType.user)
     async def guild(self, ctx):
         # Check if user is initialized first
         db_ailie = Database()

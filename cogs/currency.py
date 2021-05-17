@@ -286,6 +286,7 @@ class Currency(commands.Cog):
         ),
         aliases=["ri"]
     )
+    @commands.cooldown(1, 5, commands.BucketType.user)
     async def rich(self, ctx, scope="server"):
         # Check if user is initialized first
         db_ailie = Database()
@@ -373,6 +374,7 @@ class Currency(commands.Cog):
         description="Check the amount of your current gems statistics.",
         aliases=["ge"]
     )
+    @commands.cooldown(1, 5, commands.BucketType.user)
     async def gems(self, ctx, mention: discord.Member = None):
         # Check if user is initialized first
         db_ailie = Database()
@@ -427,6 +429,7 @@ class Currency(commands.Cog):
         description="Claim hourly gems.",
         aliases=["ho"]
     )
+    @commands.cooldown(1, 5, commands.BucketType.user)
     async def hourly(self, ctx):
         # Check if user is initialized first
         db_ailie = Database()
@@ -461,6 +464,7 @@ class Currency(commands.Cog):
         description="Claim daily gems.",
         aliases=["da"]
     )
+    @commands.cooldown(1, 5, commands.BucketType.user)
     async def daily(self, ctx):
         # Check if user is initialized first
         db_ailie = Database()

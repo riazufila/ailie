@@ -685,6 +685,7 @@ class PvP(commands.Cog):
         ),
         aliases=["ran"]
     )
+    @commands.cooldown(1, 5, commands.BucketType.user)
     async def rank(self, ctx, scope="server"):
         # Check if user is initialized first
         db_ailie = Database()
@@ -773,6 +774,7 @@ class PvP(commands.Cog):
         description="Check the amount of your current trophies.",
         aliases=["tro"]
     )
+    @commands.cooldown(1, 5, commands.BucketType.user)
     async def trophy(self, ctx, mention: discord.Member = None):
         # Check if user is initialized first
         db_ailie = Database()
@@ -835,6 +837,7 @@ class PvP(commands.Cog):
         aliases=["ar"]
     )
     @commands.max_concurrency(1, per=commands.BucketType.channel, wait=False)
+    @commands.cooldown(1, 5, commands.BucketType.user)
     async def arena(self, ctx, mention: discord.Member = None, *hero):
         # Check if mention is present
         if not mention:
