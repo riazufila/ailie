@@ -116,6 +116,17 @@ class Bot(commands.Cog):
             await ctx.send(f"Yo, <@{ctx.author.id}>! CHILL?")
         elif isinstance(error, commands.NotOwner):
             await ctx.send("That command is only for my awesome creator.")
+        elif self.bot.is_ws_ratelimited():
+            await ctx.send(
+                "We are being rate limited. Nothing can be helped here. "
+                + "Please wait and try again."
+            )
+        elif commands.bot_has_permissions():
+            await ctx.send(
+                "Please check that I have the permission, "
+                + "`View Channels`, `Send Messages`, `Embed Links` "
+                + "`Add Reactions`, and `Read Message History`."
+            )
         else:
             await self.notifyOwner(ctx, error)
 
@@ -126,17 +137,6 @@ class Bot(commands.Cog):
                 + "want to join the support server "
                 + "through the `server` command "
                 + "for a more thorough assistance."
-            )
-
-    @commands.Cog.listener()
-    async def on_error(self, event, *args, **kwargs):
-        message = args[0]
-
-        if isinstance(event, ConnectionResetError) or isinstance(
-            event, aiohttp.ClientOSError
-        ):
-            await self.bot.send_message(
-                message.channel, "We just got rate limited by Discord *sad*"
             )
 
     # Check bot's latency
