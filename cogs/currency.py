@@ -638,7 +638,7 @@ class Currency(commands.Cog):
         ),
         aliases=["wi"]
     )
-    # @commands.cooldown(1, 30, commands.BucketType.user)
+    @commands.cooldown(1, 30, commands.BucketType.user)
     async def wish(self, ctx):
         # Check if user is initialized first
         db_ailie = Database()
@@ -708,13 +708,14 @@ class Currency(commands.Cog):
             await asyncio.sleep(3)
 
             # Calculate chance to break
-            broke = random.choices([True, False], [35, 65], k=1)
+            broke = random.choices([True, False], [30, 70], k=1)
 
             # Assign list to variable
             for b in broke:
                 broke = b
 
             if broke:
+                db_ailie.princess_amulet_break(ctx.author.id)
                 await msg.reply(
                     "Yeah, I'm serious. Your `Princess Amulet` broke, "
                     + f"<@{ctx.author.id}>. Sad."
