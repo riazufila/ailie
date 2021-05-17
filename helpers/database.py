@@ -1448,7 +1448,37 @@ class Database():
 
     def buy_items(self, guardian_id, item_name, amount):
         item_id = self.get_item_id(item_name)
+        inventory_id = self.get_inventory_id(guardian_id)
 
+        query = (
+            "SELECT item_acquired_quantity FROM items_acquired "
+            + "WHERE item_id = %s AND inventory_id = %s;"
+        )
+        data = [item_id, inventory_id]
+        self.cursor.execute(query, data)
+
+        item_already_in = self.cursor.fetchone()
+
+        if isinstance(item_already_in, tuple):
+            item_already_in = item_already_in[0]
+
+        if item_already_in is None:
+            query = (
+                "INSERT INTO items_acquired "
+                + "(item_id, inventory_id, item_acquired_quantity) "
+                + "VALUES (%s, %s, %s);"
+            )
+            data = [item_id, inventory_id, amount]
+        else:
+            query = (
+                "UPDATE items_acquired SET "
+                + "item_acquired_quantity = item_acquired_quantity + %s "
+                + "WHERE item_id = %s AND inventory_id = %s;"
+            )
+            data = [amount, item_id, inventory_id]
+
+        self.cursor.execute(query, data)
+        self.connection.commit()
 
     # Disconnect database
     def disconnect(self):

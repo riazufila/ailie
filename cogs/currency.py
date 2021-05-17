@@ -619,17 +619,16 @@ class Currency(commands.Cog):
 
         if gems_required > current_gems:
             await ctx.send(
-                "Go collect more gems, you need `{gems_required:,d}` gems."
+                f"Go collect more gems, you need `{gems_required:,d}` gems."
             )
             db_ailie.disconnect()
             return
 
         db_ailie.spend_gems(ctx.author.id, gems_required)
-        db_ailie.store_spent_gems(ctx.author.id, gems_required)
         db_ailie.buy_items(ctx.author.id, item_name, amount)
 
-
-
+        await ctx.send(f"<@{ctx.author.id}>, you bought {amount} {item_name}!")
+        db_ailie.disconnect()
 
 
 def setup(bot):
