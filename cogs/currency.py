@@ -131,6 +131,7 @@ class Currency(commands.Cog):
         ),
         aliases=["ga"]
     )
+    @commands.cooldown(1, 5, commands.BucketType.user)
     async def gamble(self, ctx, gems: int):
         # Check if user is initialized first
         db_ailie = Database()
