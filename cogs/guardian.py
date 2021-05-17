@@ -639,6 +639,32 @@ class Guardian(commands.Cog):
                 + "No need to initialize for the second time. Have fun!"
             )
 
+    @commands.command(
+        name="team",
+        brief="Set team.",
+        description=(
+            "Configure team that you can pre-made before battle or any "
+            + "commands that requires a hero to use, such as, `arena`. "
+            + "With this, enemy would not be able to know your used hero "
+            + "until the match begins. You can set a team with `main` key "
+            + "to allow automatic use of that hero for commands like `train`. "
+            + "`key` should be any words, letters, or numbers. You will have "
+            + "to specify your `key` instead of your hero when in commands, "
+            + "like `arena`. Using `main` key will allow you to use the team "
+            + "without specifying any `key`."
+        ),
+    )
+    @commands.cooldown(1, 5, commands.BucketType.user)
+    async def team(self, ctx, key: str, *heroes):
+        # Check if user is initialized first
+        db_ailie = Database()
+        if not db_ailie.is_initialized(ctx.author.id):
+            await ctx.send(
+                "Do `ailie;initialize` or `a;initialize` first before anything!"
+            )
+            db_ailie.disconnect()
+            return
+
 
 def setup(bot):
     bot.add_cog(Guardian(bot))
