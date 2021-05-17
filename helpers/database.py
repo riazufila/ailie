@@ -340,6 +340,7 @@ class Database():
             data = [balance_gems, guardian_id]
             self.cursor.execute(query, data)
             self.connection.commit()
+            self.store_spent_gems(guardian_id, gems)
 
             return True
 
