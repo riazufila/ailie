@@ -642,7 +642,7 @@ class Guardian(commands.Cog):
         if level > max_level:
             await ctx.send(
                 f"You can't increase that much, <@{ctx.author.id}>. "
-                + f"Your max level for that equipment is {max_level}."
+                + f"Your max level for that equipment is `{max_level:,d}`."
             )
             db_ailie.disconnect()
             return
@@ -653,8 +653,8 @@ class Guardian(commands.Cog):
         if gems_required > current_gems:
             await ctx.send(
                 f"Oof, poor guys <@{ctx.author.id}>.. "
-                + f"You need {gems_required:,d} gems "
-                + f"and you only have {current_gems:,d} gems. Sad life."
+                + f"You need `{gems_required:,d}` gems "
+                + f"and you only have `{current_gems:,d}` gems. Sad life."
             )
             db_ailie.disconnect()
             return
