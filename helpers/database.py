@@ -480,6 +480,28 @@ class Database():
 
         return hero_buffer
 
+    def item_inventory(self, guardian_id):
+        query = (
+            "SELECT it.item_name, ita.item_acquired_quantity "
+            + "FROM guardians gu "
+            + "INNER JOIN inventories i "
+            + "ON gu.guardian_id = i.guardian_id "
+            + "INNER JOIN items_acquired ita "
+            + "ON i.inventory_id = ita.inventory_id "
+            + "INNER JOIN items it "
+            + "ON ita.item_id = it.item_id "
+            + "WHERE gu.guardian_id = %s ORDER BY it.item_name;"
+        )
+        data = [guardian_id]
+        self.cursor.execute(query, data)
+        all_items = self.cursor.fetchall()
+
+        buffer = [[]]
+        for item in all_items:
+            buffer[0].append(f"**{item[0]}** - `{item[1]:,d}`")
+
+        return buffer
+
     def equip_inventory(self, guardian_id):
         query = (
             "SELECT eq.equip_star, eq.equip_exclusive, "
@@ -1407,6 +1429,120 @@ class Database():
             hero_id = hero_id[0]
 
         return hero_id
+
+    def get_item_id(self, item_name):
+        shop_items = self.get_shop_items()
+
+        for shop_item in shop_items:
+            if item_name.lower() in shop_item[0].lower():
+                query = "SELECT item_id FROM items WHERE item_name = %s;"
+                data = [shop_item[0]]
+                self.cursor.execute(query, data)
+                item_id = self.cursor.fetchone()
+
+                if isinstance(item_id, tuple):
+                    item_id = item_id[0]
+
+                return item_id
+
+    def get_shop_items(self):
+        query = "SELECT item_name, item_price FROM items;"
+        self.cursor.execute(query)
+        shop_items = self.cursor.fetchall()
+
+        return shop_items
+
+    def get_shop_item_detailed(self, item_name):
+        item_id = self.get_item_id(item_name)
+
+        if not item_id:
+            return None
+
+        query = (
+            "SELECT item_name, item_price, item_description "
+            + "FROM items WHERE item_id = %s;"
+        )
+        data = [item_id]
+        self.cursor.execute(query, data)
+        shop_item = self.cursor.fetchone()
+
+        return shop_item
+
+    def buy_items(self, guardian_id, item_name, amount):
+        item_id = self.get_item_id(item_name)
+        inventory_id = self.get_inventory_id(guardian_id)
+
+        query = (
+            "SELECT item_acquired_quantity FROM items_acquired "
+            + "WHERE item_id = %s AND inventory_id = %s;"
+        )
+        data = [item_id, inventory_id]
+        self.cursor.execute(query, data)
+
+        item_already_in = self.cursor.fetchone()
+
+        if isinstance(item_already_in, tuple):
+            item_already_in = item_already_in[0]
+
+        if item_already_in is None:
+            query = (
+                "INSERT INTO items_acquired "
+                + "(item_id, inventory_id, item_acquired_quantity) "
+                + "VALUES (%s, %s, %s);"
+            )
+            data = [item_id, inventory_id, amount]
+        else:
+            query = (
+                "UPDATE items_acquired SET "
+                + "item_acquired_quantity = item_acquired_quantity + %s "
+                + "WHERE item_id = %s AND inventory_id = %s;"
+            )
+            data = [amount, item_id, inventory_id]
+
+        self.cursor.execute(query, data)
+        self.connection.commit()
+
+    def has_princess_amulet_amount(self, guardian_id):
+        item_id = self.get_item_id("Princess Amulet")
+        inventory_id = self.get_inventory_id(guardian_id)
+        query = (
+            "SELECT item_acquired_quantity FROM items_acquired "
+            + "WHERE item_id = %s AND inventory_id = %s;"
+        )
+        data = [item_id, inventory_id]
+        self.cursor.execute(query, data)
+        amount = self.cursor.fetchone()
+
+        if isinstance(amount, tuple):
+            amount = amount[0]
+
+        if amount <= 0:
+            return False
+        else:
+            return amount
+
+    def princess_amulet_break(self, guardian_id):
+        amount = self.has_princess_amulet_amount(guardian_id)
+        item_id = self.get_item_id("Princess Amulet")
+        inventory_id = self.get_inventory_id(guardian_id)
+
+        amount = amount - 1
+
+        if amount <= 0:
+            query = (
+                "DELETE FROM items_acquired WHERE inventory_id = %s "
+                + "AND item_id = %s;"
+            )
+            data = [inventory_id, item_id]
+        else:
+            query = (
+                "UPDATE items_acquired SET item_acquired_quantity = %s "
+                + "WHERE inventory_id = %s AND item_id = %s;"
+                    )
+            data = [amount, inventory_id, item_id]
+
+        self.cursor.execute(query, data)
+        self.connection.commit()
 
     # Disconnect database
     def disconnect(self):
