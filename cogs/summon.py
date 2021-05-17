@@ -448,18 +448,24 @@ class Summon(commands.Cog):
         boxes = iter(boxes)
         for box in boxes:
             if one_or_ten == 10:
-                # Add two entry per request to lower occurance of rate limits
+                # Add five entry per request to lower occurance of rate limits
                 await msg.edit(
-                        content=msg.content
-                        + f"\n{counter}. {box}\n{counter + 1}. {next(boxes)}")
-                await asyncio.sleep(1.5)
-                counter += 2
+                    content=msg.content
+                    + f"\n{counter}. {box}"
+                    + f"\n{counter + 1}. {next(boxes)}"
+                    + f"\n{counter + 2}. {next(boxes)}"
+                    + f"\n{counter + 3}. {next(boxes)}"
+                    + f"\n{counter + 4}. {next(boxes)}"
+                )
+                await asyncio.sleep(2)
+                counter += 5
             else:
                 await msg.edit(content=msg.content + f"\n{counter}. {box}")
-                await asyncio.sleep(1.5)
+                await asyncio.sleep(2)
                 counter += 1
 
         # Send the reply to fellow guardian
+        await asyncio.sleep(1)
         msg = await msg.reply(reply)
         await msg.add_reaction("💎")
 

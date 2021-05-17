@@ -255,19 +255,10 @@ class Bot(commands.Cog):
         # Change upon version update
         version = "1.8.3"
 
-        # Mimic loading animation
-        msg = await ctx.send(
-            f"Hello, <@{ctx.author.id}>! " + "Ailie reporting to duty!"
+        await ctx.send(
+            f"Hello, <@{ctx.author.id}>! "
+            + f"My current version is `{version}`!"
         )
-        await asyncio.sleep(1.5)
-        await msg.edit(content=msg.content + "\nMy current version is")
-        await asyncio.sleep(0.5)
-        await msg.edit(content=msg.content + ".")
-        await asyncio.sleep(0.5)
-        await msg.edit(content=msg.content + ".")
-        await asyncio.sleep(0.5)
-        await msg.edit(content=msg.content + f" {version}!")
-        await asyncio.sleep(0.5)
 
 
 def setup(bot):

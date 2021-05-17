@@ -1101,7 +1101,7 @@ class PvP(commands.Cog):
                     value=f"{hp}\n\n{moves}"
                 )
 
-            await asyncio.sleep(1)
+            await asyncio.sleep(2)
             await ctx.send(embed=embed)
             await asyncio.sleep(5)
 
@@ -1115,7 +1115,7 @@ class PvP(commands.Cog):
                     "*Every heroes felt the tension and "
                     + "increased their attack by 20%!*"
                 )
-                await asyncio.sleep(1)
+                await asyncio.sleep(2)
 
             # Prompt for each player to enter their move
             msg = await ctx.send(
@@ -1123,11 +1123,11 @@ class PvP(commands.Cog):
                 + f"<@{heroes[1]['guardian_id']}>, please go ahead and "
                 + "choose your moves.. in.."
             )
-            await asyncio.sleep(1)
+            await asyncio.sleep(2)
             await msg.edit(content=msg.content + "\n3..")
-            await asyncio.sleep(1)
+            await asyncio.sleep(2)
             await msg.edit(content=msg.content + "\n2..")
-            await asyncio.sleep(1)
+            await asyncio.sleep(2)
             await msg.edit(content=msg.content + "\n1!")
 
             players = [heroes[0]["guardian_id"], heroes[1]["guardian_id"]]
