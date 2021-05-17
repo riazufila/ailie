@@ -1517,6 +1517,9 @@ class Database():
         if isinstance(amount, tuple):
             amount = amount[0]
 
+        if amount is None:
+            amount = 0
+
         if amount <= 0:
             return False
         else:
