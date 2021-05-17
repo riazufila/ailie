@@ -19,7 +19,7 @@ class Currency(commands.Cog):
         ),
         aliases=["rac"]
     )
-    @commands.cooldown(1, 20, commands.BucketType.user)
+    @commands.cooldown(1, 30, commands.BucketType.user)
     async def race(self, ctx):
         # Check if user is initialized first
         db_ailie = Database()
@@ -33,11 +33,11 @@ class Currency(commands.Cog):
 
         # Variables initialized
         gems_to_obtain = []
-        counter = 0
+        counter = 200
         gems = 0
 
         # Fill gems to obtain list with many random increasing numbers
-        while counter < 500:
+        while counter < 700:
             gems_to_obtain.append(random.randint(counter + 10, counter + 100))
             counter += 100
 
@@ -76,7 +76,7 @@ class Currency(commands.Cog):
         ),
         aliases=["pa"]
     )
-    @commands.cooldown(1, 30, commands.BucketType.user)
+    @commands.cooldown(1, 45, commands.BucketType.user)
     async def pat(self, ctx):
         # Check if user is initialized first
         db_ailie = Database()
@@ -89,11 +89,11 @@ class Currency(commands.Cog):
 
         # Variables initialized
         gems_to_obtain = []
-        counter = 0
+        counter = 1000
         gems = 0
 
         # Fill gems to obtain list with many random increasing numbers
-        while counter < 1500:
+        while counter < 2500:
             gems_to_obtain.append(random.randint(counter + 10, counter + 500))
             counter += 500
 
