@@ -116,6 +116,15 @@ class Misc(commands.Cog):
             await ctx.send(f"Yo, <@{ctx.author.id}>! CHILL?")
         elif isinstance(error, commands.NotOwner):
             await ctx.send("That command is only for my awesome creator.")
+        elif isinstance(error, commands.PrivateMessageOnly):
+            await ctx.send(
+                "That command can be used within Private Message only. "
+                + "Kindly, send me a Private Message and initiate the "
+                + "command again. I won't bite."
+            )
+        elif isinstance(error, commands.NoPrivateMessage):
+            await ctx.send(
+                "That command can be used within a Discord Server only.")
         elif self.bot.is_ws_ratelimited():
             await ctx.send(
                 "We are being rate limited. Nothing can be helped here. "
