@@ -658,10 +658,13 @@ class Guardian(commands.Cog):
             + "`key` should be any words, letters, or numbers. You will have "
             + "to specify your `key` instead of your hero when in commands, "
             + "like `arena`. Using `main` key will allow you to use the team "
-            + "without specifying any `key`."
+            + "without specifying any `key`. `heroes` is the heroes you want "
+            + "in you team. It should be separated by `;`, such as, "
+            + "`Plitvice;Idol Captain Eva;Noxia;Tinia`. "
+            + "Don't put spaces between the heroes."
         ),
     )
-    @commands.dm_only()
+    # @commands.dm_only()
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def team(self, ctx, key: str, *heroes):
         # Check if user is initialized first
@@ -673,6 +676,62 @@ class Guardian(commands.Cog):
             db_ailie.disconnect()
             return
 
+        if not key:
+            await ctx.send(
+                "You forgot to specify the key. Put `main` as the key "
+                + "if you want to be able to use commands like `arena` "
+                + "without having to specify `key`."
+            )
+            db_ailie.disconnect()
+            return
+
+        if not heroes:
+            await ctx.send(
+                "Specify the heroes you want in the team. "
+                + "One team consists of one to four heroes. "
+                + "Make sure to separate the heroes with `;` "
+                + "For example, "
+                + "`a;team main Alef;Idol Captain Eva;Gabriel;Princess`."
+            )
+            db_ailie.disconnect()
+            return
+
+        exist = db_ailie.is_team_exists(ctx.author.id, key)
+        team_count = db_ailie.get_team_count(ctx.author.id)
+
+        if not exist:
+            if team_count >= 3:
+                await ctx.send(
+                    "The max amount of team you can make is 3."
+                )
+                db_ailie.disconnect()
+                return
+
+        heroes = "".join(heroes)
+        heroes = heroes.split(";")
+
+        buffer = []
+        for hero in heroes:
+            full_name = db_ailie.get_hero_full_name(hero)
+            if not full_name:
+                await ctx.send("The hero you stated doesn't exist.")
+                db_ailie.disconnect()
+                return
+            else:
+                hero_id = db_ailie.get_hero_id(full_name)
+                obtained = db_ailie.is_hero_obtained(ctx.author.id, hero_id)
+                if not obtained:
+                    await ctx.send(f"You don't own **{full_name}**.")
+                    db_ailie.disconnect()
+                    return
+                buffer.append(hero_id)
+
+        if len(buffer) != 4:
+            while len(buffer) != 4:
+                buffer.append(0)
+
+        db_ailie.set_team(ctx.author.id, key, buffer)
+        await ctx.send("Updated your team!")
 
 
 def setup(bot):
