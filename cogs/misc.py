@@ -139,14 +139,24 @@ class Misc(commands.Cog):
         else:
             await self.notifyOwner(ctx, error)
 
-            await ctx.send(
-                "I encountered a bug. Don't worry. "
-                + "I've logged the bug. However, "
-                + "if it still happens, you might "
-                + "want to join the support server "
-                + "through the `server` command "
-                + "for a more thorough assistance."
-            )
+            official_server = False
+            if ctx.guild.id == int(os.getenv("GUILD_ID")):
+                official_server = True
+
+            if not official_server:
+                await ctx.send(
+                    "I encountered a bug. Don't worry. "
+                    + "I've logged the bug. However, "
+                    + "if it still happens, you might "
+                    + "want to join the support server "
+                    + "through the `server` command "
+                    + "for a more thorough assistance."
+                )
+            else:
+                await ctx.send(
+                    "I encountered a bug. Don't worry. "
+                    + "I've logged the bug."
+                )
 
     # Pours salt to those lucky people
     @commands.command(
@@ -290,15 +300,24 @@ class Misc(commands.Cog):
             feedback = " ".join(feedback)
             await self.notifyOwner(ctx, feedback, "agree")
 
-            # Mimic loading animation
-            await ctx.send(
-                f"Ding dong, <@{ctx.author.id}>! "
-                + "Your message has been logged. "
-                + "You might wanna join Ailie's server "
-                + "so you can resolve issues and "
-                + "keep updated on Ailie's updated. "
-                + "If so, then do `a;server`."
-            )
+            official_server = False
+            if ctx.guild.id == int(os.getenv("GUILD_ID")):
+                official_server = True
+
+            if not official_server:
+                await ctx.send(
+                    f"Ding dong, <@{ctx.author.id}>! "
+                    + "Your message has been logged. "
+                    + "You might wanna join Ailie's server "
+                    + "so you can resolve issues and "
+                    + "keep updated on Ailie's updated. "
+                    + "If so, then do `a;server`."
+                )
+            else:
+                await ctx.send(
+                    f"Ding dong, <@{ctx.author.id}>! "
+                    + "Your message has been logged. "
+                )
         else:
             await ctx.send("Can't send anything since you put no messages!")
 
