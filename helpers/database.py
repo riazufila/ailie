@@ -1631,6 +1631,13 @@ class Database():
 
         return hero_name
 
+    def delete_team(self, guardian_id, key):
+        query = \
+            "DELETE FROM teams WHERE guardian_id = %s AND team_key = %s;"
+        data = [guardian_id, key]
+        self.cursor.execute(query, data)
+        self.connection.commit()
+
     # Disconnect database
     def disconnect(self):
         self.cursor.close()

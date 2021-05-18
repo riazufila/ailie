@@ -831,6 +831,37 @@ class Guardian(commands.Cog):
 
         await ctx.send(embed=embed)
 
+    @team.command(
+        name="delete",
+        brief="Delete team.",
+        description=(
+            "Delete the teams you made."
+        ),
+    )
+    @commands.dm_only()
+    @commands.cooldown(1, 5, commands.BucketType.user)
+    async def team_delete(self, ctx, key: str):
+        # Check if user is initialized first
+        db_ailie = Database()
+        if not db_ailie.is_initialized(ctx.author.id):
+            await ctx.send(
+                "Do `ailie;initialize` or `a;initialize` first before anything!"
+            )
+            db_ailie.disconnect()
+            return
+
+        exist = db_ailie.is_team_exists(ctx.author.id, key)
+
+        if not exist:
+            await ctx.send(
+                "Are you sure they key is correct?"
+            )
+            db_ailie.disconnect()
+            return
+
+        db_ailie.delete_team(ctx.author.id, key)
+        await ctx.send(f"Deleted your team with `{key}` key.")
+
 
 def setup(bot):
     bot.add_cog(Guardian(bot))
