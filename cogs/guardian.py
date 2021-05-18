@@ -808,24 +808,20 @@ class Guardian(commands.Cog):
             icon_url=ctx.author.avatar_url, name=ctx.author.name
         )
 
-        got_team = True
         output = ""
         for team in teams:
-            if team[0] is None:
-                got_team = False
-            else:
-                for t in team[1]:
-                    hero_name = db_ailie.get_hero_name_from_id(t)
-                    if hero_name is not None:
-                        if team[1].index(t) == 0:
-                            output = f"`{hero_name}`"
-                        else:
-                            output = output + "\n" + f"`{hero_name}`"
+            for t in team[1]:
+                hero_name = db_ailie.get_hero_name_from_id(t)
+                if hero_name is not None:
+                    if team[1].index(t) == 0:
+                        output = f"`{hero_name}`"
+                    else:
+                        output = output + "\n" + f"`{hero_name}`"
 
-            if got_team is False:
-                embed.add_field(name="Teams", value="`None`")
-            else:
-                embed.add_field(name=team[0], value=output, inline=False)
+            embed.add_field(name=team[0], value=output, inline=False)
+
+        if len(teams) == 0:
+            embed.add_field(name="Teams", value="None", inline=False)
 
         await ctx.send(embed=embed)
 

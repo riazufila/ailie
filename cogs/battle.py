@@ -655,6 +655,15 @@ class Battle(commands.Cog):
             return False
         return True
 
+    def hasTeam(self, guardian_id, key):
+        db_ailie = Database()
+        exist = db_ailie.is_team_exists(guardian_id, key)
+
+        if exist:
+            return True
+        else:
+            return False
+
     async def hasHero(self, ctx, guardian_id, hero):
         db_ailie = Database()
 
@@ -694,21 +703,27 @@ class Battle(commands.Cog):
     @commands.max_concurrency(1, per=commands.BucketType.channel, wait=False)
     @commands.guild_only()
     @commands.cooldown(1, 5, commands.BucketType.user)
-    async def arena(self, ctx, mention: discord.Member = None, *hero):
+    async def arena(self, ctx, mention: discord.Member = None, key="main"):
         # Check if mention is present
         if not mention:
             await ctx.send("You forgot to mention who to fight.")
             return
 
-        # Check if hero is specified
-        if not hero:
-            await ctx.send("You forgot to specify which hero to use.")
-            return
+        key = key.lower()
 
-        # Check if hero has at least 4 characters
-        hero = " ".join(hero)
-        if not await self.is_min_four_chars(ctx, hero):
-            return
+        db_ailie = Database()
+        if key == "main":
+            if not db_ailie.is_team_exists(ctx.author.id, "main"):
+                await ctx.send(
+                    "You need make a team with a `main` key. With "
+                    + "that, you can just use `a;train` without specifying "
+                    + "anything else. If you want to specify hero in "
+                    + "other `key`, then you may specify the key instead "
+                    + "of the hero. For example, `a;train secondary`. "
+                    + "Check out the `team` command."
+                )
+                db_ailie.disconnect()
+                return
 
         # Assign id, name, and avatar url to a meaningful variable
         challenger_id = ctx.author.id
@@ -721,11 +736,13 @@ class Battle(commands.Cog):
             if not await self.check_if_initialized(ctx, guardian_id):
                 return
 
-        # Check if users has the hero mentioned
-        if not await self.hasHero(ctx, challenger_id, hero):
+        # Check if users has the team chosen
+        if not self.hasTeam(challenger_id, key):
+            await ctx.send(f"<@{challenger_id}>, you don't have that team.")
+            db_ailie.disconnect()
             return
 
-        # Ask for opponent's hero to use
+        # Ask for opponent's team to use
         db_ailie = Database()
 
         await ctx.send(
@@ -746,7 +763,7 @@ class Battle(commands.Cog):
 
             if msg.content.upper() in ["YES", "Y"]:
                 await ctx.send(
-                    f"<@{opponent_id}>, reply with your hero choice."
+                    f"<@{opponent_id}>, reply with your team choice."
                 )
             else:
                 await ctx.send("Challenge denied! LOL, what a coward.")
@@ -763,21 +780,19 @@ class Battle(commands.Cog):
             db_ailie.disconnect()
             return
 
-        def confirm_hero(message):
+        def confirm_team(message):
             return message.author.id == opponent_id
 
-        # Wait for hero chosen
+        # Wait for team chosen
         try:
             msg = await self.bot.wait_for(
-                "message", check=confirm_hero, timeout=60
+                "message", check=confirm_team, timeout=60
             )
-            # Check min characters for hero mention
-            opponent_hero = msg.content
-            if not await self.is_min_four_chars(ctx, opponent_hero):
-                return
-
-            # Check if opponent has hero
-            if not await self.hasHero(ctx, opponent_id, opponent_hero):
+            # Check if users has the team chosen
+            opponent_team = msg.content
+            if not self.hasTeam(opponent_id, opponent_team):
+                await ctx.send(f"<@{opponent_id}>, you don't have that team.")
+                db_ailie.disconnect()
                 return
         except Exception as error:
             if isinstance(error, asyncio.TimeoutError):
@@ -796,6 +811,13 @@ class Battle(commands.Cog):
                 + f"you fight yourself eh, <@{challenger_id}>?"
             )
             return
+
+        hero = db_ailie.get_first_hero_from_team(challenger_id, key)
+        opponent_hero = db_ailie.get_first_hero_from_team(
+            opponent_id, opponent_team)
+
+        hero = db_ailie.get_hero_name_from_id(hero)
+        opponent_hero = db_ailie.get_hero_name_from_id(opponent_hero)
 
         # Get users' hero information
         heroes = []

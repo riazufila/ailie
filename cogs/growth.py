@@ -1498,11 +1498,13 @@ class Growth(commands.Cog):
             db_ailie.disconnect()
             return
 
+        key = key.lower()
+
         if key == "main":
             if not db_ailie.is_team_exists(ctx.author.id, "main"):
                 await ctx.send(
                     "You need make a team with a `main` key. With "
-                    + "that, you can just use `a;train`' without specifying "
+                    + "that, you can just use `a;train` without specifying "
                     + "anything else. If you want to specify hero in "
                     + "other `key`, then you may specify the key instead "
                     + "of the hero. For example, `a;train secondary`. "
@@ -1513,7 +1515,9 @@ class Growth(commands.Cog):
 
         if not db_ailie.is_team_exists(ctx.author.id, key):
             await ctx.send(
-                f"You dont have a team with that key, <@{ctx.author.id}>!")
+                f"You dont have a team with that key, <@{ctx.author.id}>! "
+                + "Check `team` command."
+            )
             db_ailie.disconnect()
             return
 
