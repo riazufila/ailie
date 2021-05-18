@@ -1610,6 +1610,27 @@ class Database():
         else:
             return False
 
+    def get_all_teams(self, guardian_id):
+        query = (
+            "SELECT team_key, team_hero FROM teams WHERE guardian_id = %s;"
+        )
+        data = [guardian_id]
+        self.cursor.execute(query, data)
+        teams = self.cursor.fetchall()
+
+        return teams
+
+    def get_hero_name_from_id(self, hero_id):
+        query = "SELECT hero_name FROM heroes WHERE hero_id = %s;"
+        data = [hero_id]
+        self.cursor.execute(query, data)
+        hero_name = self.cursor.fetchone()
+
+        if isinstance(hero_name, tuple):
+            hero_name = hero_name[0]
+
+        return hero_name
+
     # Disconnect database
     def disconnect(self):
         self.cursor.close()

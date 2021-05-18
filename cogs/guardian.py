@@ -644,8 +644,32 @@ class Guardian(commands.Cog):
                 + "No need to initialize for the second time. Have fun!"
             )
 
-    @commands.command(
+    @commands.group(
         name="team",
+        brief="Manage team here.",
+        description="Set, delete, and view your teams.",
+        invoke_without_command=True
+    )
+    @commands.dm_only()
+    @commands.cooldown(1, 5, commands.BucketType.user)
+    async def team(self, ctx):
+        # Check if user is initialized first
+        db_ailie = Database()
+        if not db_ailie.is_initialized(ctx.author.id):
+            await ctx.send(
+                "Do `ailie;initialize` or `a;initialize` first before anything!"
+            )
+            db_ailie.disconnect()
+            return
+        db_ailie.disconnect()
+
+        await ctx.send(
+            "You might wanna check `a;help team` to check out how "
+            + "to set, view, and delete team."
+        )
+
+    @team.command(
+        name="set",
         brief="Set team.",
         description=(
             "Configure team that you can pre-made before battle or any "
@@ -666,7 +690,7 @@ class Guardian(commands.Cog):
     )
     @commands.dm_only()
     @commands.cooldown(1, 5, commands.BucketType.user)
-    async def team(self, ctx, key: str, *heroes):
+    async def team_set(self, ctx, key: str, *heroes):
         # Check if user is initialized first
         db_ailie = Database()
         if not db_ailie.is_initialized(ctx.author.id):
@@ -691,7 +715,7 @@ class Guardian(commands.Cog):
                 + "One team consists of one to four heroes. "
                 + "Make sure to separate the heroes with `;` "
                 + "For example, "
-                + "`a;team main Alef;Idol Captain Eva;Gabriel;Princess`."
+                + "`Alef;Idol Captain Eva;Gabriel;Princess`."
             )
             db_ailie.disconnect()
             return
@@ -707,7 +731,7 @@ class Guardian(commands.Cog):
                 db_ailie.disconnect()
                 return
 
-        heroes = "".join(heroes)
+        heroes = " ".join(heroes)
         heroes = heroes.split(";")
         counter_buffer = []
 
@@ -718,6 +742,16 @@ class Guardian(commands.Cog):
 
         for counter in counter_buffer:
             heroes.pop(counter)
+
+        if len(heroes) > 1:
+            await ctx.send(
+                "The max amount of heroes in a team now is 1. "
+                + "Yeah I know, weird. How can it be a team with "
+                + "only 1 hero. You're gonna need to wait "
+                + "for an update for that."
+            )
+            db_ailie.disconnect()
+            return
 
         buffer = []
         for hero in heroes:
@@ -749,6 +783,53 @@ class Guardian(commands.Cog):
 
         db_ailie.set_team(ctx.author.id, key, buffer)
         await ctx.send("Updated your team!")
+
+    @team.command(
+        name="show",
+        brief="Show team.",
+        description=(
+            "View all the teams you made."
+        ),
+    )
+    @commands.dm_only()
+    @commands.cooldown(1, 5, commands.BucketType.user)
+    async def team_show(self, ctx):
+        # Check if user is initialized first
+        db_ailie = Database()
+        if not db_ailie.is_initialized(ctx.author.id):
+            await ctx.send(
+                "Do `ailie;initialize` or `a;initialize` first before anything!"
+            )
+            db_ailie.disconnect()
+            return
+
+        teams = db_ailie.get_all_teams(ctx.author.id)
+
+        embed = discord.Embed(color=discord.Color.purple())
+        embed.set_author(
+            icon_url=ctx.author.avatar_url, name=ctx.author.name
+        )
+
+        got_team = True
+        output = ""
+        for team in teams:
+            if team[0] is None:
+                got_team = False
+            else:
+                for t in team[1]:
+                    hero_name = db_ailie.get_hero_name_from_id(t)
+                    if hero_name is not None:
+                        if team[1].index(t) == 0:
+                            output = f"`{hero_name}`"
+                        else:
+                            output = output + "\n" + f"`{hero_name}`"
+
+            if got_team is False:
+                embed.add_field(name="Teams", value="`None`")
+            else:
+                embed.add_field(name=team[0], value=output, inline=False)
+
+        await ctx.send(embed=embed)
 
 
 def setup(bot):
