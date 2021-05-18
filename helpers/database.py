@@ -1227,7 +1227,7 @@ class Database():
         user_exp = user_exp + exp
 
         # Set max level
-        max_level = 482
+        max_level = 500
         max_exp = max_level * 100
 
         if user_exp >= max_exp:
