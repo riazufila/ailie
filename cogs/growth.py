@@ -838,7 +838,6 @@ class Growth(commands.Cog):
         description="Check the amount of your current gems statistics.",
         aliases=["ge"]
     )
-    @commands.guild_only()
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def gems(self, ctx, mention: discord.Member = None):
         # Check if user is initialized first
@@ -967,7 +966,6 @@ class Growth(commands.Cog):
         description="View items sold in shop.",
         aliases=["sho"]
     )
-    @commands.guild_only()
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def shop(self, ctx, *item):
         # Check if user is initialized first
@@ -1041,7 +1039,6 @@ class Growth(commands.Cog):
         description="Buy items from shop to use in your adventure.",
         aliases=["bu"]
     )
-    @commands.guild_only()
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def buy(self, ctx, amount: int, *item):
         # Check if user is initialized first
@@ -1615,7 +1612,6 @@ class Growth(commands.Cog):
             ),
         aliases=["ba"]
     )
-    @commands.guild_only()
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def banner(self, ctx):
         # Check if user is initialized first
@@ -1864,7 +1860,6 @@ class Growth(commands.Cog):
         description="Check the amount of your current trophies.",
         aliases=["tro"]
     )
-    @commands.guild_only()
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def trophy(self, ctx, mention: discord.Member = None):
         # Check if user is initialized first

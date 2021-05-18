@@ -72,7 +72,6 @@ class Guardian(commands.Cog):
         description="View profile of yourself or someone else's.",
         aliases=["pr", "prof"],
     )
-    @commands.guild_only()
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def profile(self, ctx, mention: discord.Member = None):
         # Check if user is initialized first
@@ -168,7 +167,6 @@ class Guardian(commands.Cog):
         ),
         aliases=["inv"],
     )
-    @commands.guild_only()
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def inventory(
             self, ctx, type, *target):
@@ -440,7 +438,6 @@ class Guardian(commands.Cog):
         ),
         aliases=["bo"],
     )
-    @commands.guild_only()
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def book(self, ctx, type, *target):
         # Check if user is initialized first
@@ -600,7 +597,6 @@ class Guardian(commands.Cog):
             + "username you set in some commands."
         ),
     )
-    @commands.guild_only()
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def username(self, ctx, username):
         # Check if user is initialized first
