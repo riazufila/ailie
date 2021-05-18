@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 from datetime import datetime
+from operator import truediv
 import pytz
 import time
 import math
@@ -413,6 +414,9 @@ class Database():
         self.cursor.execute(query, data)
         hero_obtained = self.cursor.fetchone()
 
+        if isinstance(hero_obtained, tuple):
+            hero_obtained = hero_obtained[0]
+
         if hero_obtained:
             return True
         else:
@@ -431,6 +435,9 @@ class Database():
         data = [guardian_id, equip_id]
         self.cursor.execute(query, data)
         equip_obtained = self.cursor.fetchone()
+
+        if isinstance(equip_obtained, tuple):
+            equip_obtained = equip_obtained[0]
 
         if equip_obtained:
             return True
@@ -1220,7 +1227,7 @@ class Database():
         user_exp = user_exp + exp
 
         # Set max level
-        max_level = 482
+        max_level = 500
         max_exp = max_level * 100
 
         if user_exp >= max_exp:
@@ -1547,6 +1554,103 @@ class Database():
 
         self.cursor.execute(query, data)
         self.connection.commit()
+
+    def set_team(self, guardian_id, key, team):
+        query = (
+            "SELECT team_id FROM teams "
+            + "WHERE guardian_id = %s and team_key = %s;"
+        )
+        data = [guardian_id, key]
+        self.cursor.execute(query, data)
+        team_id = self.cursor.fetchone()
+
+        if isinstance(team_id, tuple):
+            team_id = team_id[0]
+
+        if not team_id:
+            query = (
+                "INSERT INTO teams (team_key, team_hero, guardian_id) "
+                + "VALUES (%s, ARRAY[%s, %s, %s, %s]::bigint[], %s);"
+            )
+            data = [key, team[0], team[1], team[2], team[3], guardian_id]
+        else:
+            query = (
+                "UPDATE teams SET team_hero = ARRAY[%s, %s, %s, %s]::bigint[] "
+                + "WHERE team_id = %s;"
+            )
+            data = [team[0], team[1], team[2], team[3], team_id]
+
+        self.cursor.execute(query, data)
+        self.connection.commit()
+
+    def get_team_count(self, guardian_id):
+        query = (
+            "SELECT team_id FROM teams WHERE guardian_id = %s;"
+        )
+        data = [guardian_id]
+        self.cursor.execute(query, data)
+        teams = self.cursor.fetchall()
+
+        return len(teams)
+
+    def is_team_exists(self, guardian_id, key):
+        query = (
+            "SELECT * FROM teams WHERE team_key = %s "
+            + "AND guardian_id = %s;"
+        )
+        data = [key, guardian_id]
+        self.cursor.execute(query, data)
+        exist = self.cursor.fetchone()
+
+        if isinstance(exist, tuple):
+            exist = exist[0]
+
+        if exist:
+            return True
+        else:
+            return False
+
+    def get_all_teams(self, guardian_id):
+        query = (
+            "SELECT team_key, team_hero FROM teams WHERE guardian_id = %s;"
+        )
+        data = [guardian_id]
+        self.cursor.execute(query, data)
+        teams = self.cursor.fetchall()
+
+        return teams
+
+    def get_hero_name_from_id(self, hero_id):
+        query = "SELECT hero_name FROM heroes WHERE hero_id = %s;"
+        data = [hero_id]
+        self.cursor.execute(query, data)
+        hero_name = self.cursor.fetchone()
+
+        if isinstance(hero_name, tuple):
+            hero_name = hero_name[0]
+
+        return hero_name
+
+    def delete_team(self, guardian_id, key):
+        query = \
+            "DELETE FROM teams WHERE guardian_id = %s AND team_key = %s;"
+        data = [guardian_id, key]
+        self.cursor.execute(query, data)
+        self.connection.commit()
+
+    def get_first_hero_from_team(self, guardian_id, key):
+        query = (
+            "SELECT team_hero FROM teams "
+            + "WHERE guardian_id = %s AND team_key = %s;"
+        )
+        data = [guardian_id, key]
+        self.cursor.execute(query, data)
+        hero_id = self.cursor.fetchone()
+
+        if isinstance(hero_id, tuple):
+            hero_id = hero_id[0]
+
+        return hero_id[0]
 
     # Disconnect database
     def disconnect(self):

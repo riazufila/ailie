@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 
-import math
 import discord
 from discord.ext import commands
 from helpers.database import Database
@@ -73,6 +72,7 @@ class Guardian(commands.Cog):
         description="View profile of yourself or someone else's.",
         aliases=["pr", "prof"],
     )
+    @commands.guild_only()
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def profile(self, ctx, mention: discord.Member = None):
         # Check if user is initialized first
@@ -168,6 +168,7 @@ class Guardian(commands.Cog):
         ),
         aliases=["inv"],
     )
+    @commands.guild_only()
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def inventory(
             self, ctx, type, *target):
@@ -430,6 +431,167 @@ class Guardian(commands.Cog):
         db_ailie.disconnect()
 
     @commands.command(
+        name="book",
+        brief="Open book of everything.",
+        description=(
+            "Use the book to check information of heroes and equipments. "
+            + "`type` can be either `hero` or `equip`. "
+            + "Target can be any heroes or equipments."
+        ),
+        aliases=["bo"],
+    )
+    @commands.guild_only()
+    @commands.cooldown(1, 5, commands.BucketType.user)
+    async def book(self, ctx, type, *target):
+        # Check if user is initialized first
+        db_ailie = Database()
+        if not db_ailie.is_initialized(ctx.author.id):
+            await ctx.send(
+                "Do `ailie;initialize` or `a;initialize` first before anything!"
+            )
+            db_ailie.disconnect()
+            return
+
+        if target:
+            target = " ".join(target)
+
+            if len(target) < 4:
+                await ctx.send(
+                    f"Yo, <@{ctx.author.id}>. "
+                    + "At least put 4 characters please?"
+                )
+                db_ailie.disconnect()
+                return
+
+            exists = False
+            full_name = ""
+            stats = (
+                buffs
+            ) = (
+                skill
+            ) = on_hit = on_normal = on_normal_instant = on_hit_instant = {}
+        else:
+            await ctx.send("No hero or equipment mentioned.")
+            db_ailie.disconnect()
+            return
+
+        if type in ["heroes", "hero", "h"]:
+            exists = True
+            full_name = db_ailie.get_hero_full_name(target)
+
+            if not full_name:
+                exists = False
+            else:
+                hero_id = db_ailie.get_hero_id(full_name)
+                (
+                    stats,
+                    buffs,
+                    skill,
+                    triggers,
+                ) = db_ailie.get_hero_stats(hero_id)
+
+                for trigger in triggers:
+                    if trigger == "on_hit":
+                        on_hit = triggers[trigger]
+                    else:
+                        on_normal = triggers[trigger]
+        elif type in ["equipments", "equips", "equip", "eq", "e"]:
+            exists = True
+            full_name = db_ailie.get_equip_full_name(target)
+
+            if not full_name:
+                exists = False
+            else:
+                equip_id = db_ailie.get_equip_id(full_name)
+                (
+                    stats,
+                    buffs,
+                    skill,
+                    triggers,
+                    instant_triggers,
+                ) = db_ailie.get_equip_stats(equip_id)
+
+                for trigger in triggers:
+                    if trigger == "on_hit":
+                        on_hit = triggers[trigger]
+                    else:
+                        on_normal = triggers[trigger]
+
+                for instant_trigger in instant_triggers:
+                    if instant_trigger == "on_hit":
+                        on_hit_instant = instant_triggers[instant_trigger]
+                    else:
+                        on_normal_instant = instant_triggers[instant_trigger]
+        else:
+            await ctx.send("Please specify the type as hero or equipment.")
+            return
+
+        if exists:
+            embed = discord.Embed(color=discord.Color.purple())
+            embed.set_author(
+                icon_url=self.bot.user.avatar_url, name=f"Lvl 1 {full_name}"
+            )
+
+            # Set output
+            for info in [
+                stats,
+                buffs,
+                skill,
+                on_hit,
+                on_normal,
+                on_hit_instant,
+                on_normal_instant,
+            ]:
+                information = ""
+                info_title = ""
+                for i in info:
+                    all = False
+                    party = ""
+
+                    if info == stats:
+                        info_title = "Stats 📋"
+                    elif info == buffs:
+                        info_title = "Buffs ✨"
+                    elif info == skill:
+                        info_title = "Chain Skill 🔗"
+                    elif info == on_hit:
+                        info_title = "On Hit 🛡️"
+                    elif info == on_normal:
+                        info_title = "On Attack ⚔️"
+                    elif info == on_hit_instant:
+                        info_title = "On Hit Instant 🛡️⚡"
+                    else:
+                        info_title = "On Attack Instant ⚔️⚡"
+
+                    if i.startswith("all"):
+                        buffer = i[4:]
+                        all = True
+                    else:
+                        buffer = i
+
+                    info_proper = self.translateToReadableFormat(buffer)
+
+                    if all:
+                        party = " (Party)"
+
+                    if information == "":
+                        information = f"\n**{info_proper}**: `{info[i]}`{party}"
+                    else:
+                        information = (
+                            information
+                            + f"\n**{info_proper}**: `{info[i]}`{party}"
+                        )
+
+                if information:
+                    embed.add_field(
+                        name=info_title, value=information, inline=False
+                    )
+
+            await ctx.send(embed=embed)
+        else:
+            await ctx.send("The target you asked for does not exist.")
+
+    @commands.command(
         name="username",
         brief="Set username.",
         description=(
@@ -438,6 +600,7 @@ class Guardian(commands.Cog):
             + "username you set in some commands."
         ),
     )
+    @commands.guild_only()
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def username(self, ctx, username):
         # Check if user is initialized first
@@ -457,280 +620,6 @@ class Guardian(commands.Cog):
         db_ailie.disconnect()
 
     @commands.command(
-        name="limitbreak",
-        brief="Limit breaks a hero or equipment to extend the level cap.",
-        description=(
-            "Extends the capability of an already overly powerful hero "
-            + "or equipment by increasing its level cap. `type` "
-            + "can be either `hero` or `equip`. `target` is the hero "
-            + "or equipment to limit break."
-        ),
-        aliases=["li", "lb"]
-    )
-    @commands.max_concurrency(1, per=commands.BucketType.user, wait=False)
-    @commands.cooldown(1, 5, commands.BucketType.user)
-    async def limitBreak(self, ctx, type, *target):
-        # Check if user is initialized first
-        db_ailie = Database()
-        if not db_ailie.is_initialized(ctx.author.id):
-            await ctx.send(
-                "Do `ailie;initialize` or `a;initialize` first before anything!"
-            )
-            db_ailie.disconnect()
-            return
-
-        exists = True
-        obtained = True
-        max_lb = 9
-        target_id = None
-
-        if not target:
-            await ctx.send("Please specify a hero or equipment.")
-            return
-
-        target = " ".join(target)
-
-        if len(target) < 4:
-            await ctx.send(
-                f"Yo, <@{ctx.author.id}>. "
-                + "At least put 4 characters please?"
-            )
-            db_ailie.disconnect()
-            return
-
-        if type.lower() in ["heroes", "hero", "h"]:
-            type = "hero"
-            target_name = db_ailie.get_hero_full_name(target)
-            if not target_name:
-                exists = False
-            else:
-                target_id = db_ailie.get_hero_id(target_name)
-                obtained = db_ailie.is_hero_obtained(ctx.author.id, target_id)
-        elif type.lower() in \
-                ["equipments", "equipment", "equips", "equip", "eq", "e"]:
-            type = "equip"
-            target_name = db_ailie.get_equip_full_name(target)
-            if not target_name:
-                exists = False
-            else:
-                target_id = db_ailie.get_equip_id(target_name)
-                obtained = db_ailie.is_equip_obtained(ctx.author.id, target_id)
-        else:
-            await ctx.send("Only heroes and equipments can be limit broken.")
-            return
-
-        if not exists:
-            await ctx.send("The target you specified does not exist!")
-            return
-
-        if not obtained:
-            await ctx.send("You don't have the target you specified!")
-            return
-        else:
-            if type == "hero":
-                current_lb = db_ailie.get_hero_limit_break(
-                    ctx.author.id, target_name)
-            else:
-                current_lb = db_ailie.get_equip_limit_break(
-                    ctx.author.id, target_name)
-
-            if current_lb >= max_lb:
-                await ctx.send("You can't limit break that beast anymore.")
-                return
-
-            required_gems = (current_lb + 1) * 50000
-            current_gems = db_ailie.get_gems(ctx.author.id)
-
-            if current_gems < required_gems:
-                await ctx.send(
-                    f"<@{ctx.author.id}>, you only "
-                    + f"have `{current_gems:,d}` "
-                    + f"gems and you need `{required_gems:,d}` 💎 to limit "
-                    + f"break **{target_name}** from `{current_lb}` to "
-                    + f"`{current_lb + 1}`."
-                )
-                db_ailie.disconnect()
-                return
-
-        # Get confirmation
-        await ctx.send(
-                f"<@{ctx.author.id}>, confirm to limit break "
-                + f"**{target_name}** from `{current_lb}` "
-                + f"to `{current_lb + 1}` for "
-                + f"`{required_gems:,d}` gems. `Y` or `N`?"
-        )
-
-        # Function to confirm request
-        def confirm_request(message):
-            return (
-                message.author.id == ctx.author.id
-                and message.content.upper() in ["YES", "Y", "NO", "N"]
-            )
-
-        # Wait for confirmation
-        try:
-            msg = await self.bot.wait_for(
-                "message", check=confirm_request, timeout=30
-            )
-
-            # Request confirmed
-            if msg.content.upper() in ["YES", "Y"]:
-                inventory_id = db_ailie.get_inventory_id(ctx.author.id)
-                db_ailie.spend_gems(ctx.author.id, required_gems)
-                if type == "hero":
-                    db_ailie.increase_limit_break_hero(
-                        inventory_id, target_id, current_lb)
-                else:
-                    db_ailie.increase_limit_break_equip(
-                        inventory_id, target_id, current_lb)
-
-                await ctx.send(
-                        f"Congratulations, <@{ctx.author.id}>! "
-                        + f"Your **{target_name}**'s current limit "
-                        + f"break is now `{current_lb + 1}`."
-                )
-            # Change of mind
-            else:
-                await ctx.send(
-                    f"Maybe next time, <@{ctx.author.id}>.."
-                )
-        except Exception:
-            await ctx.send(
-                f"I guess you're away already, <@{ctx.author.id}>."
-            )
-
-    @commands.command(
-        name="enhance",
-        brief="Enhance equipments.",
-        description=(
-            "Enhance equipments for EXP. `level_increase` is "
-            + "the amount of level increase that is aim on "
-            + "the equipment. `equipment` is the equipment "
-            + "to be enhanced."
-        ),
-        aliases=["en"],
-    )
-    @commands.max_concurrency(1, per=commands.BucketType.user, wait=False)
-    @commands.cooldown(1, 5, commands.BucketType.user)
-    async def enhance(self, ctx, level_increase: int, *equipment):
-        # Check if user is initialized first
-        db_ailie = Database()
-        if not db_ailie.is_initialized(ctx.author.id):
-            await ctx.send(
-                "Do `ailie;initialize` or `a;initialize` first before anything!"
-            )
-            db_ailie.disconnect()
-            return
-
-        if level_increase <= 0:
-            await ctx.send(f"Are you insane, <@{ctx.author.id}>?")
-            db_ailie.disconnect()
-            return
-
-        if not equipment:
-            await ctx.send("You need to specify an equipment to enhance.")
-            db_ailie.disconnect()
-            return
-
-        equipment = " ".join(equipment)
-
-        if len(equipment) < 4:
-            await ctx.send(
-                f"Yo, <@{ctx.author.id}>. "
-                + "At least put 4 characters please?"
-            )
-            db_ailie.disconnect()
-            return
-
-        equip_full_name = db_ailie.get_equip_full_name(equipment)
-
-        if not equip_full_name:
-            await ctx.send("No such equipment exists.")
-            db_ailie.disconnect()
-            return
-
-        equip_id = db_ailie.get_equip_id(equip_full_name)
-
-        if not db_ailie.is_equip_obtained(ctx.author.id, equip_id):
-            await ctx.send(f"You dont have that equipment, <@{ctx.author.id}>!")
-            db_ailie.disconnect()
-            return
-
-        exp_to_increase = level_increase * 100
-
-        inventory_id = db_ailie.get_inventory_id(ctx.author.id)
-        acquired = db_ailie.get_equip_acquired_details(inventory_id, equip_id)
-
-        current_level = acquired["level"]
-        current_exp = acquired["exp"]
-        lb = acquired["limit_break"]
-
-        level = math.trunc((current_exp + exp_to_increase) / 100)
-        max_level = ((5000 + (5000 * lb)) / 100)
-
-        if level > max_level:
-            await ctx.send(
-                f"You can't increase that much, <@{ctx.author.id}>. "
-                + f"Your max level for that equipment is `{max_level:,d}`."
-            )
-            db_ailie.disconnect()
-            return
-
-        gems_required = level_increase * 2700
-        current_gems = db_ailie.get_gems(ctx.author.id)
-
-        if gems_required > current_gems:
-            await ctx.send(
-                f"Oof, poor guys <@{ctx.author.id}>.. "
-                + f"You need `{gems_required:,d}` gems "
-                + f"and you only have `{current_gems:,d}` gems. Sad life."
-            )
-            db_ailie.disconnect()
-            return
-
-        # Get confirmation
-        await ctx.send(
-                f"<@{ctx.author.id}>, confirm to enhance "
-                + f"**{equip_full_name}** from `{current_level}` "
-                + f"to `{current_level + level_increase}` for "
-                + f"`{gems_required:,d}` gems. `Y` or `N`?"
-        )
-
-        # Function to confirm request
-        def confirm_request(message):
-            return (
-                message.author.id == ctx.author.id
-                and message.content.upper() in ["YES", "Y", "NO", "N"]
-            )
-
-        # Wait for confirmation
-        try:
-            msg = await self.bot.wait_for(
-                "message", check=confirm_request, timeout=30
-            )
-
-            # Request confirmed
-            if msg.content.upper() in ["YES", "Y"]:
-                db_ailie.spend_gems(ctx.author.id, gems_required)
-                db_ailie.update_equip_exp(
-                    ctx.author.id, equip_full_name, exp_to_increase)
-
-                await ctx.send(
-                        f"Congratulations, <@{ctx.author.id}>! "
-                        + f"Your **{equip_full_name}**'s current level "
-                        + f"is now `{current_level + level_increase}`."
-                )
-            # Change of mind
-            else:
-                await ctx.send(
-                    f"Maybe next time, <@{ctx.author.id}>.."
-                )
-        except Exception:
-            await ctx.send(
-                f"I guess you're away already, <@{ctx.author.id}>."
-            )
-
-    @commands.command(
         name="initialize",
         brief="Initialize user.",
         description=(
@@ -739,6 +628,7 @@ class Guardian(commands.Cog):
         ),
         aliases=["ini"],
     )
+    @commands.guild_only()
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def initialize(self, ctx):
         db_ailie = Database()
@@ -753,6 +643,218 @@ class Guardian(commands.Cog):
                 f"You are already initialized, <@{ctx.author.id}>. "
                 + "No need to initialize for the second time. Have fun!"
             )
+
+    @commands.group(
+        name="team",
+        brief="Manage team here.",
+        description="Set, delete, and view your teams.",
+        invoke_without_command=True
+    )
+    @commands.dm_only()
+    @commands.cooldown(1, 5, commands.BucketType.user)
+    async def team(self, ctx):
+        # Check if user is initialized first
+        db_ailie = Database()
+        if not db_ailie.is_initialized(ctx.author.id):
+            await ctx.send(
+                "Do `ailie;initialize` or `a;initialize` first before anything!"
+            )
+            db_ailie.disconnect()
+            return
+        db_ailie.disconnect()
+
+        await ctx.send(
+            "You might wanna check `a;help team` to check out how "
+            + "to set, view, and delete team."
+        )
+
+    @team.command(
+        name="set",
+        brief="Set team.",
+        description=(
+            "Configure team that you can pre-made before battle or any "
+            + "commands that requires a hero to use, such as, `arena`. "
+            + "With this, enemy would not be able to know your used hero "
+            + "until the match begins. Use `a;team` without any arguments "
+            + "first, to bring Ailie into your Private Messages. "
+            + "You can set a team with `main` key "
+            + "to allow automatic use of that hero for commands like `train`. "
+            + "`key` should be any words, letters, or numbers. You will have "
+            + "to specify your `key` instead of your hero when in commands, "
+            + "like `arena`. Using `main` key will allow you to use the team "
+            + "without specifying any `key`. `heroes` is the hero you want "
+            + "in you team. For now, only one hero can be in a team."
+        ),
+    )
+    @commands.dm_only()
+    @commands.cooldown(1, 5, commands.BucketType.user)
+    async def team_set(self, ctx, key: str, *heroes):
+        # Check if user is initialized first
+        db_ailie = Database()
+        if not db_ailie.is_initialized(ctx.author.id):
+            await ctx.send(
+                "Do `ailie;initialize` or `a;initialize` first before anything!"
+            )
+            db_ailie.disconnect()
+            return
+
+        if not key:
+            await ctx.send(
+                "You forgot to specify the key. Put `main` as the key "
+                + "if you want to be able to use commands like `arena` "
+                + "without having to specify `key`."
+            )
+            db_ailie.disconnect()
+            return
+
+        if not heroes:
+            await ctx.send(
+                "Specify the heroes you want in the team. "
+                + "One team consists of one to four heroes. "
+                + "Make sure to separate the heroes with `;` "
+                + "For example, "
+                + "`Alef;Idol Captain Eva;Gabriel;Princess`."
+            )
+            db_ailie.disconnect()
+            return
+
+        exist = db_ailie.is_team_exists(ctx.author.id, key)
+        team_count = db_ailie.get_team_count(ctx.author.id)
+
+        if not exist:
+            if team_count >= 3:
+                await ctx.send(
+                    "The max amount of team you can make is 3."
+                )
+                db_ailie.disconnect()
+                return
+
+        heroes = " ".join(heroes)
+        heroes = heroes.split(";")
+        counter_buffer = []
+
+        # Remove whitespaces
+        for hero in heroes:
+            if hero == "":
+                counter_buffer.append(heroes.index(hero))
+
+        for counter in counter_buffer:
+            heroes.pop(counter)
+
+        if len(heroes) > 1:
+            await ctx.send(
+                "The max amount of heroes in a team now is 1. "
+                + "Yeah I know, weird. How can it be a team with "
+                + "only 1 hero. You're gonna need to wait "
+                + "for an update for that."
+            )
+            db_ailie.disconnect()
+            return
+
+        buffer = []
+        for hero in heroes:
+            full_name = db_ailie.get_hero_full_name(hero)
+            if not full_name:
+                await ctx.send("The hero you stated doesn't exist.")
+                db_ailie.disconnect()
+                return
+            else:
+                hero_id = db_ailie.get_hero_id(full_name)
+                obtained = db_ailie.is_hero_obtained(ctx.author.id, hero_id)
+                if not obtained:
+                    await ctx.send(f"You don't own **{full_name}**.")
+                    db_ailie.disconnect()
+                    return
+                buffer.append(hero_id)
+
+        # Check duplicate heroes
+        if len(set(buffer)) != len(buffer):
+            await ctx.send(
+                "Two of the same hero in a team? That's absurd!")
+            db_ailie.disconnect()
+            return
+
+        # Fill the extra spaces with zeros
+        if len(buffer) != 4:
+            while len(buffer) != 4:
+                buffer.append(0)
+
+        db_ailie.set_team(ctx.author.id, key, buffer)
+        await ctx.send("Updated your team!")
+
+    @team.command(
+        name="show",
+        brief="Show team.",
+        description=(
+            "View all the teams you made."
+        ),
+    )
+    @commands.dm_only()
+    @commands.cooldown(1, 5, commands.BucketType.user)
+    async def team_show(self, ctx):
+        # Check if user is initialized first
+        db_ailie = Database()
+        if not db_ailie.is_initialized(ctx.author.id):
+            await ctx.send(
+                "Do `ailie;initialize` or `a;initialize` first before anything!"
+            )
+            db_ailie.disconnect()
+            return
+
+        teams = db_ailie.get_all_teams(ctx.author.id)
+
+        embed = discord.Embed(color=discord.Color.purple())
+        embed.set_author(
+            icon_url=ctx.author.avatar_url, name=ctx.author.name
+        )
+
+        output = ""
+        for team in teams:
+            for t in team[1]:
+                hero_name = db_ailie.get_hero_name_from_id(t)
+                if hero_name is not None:
+                    if team[1].index(t) == 0:
+                        output = f"`{hero_name}`"
+                    else:
+                        output = output + "\n" + f"`{hero_name}`"
+
+            embed.add_field(name=team[0], value=output, inline=False)
+
+        if len(teams) == 0:
+            embed.add_field(name="Teams", value="None", inline=False)
+
+        await ctx.send(embed=embed)
+
+    @team.command(
+        name="delete",
+        brief="Delete team.",
+        description=(
+            "Delete the teams you made."
+        ),
+    )
+    @commands.dm_only()
+    @commands.cooldown(1, 5, commands.BucketType.user)
+    async def team_delete(self, ctx, key: str):
+        # Check if user is initialized first
+        db_ailie = Database()
+        if not db_ailie.is_initialized(ctx.author.id):
+            await ctx.send(
+                "Do `ailie;initialize` or `a;initialize` first before anything!"
+            )
+            db_ailie.disconnect()
+            return
+
+        exist = db_ailie.is_team_exists(ctx.author.id, key)
+
+        if not exist:
+            await ctx.send(
+                "Are you sure they key is correct?"
+            )
+            db_ailie.disconnect()
+            return
+
+        db_ailie.delete_team(ctx.author.id, key)
+        await ctx.send(f"Deleted your team with `{key}` key.")
 
 
 def setup(bot):
