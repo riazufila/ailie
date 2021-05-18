@@ -664,7 +664,7 @@ class Guardian(commands.Cog):
             + "Don't put spaces between the heroes."
         ),
     )
-    # @commands.dm_only()
+    @commands.dm_only()
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def team(self, ctx, key: str, *heroes):
         # Check if user is initialized first
@@ -709,6 +709,15 @@ class Guardian(commands.Cog):
 
         heroes = "".join(heroes)
         heroes = heroes.split(";")
+        counter_buffer = []
+
+        # Remove whitespaces
+        for hero in heroes:
+            if hero == "":
+                counter_buffer.append(heroes.index(hero))
+
+        for counter in counter_buffer:
+            heroes.pop(counter)
 
         buffer = []
         for hero in heroes:
@@ -726,6 +735,14 @@ class Guardian(commands.Cog):
                     return
                 buffer.append(hero_id)
 
+        # Check duplicate heroes
+        if len(set(buffer)) != len(buffer):
+            await ctx.send(
+                "Two of the same hero in a team? That's absurd!")
+            db_ailie.disconnect()
+            return
+
+        # Fill the extra spaces with zeros
         if len(buffer) != 4:
             while len(buffer) != 4:
                 buffer.append(0)
