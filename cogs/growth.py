@@ -1488,7 +1488,7 @@ class Growth(commands.Cog):
     )
     @commands.guild_only()
     @commands.cooldown(1, 45, commands.BucketType.user)
-    async def train(self, ctx, *hero):
+    async def train(self, ctx, key="main"):
         # Check if user is initialized first
         db_ailie = Database()
         if not db_ailie.is_initialized(ctx.author.id):
@@ -1498,34 +1498,27 @@ class Growth(commands.Cog):
             db_ailie.disconnect()
             return
 
-        if not hero:
-            await ctx.send("You need to specify a hero to train.")
-            db_ailie.disconnect()
-            return
+        if key == "main":
+            if not db_ailie.is_team_exists(ctx.author.id, "main"):
+                await ctx.send(
+                    "You need make a team with a `main` key. With "
+                    + "that, you can just use `a;train`' without specifying "
+                    + "anything else. If you want to specify hero in "
+                    + "other `key`, then you may specify the key instead "
+                    + "of the hero. For example, `a;train secondary`. "
+                    + "Check out the `team` command."
+                )
+                db_ailie.disconnect()
+                return
 
-        hero = " ".join(hero)
-
-        if len(hero) < 4:
+        if not db_ailie.is_team_exists(ctx.author.id, key):
             await ctx.send(
-                f"Yo, <@{ctx.author.id}>. "
-                + "At least put 4 characters please?"
-            )
+                f"You dont have a team with that key, <@{ctx.author.id}>!")
             db_ailie.disconnect()
             return
 
-        hero_full_name = db_ailie.get_hero_full_name(hero)
-
-        if not hero_full_name:
-            await ctx.send("No such hero exists.")
-            db_ailie.disconnect()
-            return
-
-        hero_id = db_ailie.get_hero_id(hero_full_name)
-
-        if not db_ailie.is_hero_obtained(ctx.author.id, hero_id):
-            await ctx.send(f"You dont have that hero, <@{ctx.author.id}>!")
-            db_ailie.disconnect()
-            return
+        hero_id = db_ailie.get_first_hero_from_team(ctx.author.id, key)
+        hero_full_name = db_ailie.get_hero_name_from_id(hero_id)
 
         highest_exp_gain = 60
         lowest_exp_gain = 40
@@ -1555,13 +1548,15 @@ class Growth(commands.Cog):
             "Push up, push down, push up, push down.",
             "I just want to get this over with.",
             "What should I ask you guys to type?",
+            "Does it feel better when you don't need to type "
+            + "the hero's name?"
         ]
 
         # Randomly pick from list
         training_typing_picked = random.choice(training_typing)
 
         await ctx.send(
-            f"Type `{training_typing_picked}` to train **{hero_full_name}**. "
+            f"Type `{training_typing_picked}` to train yor hero. "
             + "Easy enough?"
         )
 
@@ -1580,12 +1575,12 @@ class Growth(commands.Cog):
             if msg.content == training_typing_picked:
                 reply = [
                     f"<@{ctx.author.id}>, you can feel `{exp:,d}` Hero EXP "
-                    + f"coursing through **{hero_full_name}**.",
-                    f"You think you've got the best **{hero_full_name}**? "
-                    + f"However strong your **{hero_full_name}** "
+                    + "coursing through your hero.",
+                    "You think you've got the best your hero? "
+                    + "However strong your your hero "
                     + f"is, <@{ctx.author.id}>, it still won't surpass me. "
                     + f"You've got `{exp:,d}` Hero EXP though.",
-                    f"<@{ctx.author.id}>, you can feel **{hero_full_name}** "
+                    f"<@{ctx.author.id}>, you can feel your hero "
                     + f"getting stronger right this moment. Gained `{exp:,d}` "
                     + "Hero EXP!",
                 ]

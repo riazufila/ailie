@@ -1638,6 +1638,20 @@ class Database():
         self.cursor.execute(query, data)
         self.connection.commit()
 
+    def get_first_hero_from_team(self, guardian_id, key):
+        query = (
+            "SELECT team_hero FROM teams "
+            + "WHERE guardian_id = %s AND team_key = %s;"
+        )
+        data = [guardian_id, key]
+        self.cursor.execute(query, data)
+        hero_id = self.cursor.fetchone()
+
+        if isinstance(hero_id, tuple):
+            hero_id = hero_id[0]
+
+        return hero_id[0]
+
     # Disconnect database
     def disconnect(self):
         self.cursor.close()
