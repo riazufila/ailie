@@ -242,7 +242,6 @@ class Misc(commands.Cog):
             + "This can be used to check if Ailie is responsive."
         ),
     )
-    @commands.guild_only()
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def ping(self, ctx):
         # Check if user is initialized first
@@ -273,7 +272,6 @@ class Misc(commands.Cog):
         ),
         aliases=["fe"],
     )
-    @commands.guild_only()
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def feedback(self, ctx, *feedback):
         # Check if user is initialized first
@@ -309,7 +307,6 @@ class Misc(commands.Cog):
         brief="Sends server's invite link.",
         description=("Sends an active invite link to Ailie's server."),
     )
-    @commands.guild_only()
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def server(self, ctx):
         # Check if user is initialized first
@@ -339,7 +336,6 @@ class Misc(commands.Cog):
             + "`y` is for minor updates, and `z` is for bug fixes."
         ),
     )
-    @commands.guild_only()
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def version(self, ctx):
         # Check if user is initialized first
