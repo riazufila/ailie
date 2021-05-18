@@ -317,16 +317,6 @@ class Battle(commands.Cog):
                     )
                     await asyncio.sleep(2)
 
-                if move_type == "chain skill":
-                    # Break stunned condition after CS
-                    victim["current_state"]["stunned"] = 0
-                    await ctx.send(
-                        f"{victim['color']} "
-                        + f"**{victim['hero_name']}** "
-                        + "broke free from stun!"
-                    )
-                    await asyncio.sleep(2)
-
         return victim, end, winner, loser
 
     async def heal(self, ctx, hero, buff_percent):
@@ -1242,6 +1232,7 @@ class Battle(commands.Cog):
                         cs = "current_state"
                         onisc = "on_normal_instant_skill_cd"
                         ohisc = "on_hit_instants_skill_cd"
+                        did_cs = False
 
                         # Trigger instants buffs on attack
                         if heroes[first]["current_state"][onisc] \
@@ -1288,6 +1279,7 @@ class Battle(commands.Cog):
                             heroes = await self.goingToAttackPleaseBuff(
                                 ctx, heroes, first,
                                 second, heroes[first]["skill"])
+                            did_cs = True
 
                         # Deal damage
                         if percent_damage is not None:
@@ -1296,6 +1288,16 @@ class Battle(commands.Cog):
                                 ctx, heroes[first], heroes[second],
                                 move_type, percent_damage
                             )
+                            did_cs = True
+
+                        if did_cs:
+                            heroes[second]["current_state"]["stunned"] = 0
+                            await ctx.send(
+                                f"{heroes[second]['color']} "
+                                + f"**{heroes[second]['hero_name']}** "
+                                + "broke free from stun!"
+                            )
+                            await asyncio.sleep(2)
                     else:
                         await ctx.send(
                             f"{heroes[first]['color']} "
