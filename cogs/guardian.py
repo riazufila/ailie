@@ -682,10 +682,8 @@ class Guardian(commands.Cog):
             + "`key` should be any words, letters, or numbers. You will have "
             + "to specify your `key` instead of your hero when in commands, "
             + "like `arena`. Using `main` key will allow you to use the team "
-            + "without specifying any `key`. `heroes` is the heroes you want "
-            + "in you team. It should be separated by `;`, such as, "
-            + "`Plitvice;Idol Captain Eva;Noxia;Tinia`. "
-            + "Don't put spaces between the heroes."
+            + "without specifying any `key`. `heroes` is the hero you want "
+            + "in you team. For now, only one hero can be in a team."
         ),
     )
     @commands.dm_only()
