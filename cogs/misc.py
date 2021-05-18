@@ -369,7 +369,7 @@ class Misc(commands.Cog):
         db_ailie.disconnect()
 
         # Change upon version update
-        version = "1.8.3"
+        version = "1.9.0"
 
         await ctx.send(
             f"Hello, <@{ctx.author.id}>! "
