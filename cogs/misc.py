@@ -118,13 +118,13 @@ class Misc(commands.Cog):
             await ctx.send("That command is only for my awesome creator.")
         elif isinstance(error, commands.PrivateMessageOnly):
             await ctx.send(
-                "That command can be used within Private Message only. "
+                "That command can only be used within a Private Message. "
                 + "Kindly, send me a Private Message and initiate the "
                 + "command again. I won't bite."
             )
         elif isinstance(error, commands.NoPrivateMessage):
             await ctx.send(
-                "That command can be used within a Discord Server only.")
+                "That command can only be used within a Discord Server.")
         elif self.bot.is_ws_ratelimited():
             await ctx.send(
                 "We are being rate limited. Nothing can be helped here. "
@@ -154,6 +154,7 @@ class Misc(commands.Cog):
         brief="Pour salt.",
         description="Someone is too lucky? Pour some salt.",
     )
+    @commands.guild_only()
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def pourSalt(self, ctx, mention: discord.Member):
         # Check if user is initialized first
@@ -198,6 +199,7 @@ class Misc(commands.Cog):
         brief="Pay respect.",
         description="Someone is too unlucky? Press lots of F.",
     )
+    @commands.guild_only()
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def pressF(self, ctx, mention: discord.Member):
         # Check if user is initialized first
@@ -240,6 +242,7 @@ class Misc(commands.Cog):
             + "This can be used to check if Ailie is responsive."
         ),
     )
+    @commands.guild_only()
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def ping(self, ctx):
         # Check if user is initialized first
@@ -270,6 +273,7 @@ class Misc(commands.Cog):
         ),
         aliases=["fe"],
     )
+    @commands.guild_only()
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def feedback(self, ctx, *feedback):
         # Check if user is initialized first
@@ -305,6 +309,7 @@ class Misc(commands.Cog):
         brief="Sends server's invite link.",
         description=("Sends an active invite link to Ailie's server."),
     )
+    @commands.guild_only()
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def server(self, ctx):
         # Check if user is initialized first
@@ -334,6 +339,7 @@ class Misc(commands.Cog):
             + "`y` is for minor updates, and `z` is for bug fixes."
         ),
     )
+    @commands.guild_only()
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def version(self, ctx):
         # Check if user is initialized first

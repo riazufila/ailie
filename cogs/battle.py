@@ -692,6 +692,7 @@ class Battle(commands.Cog):
         aliases=["ar"]
     )
     @commands.max_concurrency(1, per=commands.BucketType.channel, wait=False)
+    @commands.guild_only()
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def arena(self, ctx, mention: discord.Member = None, *hero):
         # Check if mention is present

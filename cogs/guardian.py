@@ -72,6 +72,7 @@ class Guardian(commands.Cog):
         description="View profile of yourself or someone else's.",
         aliases=["pr", "prof"],
     )
+    @commands.guild_only()
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def profile(self, ctx, mention: discord.Member = None):
         # Check if user is initialized first
@@ -167,6 +168,7 @@ class Guardian(commands.Cog):
         ),
         aliases=["inv"],
     )
+    @commands.guild_only()
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def inventory(
             self, ctx, type, *target):
@@ -438,6 +440,7 @@ class Guardian(commands.Cog):
         ),
         aliases=["bo"],
     )
+    @commands.guild_only()
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def book(self, ctx, type, *target):
         # Check if user is initialized first
@@ -597,6 +600,7 @@ class Guardian(commands.Cog):
             + "username you set in some commands."
         ),
     )
+    @commands.guild_only()
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def username(self, ctx, username):
         # Check if user is initialized first
@@ -624,6 +628,7 @@ class Guardian(commands.Cog):
         ),
         aliases=["ini"],
     )
+    @commands.guild_only()
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def initialize(self, ctx):
         db_ailie = Database()
@@ -646,7 +651,9 @@ class Guardian(commands.Cog):
             "Configure team that you can pre-made before battle or any "
             + "commands that requires a hero to use, such as, `arena`. "
             + "With this, enemy would not be able to know your used hero "
-            + "until the match begins. You can set a team with `main` key "
+            + "until the match begins. Use `a;team` without any arguments "
+            + "first, to bring Ailie into your Private Messages. "
+            + "You can set a team with `main` key "
             + "to allow automatic use of that hero for commands like `train`. "
             + "`key` should be any words, letters, or numbers. You will have "
             + "to specify your `key` instead of your hero when in commands, "
@@ -654,6 +661,7 @@ class Guardian(commands.Cog):
             + "without specifying any `key`."
         ),
     )
+    @commands.dm_only()
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def team(self, ctx, key: str, *heroes):
         # Check if user is initialized first
@@ -664,6 +672,7 @@ class Guardian(commands.Cog):
             )
             db_ailie.disconnect()
             return
+
 
 
 def setup(bot):
