@@ -699,8 +699,6 @@ class Battle(commands.Cog):
             await ctx.send("You forgot to mention who to fight.")
             return
 
-        key = key.lower()
-
         db_ailie = Database()
         if key == "main":
             if not db_ailie.is_team_exists(ctx.author.id, "main"):

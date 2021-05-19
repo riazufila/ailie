@@ -1495,8 +1495,6 @@ class Growth(commands.Cog):
             db_ailie.disconnect()
             return
 
-        key = key.lower()
-
         if key == "main":
             if not db_ailie.is_team_exists(ctx.author.id, "main"):
                 await ctx.send(
