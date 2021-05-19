@@ -705,13 +705,23 @@ class Battle(commands.Cog):
         if key == "main":
             if not db_ailie.is_team_exists(ctx.author.id, "main"):
                 await ctx.send(
-                    "You need make a team with a `main` key. With "
-                    + "that, you can just use `a;train` without specifying "
-                    + "anything else. If you want to specify hero in "
-                    + "other `key`, then you may specify the key instead "
-                    + "of the hero. For example, `a;train secondary`. "
-                    + "Check out the `team` command."
+                    "You need to set your team. I've sent you a "
+                    + "Private Message."
                 )
+                await ctx.author.send(
+                    f"Hello, <@{ctx.author.id}>! "
+                    + "Make a team with `a;team set <key> <hero>` and "
+                    + "show your current team with `a;team show`. "
+                    + "Your max team slots for now is 3. Remember. "
+                    + "Making a team with 'main' as the name will allow "
+                    + "you to use the `a;train` just as is. If your team's "
+                    + "key is not 'main', then, you'll have to specify your "
+                    + "team when using `a;train`. For example, if your "
+                    + "team's key is `main`. Then, the full command for "
+                    + "`train` is `a;train`. However if your team's key "
+                    + "is other than main for example, 'one', then your "
+                    + "full command would be `a;train one`. The same "
+                    + "concept applies to `arena`. You can also `a;help team`.")
                 db_ailie.disconnect()
                 return
 
