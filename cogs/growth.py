@@ -1578,7 +1578,7 @@ class Growth(commands.Cog):
         training_typing_picked = random.choice(training_typing)
 
         await ctx.send(
-            f"Type `{training_typing_picked}` to train yor hero. "
+            f"Type `{training_typing_picked}` to train your hero. "
             + "Easy enough?"
         )
 
