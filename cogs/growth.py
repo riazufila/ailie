@@ -1213,7 +1213,6 @@ class Growth(commands.Cog):
         aliases=["li", "lb"]
     )
     @commands.max_concurrency(1, per=commands.BucketType.user, wait=False)
-    @commands.guild_only()
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def limitBreak(self, ctx, type, *target):
         # Check if user is initialized first
@@ -1357,7 +1356,6 @@ class Growth(commands.Cog):
         aliases=["en"],
     )
     @commands.max_concurrency(1, per=commands.BucketType.user, wait=False)
-    @commands.guild_only()
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def enhance(self, ctx, level_increase: int, *equipment):
         # Check if user is initialized first
