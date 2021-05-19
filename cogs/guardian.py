@@ -646,7 +646,6 @@ class Guardian(commands.Cog):
         description="Set, delete, and view your teams.",
         invoke_without_command=True
     )
-    @commands.dm_only()
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def team(self, ctx):
         # Check if user is initialized first
@@ -659,10 +658,27 @@ class Guardian(commands.Cog):
             return
         db_ailie.disconnect()
 
-        await ctx.send(
-            "You might wanna check `a;help team` to check out how "
-            + "to set, view, and delete team."
-        )
+        if isinstance(ctx.channel, discord.channel.DMChannel):
+            await ctx.send("Time to explain..")
+        else:
+            await ctx.send(
+                "Sent you a Private Message to get started with "
+                + f"team, <@{ctx.author.id}>."
+            )
+        await ctx.author.send(
+            f"Hello, <@{ctx.author.id}>! "
+            + "Make a team with `a;team set <key> <hero>` and "
+            + "show your current team with `a;team show`. "
+            + "Your max team slots for now is 3. Remember. "
+            + "Making a team with 'main' as the name will allow "
+            + "you to use the `a;train` just as is. If your team's "
+            + "key is not 'main', then, you'll have to specify your "
+            + "team when using `a;train`. For example, if your "
+            + "team's key is `main`. Then, the full command for "
+            + "`train` is `a;train`. However if your team's key "
+            + "is other than main for example, 'one', then your "
+            + "full command would be `a;train one`. The same "
+            + "concept applies to `arena`. You can also `a;help team`.")
 
     @team.command(
         name="set",
