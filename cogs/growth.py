@@ -1429,7 +1429,7 @@ class Growth(commands.Cog):
         lb = acquired["limit_break"]
 
         level = math.trunc((current_exp + exp_to_increase) / 100)
-        max_level = ((5000 + (5000 * lb)) / 100)
+        max_level = int((5000 + (5000 * lb)) / 100)
 
         if level > max_level:
             await ctx.send(
