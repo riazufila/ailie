@@ -624,9 +624,9 @@ class Growth(commands.Cog):
         # 50% chance of gambled gems being negative or positive
         win_percentage = 50
         if db_ailie.has_item_amount(ctx.author.id, "Miya's Lucky Card"):
-            win_percentage = win_percentage + 20
+            win_percentage = win_percentage + 15
 
-            dissolves = random.choices([True, False], [70, 30], k=1)
+            dissolves = random.choices([True, False], [90, 10], k=1)
             dissolve = ""
 
             for dissolve in dissolves:
