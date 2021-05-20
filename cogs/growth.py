@@ -624,7 +624,7 @@ class Growth(commands.Cog):
         # 50% chance of gambled gems being negative or positive
         win_percentage = 50
         if db_ailie.has_item_amount(ctx.author.id, "Miya's Lucky Card"):
-            win_percentage = win_percentage + 15
+            win_percentage = win_percentage + 30
 
             dissolves = random.choices([True, False], [90, 10], k=1)
             dissolve = ""
@@ -633,7 +633,10 @@ class Growth(commands.Cog):
                 dissolve = dissolve
 
             if dissolve:
-                await ctx.send("You can see `Miya's Lucky Card` flew away as the wind pass by.")
+                await ctx.send(
+                    "You can see `Miya's Lucky Card` "
+                    + "flew away as the wind pass by."
+                )
                 db_ailie.item_break(ctx.author.id, "Miya's Lucky Card")
         gems_obtained = random.choices(
             [-gems, gems], [100 - win_percentage, win_percentage], k=1)
