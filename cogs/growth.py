@@ -592,7 +592,7 @@ class Growth(commands.Cog):
         aliases=["ga"]
     )
     @commands.guild_only()
-    @commands.cooldown(1, 5, commands.BucketType.user)
+    # @commands.cooldown(1, 5, commands.BucketType.user)
     async def gamble(self, ctx, gems: int):
         # Check if user is initialized first
         db_ailie = Database()
@@ -622,7 +622,21 @@ class Growth(commands.Cog):
             return
 
         # 50% chance of gambled gems being negative or positive
-        gems_obtained = random.choices([-gems, gems], [50, 50], k=1)
+        win_percentage = 50
+        if db_ailie.has_item_amount(ctx.author.id, "Miya's Lucky Card"):
+            win_percentage = win_percentage + 15
+
+            dissolves = random.choices([True, False], [90, 10], k=1)
+            dissolve = ""
+
+            for dissolve in dissolves:
+                dissolve = dissolve
+
+            if dissolve:
+                await ctx.send("You can see `Miya's Lucky Card` flew away as the wind pass by.")
+                db_ailie.item_break(ctx.author.id, "Miya's Lucky Card")
+        gems_obtained = random.choices(
+            [-gems, gems], [100 - win_percentage, win_percentage], k=1)
 
         # Only increase User EXP on 500 or more gamble
         legit_gamble = False
@@ -1117,7 +1131,8 @@ class Growth(commands.Cog):
             db_ailie.disconnect()
             return
 
-        amount_amulet = db_ailie.has_princess_amulet_amount(ctx.author.id)
+        amount_amulet = \
+            db_ailie.has_item_amount(ctx.author.id, "Princess Amulet")
 
         if not amount_amulet:
             await ctx.send(
@@ -1182,7 +1197,7 @@ class Growth(commands.Cog):
                 broke = b
 
             if broke:
-                db_ailie.princess_amulet_break(ctx.author.id)
+                db_ailie.item_break(ctx.author.id, "Princess Amulet")
                 await msg.reply(
                     "Yeah, I'm serious. Your `Princess Amulet` broke, "
                     + f"<@{ctx.author.id}>. Sad."
