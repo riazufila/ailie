@@ -624,7 +624,7 @@ class Growth(commands.Cog):
         # 50% chance of gambled gems being negative or positive
         win_percentage = 50
         if db_ailie.has_item_amount(ctx.author.id, "Miya's Lucky Card"):
-            win_percentage = win_percentage + 15
+            win_percentage = win_percentage + 10
 
             dissolves = random.choices([True, False], [90, 10], k=1)
             dissolve = ""
@@ -1193,7 +1193,7 @@ class Growth(commands.Cog):
             await asyncio.sleep(3)
 
             # Calculate chance to break
-            broke = random.choices([True, False], [30, 70], k=1)
+            broke = random.choices([True, False], [20, 80], k=1)
 
             # Assign list to variable
             for b in broke:
