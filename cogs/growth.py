@@ -592,7 +592,7 @@ class Growth(commands.Cog):
         aliases=["ga"]
     )
     @commands.guild_only()
-    # @commands.cooldown(1, 5, commands.BucketType.user)
+    @commands.cooldown(1, 5, commands.BucketType.user)
     async def gamble(self, ctx, gems: int):
         # Check if user is initialized first
         db_ailie = Database()
