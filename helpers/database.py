@@ -1510,8 +1510,8 @@ class Database():
         self.cursor.execute(query, data)
         self.connection.commit()
 
-    def has_princess_amulet_amount(self, guardian_id):
-        item_id = self.get_item_id("Princess Amulet")
+    def has_item_amount(self, guardian_id, item_name):
+        item_id = self.get_item_id(item_name)
         inventory_id = self.get_inventory_id(guardian_id)
         query = (
             "SELECT item_acquired_quantity FROM items_acquired "
@@ -1532,9 +1532,9 @@ class Database():
         else:
             return amount
 
-    def princess_amulet_break(self, guardian_id):
-        amount = self.has_princess_amulet_amount(guardian_id)
-        item_id = self.get_item_id("Princess Amulet")
+    def item_break(self, guardian_id, item_name):
+        amount = self.has_item_amount(guardian_id, item_name)
+        item_id = self.get_item_id(item_name)
         inventory_id = self.get_inventory_id(guardian_id)
 
         amount = amount - 1
