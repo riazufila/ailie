@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
 from datetime import datetime
-from operator import truediv
 import pytz
 import time
 import math
@@ -1488,6 +1487,7 @@ class Database():
 
     def buy_items(self, guardian_id, item_name, amount):
         item_id = self.get_item_id(item_name)
+
         inventory_id = self.get_inventory_id(guardian_id)
 
         query = (

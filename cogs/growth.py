@@ -1076,14 +1076,14 @@ class Growth(commands.Cog):
 
             item_details = db_ailie.get_shop_item_detailed(item)
 
-            if item_details[0] in blacklist:
-                await ctx.send("The item you mentioned is not available now.")
+            if item_details is None:
+                await ctx.send(
+                    f"Are you sure that item exist, <@{ctx.author.id}>?")
                 db_ailie.disconnect()
                 return
 
-            if not item_details:
-                await ctx.send(
-                    f"Are you sure that item exist, <@{ctx.author.id}>?")
+            if item_details[0] in blacklist:
+                await ctx.send("The item you mentioned is not available now.")
                 db_ailie.disconnect()
                 return
 
@@ -1161,6 +1161,11 @@ class Growth(commands.Cog):
 
         item = " ".join(item)
         item_details = db_ailie.get_shop_item_detailed(item)
+
+        if item_details is None:
+            await ctx.send(
+                f"Item does not exists. You okay, <@{ctx.author.id}>?")
+            return
 
         if item_details[0] in blacklist:
             await ctx.send("The item you mentioned is not available now.")
