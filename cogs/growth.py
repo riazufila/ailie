@@ -1816,6 +1816,13 @@ class Growth(commands.Cog):
         target = " ".join(target)
 
         if not count <= 0 and count > 10:
+            if count > 100:
+                await ctx.send(
+                    "More than 100 summons? You trying to "
+                    + "make me crash or something?"
+                )
+                return
+
             if count % 10 == 0:
                 db_ailie = Database()
                 if not db_ailie.has_item_amount(
