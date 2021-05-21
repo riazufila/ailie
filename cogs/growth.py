@@ -518,7 +518,11 @@ class Growth(commands.Cog):
             )
             embed.set_author(name=ctx.me.name, icon_url=ctx.me.avatar_url)
             embed.set_footer(
-                text="Mass summon only displays Unique Heroes or Exclusive Equipments.")
+                text=(
+                    "Mass summon only displays Unique "
+                    + "Heroes or Exclusive Equipments."
+                    )
+                )
             msg = await msg.reply(embed=embed)
             await asyncio.sleep(2)
             msg = await msg.reply(
