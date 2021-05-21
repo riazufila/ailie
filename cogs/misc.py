@@ -81,7 +81,8 @@ class Misc(commands.Cog):
         elif isinstance(error, commands.MissingRequiredArgument):
             await ctx.send(
                 "Not to be rude. But you've got "
-                + f"the parameters wrong, <@{ctx.author.id}>."
+                + f"the parameters wrong, <@{ctx.author.id}>. "
+                + "Don't be lazy and read the `help` command!"
             )
             await asyncio.sleep(0.5)
             await ctx.send_help(ctx.command)
@@ -97,7 +98,8 @@ class Misc(commands.Cog):
             )
         elif isinstance(error, commands.TooManyArguments):
             msg = await ctx.send(
-                f"<@{ctx.author.id}>, there's too many arguments."
+                f"<@{ctx.author.id}>, there's too many arguments. "
+                + "Don't be lazy and read the `help` command!"
             )
             await asyncio.sleep(0.5)
             await ctx.send_help(ctx.command)
