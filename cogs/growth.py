@@ -652,7 +652,7 @@ class Growth(commands.Cog):
         aliases=["ga"]
     )
     @commands.guild_only()
-    @commands.cooldown(1, 40, commands.BucketType.user)
+    @commands.cooldown(1, 20, commands.BucketType.user)
     async def gamble(self, ctx, gems: int):
         # Check if user is initialized first
         db_ailie = Database()
@@ -1826,6 +1826,7 @@ class Growth(commands.Cog):
 
                 mass_summon = True
                 summon_loop = int(count / 10)
+                db_ailie.item_break(ctx.author.id, "Oghma's Booster")
                 db_ailie.disconnect()
             else:
                 await ctx.send(
