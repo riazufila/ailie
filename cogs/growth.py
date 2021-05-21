@@ -823,8 +823,6 @@ class Growth(commands.Cog):
         guardian_with_gems = guardian_with_gems_sorted[:10]
         counter = 1
         for whales in guardian_with_gems:
-            if whales[3] == 0:
-                whales[3] = "Z"
             if counter == 1:
                 output = output + \
                     f"{counter}. {whales[0]:,d} 💎 - " \
@@ -1866,8 +1864,6 @@ class Growth(commands.Cog):
         guardian_with_trophy = guardian_with_trophy_sorted[:10]
         counter = 1
         for barbarian in guardian_with_trophy:
-            if barbarian[3] == 0:
-                barbarian[3] = "Z"
             if counter == 1:
                 output = output \
                     + f"{counter}. {barbarian[0]:,d} 🏆 - " \

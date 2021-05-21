@@ -467,24 +467,26 @@ class Database():
             ewp_id = self.get_exclusive_weapon_id(hero[2])
             obtained = self.is_equip_obtained(guardian_id, ewp_id)
             hero_with_level.append(
-                [acquired["level"], hero[0], hero[1], hero[2], obtained])
+                [acquired["level"], hero[0],
+                    hero[1], hero[2], obtained, acquired["max_level"]]
+            )
 
         hero_inventory = sorted(hero_with_level, reverse=True)
         for hero in hero_inventory:
-            if hero[0] == 0:
-                hero[0] = "Z"
-
             if hero[4]:
                 ewp_ind = " 🗡️"
             else:
                 ewp_ind = ""
 
             if hero[1] == 3:
-                hero_buffer[2].append(f"Lvl {hero[0]} ★★★ {hero[2]}{ewp_ind}")
+                hero_buffer[2].append(
+                    f"Lvl `{hero[0]}`/`{hero[5]}` ★★★ {hero[2]}{ewp_ind}")
             if hero[1] == 2:
-                hero_buffer[1].append("Lvl {hero[0]} ★★ {hero[2]}{ewp_ind}")
+                hero_buffer[1].append(
+                    "Lvl `{hero[0]}`/`{hero[5]}` ★★ {hero[2]}{ewp_ind}")
             if hero[1] == 1:
-                hero_buffer[0].append("Lvl {hero[0]} ★ {hero[2]}{ewp_ind}")
+                hero_buffer[0].append(
+                    "Lvl `{hero[0]}`/`{hero[5]}` ★ {hero[2]}{ewp_ind}")
 
         return hero_buffer
 
@@ -535,14 +537,12 @@ class Database():
             obtained = self.is_hero_obtained(guardian_id, hero_id)
             equip_with_level.append(
                 [acquired["level"], equip[0], equip[1],
-                    equip[2], equip[3], obtained]
+                    equip[2], equip[3], obtained,
+                    acquired["max_level"]]
             )
 
         equip_inventory = sorted(equip_with_level, reverse=True)
         for equip in equip_inventory:
-            if equip[0] == 0:
-                equip[0] = "Z"
-
             if equip[5]:
                 hero_ind = " 👊"
             else:
@@ -551,23 +551,29 @@ class Database():
             if equip[2]:
                 if equip[1] == 5:
                     equip_buffer[5].append(
-                        f"Lvl {equip[0]} ★★★★★ [Ex] {equip[3]}{hero_ind}")
+                        f"Lvl `{equip[0]}`/`{equip[6]}` "
+                        + f"★★★★★ [Ex] {equip[3]}{hero_ind}")
                 if equip[1] == 4:
                     equip_buffer[4].append(
-                        f"Lvl {equip[0]} ★★★★ [Ex] {equip[3]}{hero_ind}")
+                        f"Lvl `{equip[0]}`/`{equip[6]}` "
+                        + f"★★★★ [Ex] {equip[3]}{hero_ind}")
             else:
                 if equip[1] == 5:
                     equip_buffer[3].append(
-                        f"Lvl {equip[0]} ★★★★★  {equip[3]}{hero_ind}")
+                        f"Lvl `{equip[0]}`/`{equip[6]}` "
+                        + f"★★★★★  {equip[3]}{hero_ind}")
                 if equip[1] == 4:
                     equip_buffer[2].append(
-                        f"Lvl {equip[0]} ★★★★ {equip[3]}{hero_ind}")
+                        f"Lvl `{equip[0]}`/`{equip[6]}` "
+                        + f"★★★★ {equip[3]}{hero_ind}")
                 if equip[1] == 3:
                     equip_buffer[1].append(
-                        f"Lvl {equip[0]} ★★★ {equip[3]}{hero_ind}")
+                        f"Lvl `{equip[0]}`/`{equip[6]}` "
+                        + f"★★★ {equip[3]}{hero_ind}")
                 if equip[1] == 2:
                     equip_buffer[0].append(
-                        f"Lvl {equip[0]} ★★ {equip[3]}{hero_ind}")
+                        f"Lvl `{equip[0]}`/`{equip[6]}` "
+                        + f"★★ {equip[3]}{hero_ind}")
 
         return equip_buffer
 
@@ -682,12 +688,14 @@ class Database():
 
         exp = heroes_acquired_stats[0]
         level = math.trunc(exp / 100)
+        lb = heroes_acquired_stats[1]
 
         if heroes_acquired_stats:
             hero_acquired = {
                 "level": level,
                 "exp": exp,
-                "limit_break": heroes_acquired_stats[1],
+                "limit_break": lb,
+                "max_level": int((5000 + (5000 * lb)) / 100)
             }
             return hero_acquired
         else:
@@ -706,12 +714,14 @@ class Database():
 
         exp = equipments_acquired_stats[0]
         level = math.trunc(exp / 100)
+        lb = equipments_acquired_stats[1]
 
         if equipments_acquired_stats:
             equip_acquired = {
                 "level": level,
                 "exp": exp,
-                "limit_break": equipments_acquired_stats[1]
+                "limit_break": lb,
+                "max_level": int((5000 + (5000 * lb)) / 100)
             }
             return equip_acquired
         else:

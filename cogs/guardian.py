@@ -114,7 +114,7 @@ class Guardian(commands.Cog):
         # Set embed baseline
         embed = discord.Embed(color=discord.Color.purple())
         embed.set_author(
-            name=f"Lvl {user_level} {guardian_name}'s Profile",
+            name=f"Lvl {user_level}/500 {guardian_name}'s Profile",
             icon_url=guardian_avatar
         )
 
@@ -354,15 +354,21 @@ class Guardian(commands.Cog):
             await ctx.send(embed=embed)
         elif target and in_bag:
             embed = discord.Embed(color=discord.Color.purple())
-            if acquired["level"] == 0:
-                acquired["level"] = "Z"
             embed.set_author(
                 icon_url=self.bot.user.avatar_url,
-                name=f"Lvl {acquired['level']} {full_name}{ind}",
+                name=(
+                    f"Lvl {acquired['level']}/{acquired['max_level']} "
+                    + f"{full_name}{ind}"),
             )
             embed.add_field(
                 name=f"{type} EXP 💪",
-                value=f"`{acquired['exp']:,d}`"
+                value=f"`{acquired['exp']:,d}`",
+                inline=False
+            )
+            embed.add_field(
+                name="Limit Break 🛩️",
+                value=f"`{acquired['limit_break']:,d}`/`9`",
+                inline=False
             )
 
             # Set output
@@ -386,7 +392,10 @@ class Guardian(commands.Cog):
                     elif info == buffs:
                         info_title = "Buffs ✨"
                     elif info == skill:
-                        info_title = "Chain Skill 🔗"
+                        if type == "Hero":
+                            info_title = "Chain Skill 🔗"
+                        else:
+                            info_title = "Weapon Skill 🔥"
                     elif info == on_hit:
                         info_title = "On Hit 🛡️"
                     elif info == on_normal:
