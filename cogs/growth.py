@@ -478,7 +478,7 @@ class Growth(commands.Cog):
         aliases=["rac"]
     )
     @commands.guild_only()
-    @commands.cooldown(1, 30, commands.BucketType.user)
+    @commands.cooldown(1, 20, commands.BucketType.user)
     async def race(self, ctx):
         # Check if user is initialized first
         db_ailie = Database()
@@ -592,7 +592,7 @@ class Growth(commands.Cog):
         aliases=["ga"]
     )
     @commands.guild_only()
-    @commands.cooldown(1, 5, commands.BucketType.user)
+    @commands.cooldown(1, 40, commands.BucketType.user)
     async def gamble(self, ctx, gems: int):
         # Check if user is initialized first
         db_ailie = Database()
@@ -924,7 +924,7 @@ class Growth(commands.Cog):
         qualified_hourly = db_ailie.get_hourly_qualification(ctx.author.id)
 
         if qualified_hourly:
-            gems = 500
+            gems = 1000
             db_ailie.store_gems(ctx.author.id, gems)
             db_ailie.update_user_exp(ctx.author.id, 5)
             await ctx.send(
