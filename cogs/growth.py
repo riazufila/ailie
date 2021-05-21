@@ -1817,8 +1817,16 @@ class Growth(commands.Cog):
 
         if not count <= 0 and count > 10:
             if count % 10 == 0:
+                db_ailie = Database()
+                if not db_ailie.has_item_amount(
+                        ctx.author.id, "Oghma's Booster"):
+                    await ctx.send("You need `Oghma's Booster` to mass summon.")
+                    db_ailie.disconnect()
+                    return
+
                 mass_summon = True
                 summon_loop = int(count / 10)
+                db_ailie.disconnect()
             else:
                 await ctx.send(
                     "Mass summon can only be done with "
