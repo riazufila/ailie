@@ -284,10 +284,16 @@ class Growth(commands.Cog):
 
     # Calculate the chances in summons
     def calcResults(
-            self, ctx, one_or_ten, t, w, last_slot_weights, target=None):
+                self, ctx, one_or_ten, t, w, last_slot_weights,
+                mass_summon, target=None
+            ):
         # Initialize value to return later
         reply = ""
         boxes = []
+
+
+        if mass_summon:
+            one_or_ten = 10
 
         # Check for summon values be it 10, 1 or invalid
         if one_or_ten == 10:
@@ -436,13 +442,17 @@ class Growth(commands.Cog):
         return boxes, reply
 
     # Summon is displayed accordingly
-    async def summonDisplay(self, ctx, one_or_ten, boxes, reply):
+    async def summonDisplay(self, ctx, one_or_ten, boxes, reply, mass_summon):
         msg = await ctx.send(
                 f"Wait up, <@{ctx.author.id}>. Summoning {one_or_ten} now..")
         await asyncio.sleep(1)
 
         # Declare counter
         counter = 1
+
+        if mass_summon:
+            one_or_ten = 10
+
         # Iterate through box and edit messages to update the results
         boxes = iter(boxes)
         for box in boxes:
@@ -1751,7 +1761,13 @@ class Growth(commands.Cog):
         pick_up_weightage = []
         reply = ""
         present = False
+        mass_summon = False
+        summon_loop = 0
         target = " ".join(target)
+
+        if not count <= 0 and count > 10 and count % 10 == 0:
+            mass_summon = True
+            summon_loop = int(count / 10)
 
         # Determine what banner is chosen
         if not target:
@@ -1798,12 +1814,39 @@ class Growth(commands.Cog):
                 pick_up_pool, target = self.pickUpPresent(target_banner, pool)
 
                 # Once the pick up is determined, then calculate the summons
-                boxes, reply = self.calcResults(
-                        ctx, count, pick_up_pool, pick_up_weightage,
-                        last_slot_weightage, target)
+                if not mass_summon:
+                    boxes, reply = self.calcResults(
+                            ctx, count, pick_up_pool, pick_up_weightage,
+                            last_slot_weightage, mass_summon, target)
+                else:
+                    counter = 0
+                    boxes_buffer = []
+                    while counter < summon_loop:
+                        boxes_buffer, reply = self.calcResults(
+                                ctx, count, pick_up_pool, pick_up_weightage,
+                                last_slot_weightage, mass_summon, target)
+                        counter += 1
+
+                        for b in boxes_buffer:
+                            boxes.append(b)
         else:
-            boxes, reply = self.calcResults(
-                ctx, count, pool, weightage, last_slot_weightage)
+            if not mass_summon:
+                boxes, reply = self.calcResults(
+                    ctx, count, pool, weightage,
+                    last_slot_weightage, mass_summon
+                )
+            else:
+                counter = 0
+                boxes_buffer = []
+                while counter < summon_loop:
+                    boxes_buffer, reply = self.calcResults(
+                        ctx, count, pool, weightage,
+                        last_slot_weightage, mass_summon
+                    )
+                    counter += 1
+
+                    for b in boxes_buffer:
+                        boxes.append(b)
 
         # If target hero or equipment entered is
         # not present in the current banner
@@ -1815,7 +1858,7 @@ class Growth(commands.Cog):
             return
 
         self.grantExpOnDupe(ctx.author.id, boxes, type)
-        await self.summonDisplay(ctx, count, boxes, reply)
+        await self.summonDisplay(ctx, count, boxes, reply, mass_summon)
 
     @commands.command(
         name="rank",
