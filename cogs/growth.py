@@ -284,10 +284,16 @@ class Growth(commands.Cog):
 
     # Calculate the chances in summons
     def calcResults(
-            self, ctx, one_or_ten, t, w, last_slot_weights, target=None):
+                self, ctx, one_or_ten, t, w, last_slot_weights,
+                mass_summon, target=None
+            ):
         # Initialize value to return later
         reply = ""
         boxes = []
+
+
+        if mass_summon:
+            one_or_ten = 10
 
         # Check for summon values be it 10, 1 or invalid
         if one_or_ten == 10:
@@ -436,17 +442,23 @@ class Growth(commands.Cog):
         return boxes, reply
 
     # Summon is displayed accordingly
-    async def summonDisplay(self, ctx, one_or_ten, boxes, reply):
+    async def summonDisplay(
+            self, ctx, one_or_ten, boxes, reply, mass_summon, type):
         msg = await ctx.send(
                 f"Wait up, <@{ctx.author.id}>. Summoning {one_or_ten} now..")
         await asyncio.sleep(1)
 
         # Declare counter
         counter = 1
+        units = {}
+
+        if mass_summon:
+            one_or_ten = 10
+
         # Iterate through box and edit messages to update the results
         boxes = iter(boxes)
         for box in boxes:
-            if one_or_ten == 10:
+            if one_or_ten == 10 and not mass_summon:
                 # Add five entry per request to lower occurance of rate limits
                 await asyncio.sleep(2)
                 await msg.edit(
@@ -458,6 +470,24 @@ class Growth(commands.Cog):
                     + f"\n{counter + 4}. {next(boxes)}"
                 )
                 counter += 5
+            elif one_or_ten == 10 and mass_summon:
+                if type in ["h", "hero", "heroes"]:
+                    requirement = "★★★ "
+                    if box.startswith(requirement):
+                        if box not in units:
+                            units[box] = 1
+                        else:
+                            units[box] += 1
+                else:
+                    requirement = "★★★★★ [Ex]"
+                    another_requirement = "★★★★ [Ex]"
+                    if box.startswith(requirement) \
+                            or box.startswith(another_requirement):
+                        if box not in units:
+                            units[box] = 1
+                        else:
+                            units[box] += 1
+
             else:
                 await asyncio.sleep(2)
                 await msg.edit(content=msg.content + f"\n{counter}. {box}")
@@ -465,8 +495,38 @@ class Growth(commands.Cog):
 
         # Send the reply to fellow guardian
         await asyncio.sleep(2)
-        msg = await msg.reply(reply)
-        await msg.add_reaction("💎")
+        if not mass_summon:
+            msg = await msg.reply(reply)
+        else:
+            output = ""
+            count = 1
+            if units:
+                buffers = list(units)
+                for buffer in buffers:
+                    value = units[buffer]
+                    if count == 1:
+                        output = f"{count}. **{buffer}** - `{value}`"
+                    else:
+                        output = output + f"\n{count}. **{buffer}** - `{value}`"
+                    count += 1
+            else:
+                output = "None"
+
+            embed = discord.Embed(
+                color=discord.Color.purple(),
+                description=output
+            )
+            embed.set_author(name=ctx.me.name, icon_url=ctx.me.avatar_url)
+            embed.set_footer(
+                text=(
+                    "Mass summon only displays Unique "
+                    + "Heroes or Exclusive Equipments."
+                    )
+                )
+            msg = await msg.reply(embed=embed)
+            await asyncio.sleep(2)
+            msg = await msg.reply(
+                f"Mass summon done I guess, <@{ctx.author.id}>?")
 
     @commands.command(
         name="race",
@@ -1751,7 +1811,28 @@ class Growth(commands.Cog):
         pick_up_weightage = []
         reply = ""
         present = False
+        mass_summon = False
+        summon_loop = 0
         target = " ".join(target)
+
+        if not count <= 0 and count > 10:
+            if count % 10 == 0:
+                db_ailie = Database()
+                if not db_ailie.has_item_amount(
+                        ctx.author.id, "Oghma's Booster"):
+                    await ctx.send("You need `Oghma's Booster` to mass summon.")
+                    db_ailie.disconnect()
+                    return
+
+                mass_summon = True
+                summon_loop = int(count / 10)
+                db_ailie.disconnect()
+            else:
+                await ctx.send(
+                    "Mass summon can only be done with "
+                    + "numbers that are multiplications of 10."
+                )
+                return
 
         # Determine what banner is chosen
         if not target:
@@ -1798,12 +1879,39 @@ class Growth(commands.Cog):
                 pick_up_pool, target = self.pickUpPresent(target_banner, pool)
 
                 # Once the pick up is determined, then calculate the summons
-                boxes, reply = self.calcResults(
-                        ctx, count, pick_up_pool, pick_up_weightage,
-                        last_slot_weightage, target)
+                if not mass_summon:
+                    boxes, reply = self.calcResults(
+                            ctx, count, pick_up_pool, pick_up_weightage,
+                            last_slot_weightage, mass_summon, target)
+                else:
+                    counter = 0
+                    boxes_buffer = []
+                    while counter < summon_loop:
+                        boxes_buffer, reply = self.calcResults(
+                                ctx, count, pick_up_pool, pick_up_weightage,
+                                last_slot_weightage, mass_summon, target)
+                        counter += 1
+
+                        for b in boxes_buffer:
+                            boxes.append(b)
         else:
-            boxes, reply = self.calcResults(
-                ctx, count, pool, weightage, last_slot_weightage)
+            if not mass_summon:
+                boxes, reply = self.calcResults(
+                    ctx, count, pool, weightage,
+                    last_slot_weightage, mass_summon
+                )
+            else:
+                counter = 0
+                boxes_buffer = []
+                while counter < summon_loop:
+                    boxes_buffer, reply = self.calcResults(
+                        ctx, count, pool, weightage,
+                        last_slot_weightage, mass_summon
+                    )
+                    counter += 1
+
+                    for b in boxes_buffer:
+                        boxes.append(b)
 
         # If target hero or equipment entered is
         # not present in the current banner
@@ -1815,7 +1923,7 @@ class Growth(commands.Cog):
             return
 
         self.grantExpOnDupe(ctx.author.id, boxes, type)
-        await self.summonDisplay(ctx, count, boxes, reply)
+        await self.summonDisplay(ctx, count, boxes, reply, mass_summon, type)
 
     @commands.command(
         name="rank",
