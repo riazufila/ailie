@@ -609,6 +609,14 @@ class Growth(commands.Cog):
             db_ailie.disconnect()
             return
 
+        if gems > 100000:
+            await ctx.send(
+                "Max gambling amount is `100,000` gems. "
+                + f"Fix your gambling addiction, <@{ctx.author.id}>."
+            )
+            db_ailie.disconnect()
+            return
+
         # Check if gems is available to gamble
         db_ailie = Database()
         current_gems = db_ailie.get_gems(ctx.author.id)
