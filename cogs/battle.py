@@ -1000,14 +1000,15 @@ class Battle(commands.Cog):
             await asyncio.sleep(5)
 
             # Increase attack on round 16 and later
+            rage = 50
             if round_num > 15:
                 for hero in heroes:
                     hero["stats"]["attack"] = hero["stats"]["attack"] \
-                        + ((20 / 100) * hero["stats"]["attack"])
+                        + ((rage / 100) * hero["stats"]["attack"])
 
                 await ctx.send(
                     "*Every heroes felt the tension and "
-                    + "increased their attack by 20%!*"
+                    + f"increased their attack by {rage}%!*"
                 )
                 await asyncio.sleep(2)
 
@@ -1017,11 +1018,11 @@ class Battle(commands.Cog):
                 + f"<@{heroes[1]['guardian_id']}>, please go ahead and "
                 + "choose your moves.. in.."
             )
-            await asyncio.sleep(2)
+            await asyncio.sleep(1)
             await msg.edit(content=msg.content + "\n3..")
-            await asyncio.sleep(2)
+            await asyncio.sleep(1)
             await msg.edit(content=msg.content + "\n2..")
-            await asyncio.sleep(2)
+            await asyncio.sleep(1)
             await msg.edit(content=msg.content + "\n1!")
 
             players = [heroes[0]["guardian_id"], heroes[1]["guardian_id"]]
