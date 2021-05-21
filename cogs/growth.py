@@ -510,7 +510,7 @@ class Growth(commands.Cog):
                         output = output + f"\n{count}. **{buffer}** - `{value}`"
                     count += 1
             else:
-                output = "None"
+                output = "No Unique Heroes or Exclusive Equipments obtained."
 
             embed = discord.Embed(
                 color=discord.Color.purple(),
