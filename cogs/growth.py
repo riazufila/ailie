@@ -993,6 +993,8 @@ class Growth(commands.Cog):
             db_ailie.disconnect()
             return
 
+        blacklist = ["Miya's Lucky Card"]
+
         if item:
             item = " ".join(item)
 
@@ -1005,6 +1007,11 @@ class Growth(commands.Cog):
                 return
 
             item_details = db_ailie.get_shop_item_detailed(item)
+
+            if item_details[0] in blacklist:
+                await ctx.send("The item you mentioned is not available now.")
+                db_ailie.disconnect()
+                return
 
             if not item_details:
                 await ctx.send(
@@ -1031,10 +1038,11 @@ class Growth(commands.Cog):
             counter = 1
             buffer_total = []
             for shop_item in shop_items:
-                buffer = \
-                    f"{counter}. **{shop_item[0]}** - `{shop_item[1]:,d}` 💎"
-                buffer_total.append(buffer)
-                counter += 1
+                if not shop_item[0] in blacklist:
+                    buffer = \
+                        f"{counter}. **{shop_item[0]}** - `{shop_item[1]:,d}` 💎"
+                    buffer_total.append(buffer)
+                    counter += 1
 
             embed = discord.Embed(
                 description=("\n".join(buffer_total)),
@@ -1066,6 +1074,8 @@ class Growth(commands.Cog):
             db_ailie.disconnect()
             return
 
+        blacklist = ["Miya's Lucky Card"]
+
         if amount <= 0:
             await ctx.send(
                 "Are you testing me?"
@@ -1083,6 +1093,11 @@ class Growth(commands.Cog):
 
         item = " ".join(item)
         item_details = db_ailie.get_shop_item_detailed(item)
+
+        if item_details[0] in blacklist:
+            await ctx.send("The item you mentioned is not available now.")
+            db_ailie.disconnect()
+            return
 
         if not item_details:
             await ctx.send(
