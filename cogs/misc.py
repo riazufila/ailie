@@ -126,7 +126,8 @@ class Misc(commands.Cog):
             )
         elif isinstance(error, commands.NoPrivateMessage):
             await ctx.send(
-                "That command can only be used within a Discord Server.")
+                "That command can only be used within a Discord Server."
+            )
         elif self.bot.is_ws_ratelimited():
             await ctx.send(
                 "We are being rate limited. Nothing can be helped here. "
@@ -136,7 +137,8 @@ class Misc(commands.Cog):
             await ctx.send(
                 "Please check that I have the permission, "
                 + "`View Channels`, `Send Messages`, `Embed Links` "
-                + "`Add Reactions`, and `Read Message History`."
+                + "`Add Reactions`, `Read Message History`, "
+                + "and Manage Messages."
             )
         else:
             await self.notifyOwner(ctx, error)

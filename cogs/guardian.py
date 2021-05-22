@@ -168,6 +168,7 @@ class Guardian(commands.Cog):
         aliases=["inv"],
     )
     @commands.cooldown(1, 5, commands.BucketType.user)
+    @commands.max_concurrency(1, per=commands.BucketType.user, wait=False)
     async def inventory(
             self, ctx, type, *target):
         # Check if user is initialized first
@@ -336,22 +337,111 @@ class Guardian(commands.Cog):
             return
 
         if not target:
+            buffer_main = []
+            emoji_right = "➡️"
+            emoji_left = "⬅️"
+            emoji_stop = "🛑"
+            counter = 0
+
             embed = discord.Embed(color=discord.Color.purple())
             embed.set_author(
                 name=guardian_name + "'s Inventory",
                 icon_url=guardian_avatar,
             )
             if len(inventory[len(inventory) - 1]) == 0:
-                data = "None"
+                buffer_main[0] = "None"
             else:
-                data = "\n".join(inventory[len(inventory) - 1])
+                buffer_second = []
+                total = len(inventory[len(inventory) - 1])
+                count = 1
+                for inv in inventory[len(inventory) - 1]:
+                    if len(buffer_second) != 10:
+                        buffer_second.append(inv)
+                    else:
+                        buffer_main.append(buffer_second)
+                        buffer_second = []
+                        buffer_second.append(inv)
+
+                    if count == total:
+                        buffer_main.append(buffer_second)
+
+                    count += 1
+
+            data = "\n".join(buffer_main[counter])
 
             embed.add_field(
                 name=header,
                 value=data,
                 inline=False,
             )
-            await ctx.send(embed=embed)
+            embed_sent = await ctx.send(embed=embed)
+            await embed_sent.add_reaction(emoji_left)
+            await embed_sent.add_reaction(emoji_right)
+            await embed_sent.add_reaction(emoji_stop)
+
+            def check(reaction, user):
+                return user == ctx.author \
+                    and str(reaction.emoji) in \
+                    [emoji_right, emoji_left, emoji_stop]
+
+            while True:
+                try:
+                    reaction, user = await self.bot.wait_for(
+                        'reaction_add', check=check, timeout=10)
+
+                    if reaction.emoji == str(emoji_right):
+                        if (len(buffer_main) - 1) != counter:
+                            counter += 1
+
+                        embed = discord.Embed(color=discord.Color.purple())
+                        embed.set_author(
+                            name=guardian_name + "'s Inventory",
+                            icon_url=guardian_avatar,
+                        )
+
+                        data = "\n".join(buffer_main[counter])
+
+                        embed.add_field(
+                            name=header,
+                            value=data,
+                            inline=False,
+                        )
+
+                        await embed_sent.remove_reaction(str(emoji_right), user)
+                        await embed_sent.edit(embed=embed)
+
+                    if reaction.emoji == str(emoji_left):
+                        if counter != 0:
+                            counter -= 1
+
+                        embed = discord.Embed(color=discord.Color.purple())
+                        embed.set_author(
+                            name=guardian_name + "'s Inventory",
+                            icon_url=guardian_avatar,
+                        )
+
+                        data = "\n".join(buffer_main[counter])
+
+                        embed.add_field(
+                            name=header,
+                            value=data,
+                            inline=False,
+                        )
+
+                        await embed_sent.remove_reaction(str(emoji_left), user)
+                        await embed_sent.edit(embed=embed)
+
+                    if reaction.emoji == str(emoji_stop):
+                        await embed_sent.remove_reaction(str(emoji_stop), user)
+                        break
+                except Exception:
+                    await ctx.send(
+                        "Please check that I have the permission, "
+                        + "`View Channels`, `Send Messages`, `Embed Links` "
+                        + "`Add Reactions`, `Read Message History`, "
+                        + "and `Manage Messages`."
+                    )
+
         elif target and in_bag:
             embed = discord.Embed(color=discord.Color.purple())
             embed.set_author(
