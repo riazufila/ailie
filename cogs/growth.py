@@ -291,7 +291,6 @@ class Growth(commands.Cog):
         reply = ""
         boxes = []
 
-
         if mass_summon:
             one_or_ten = 10
 

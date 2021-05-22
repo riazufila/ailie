@@ -620,26 +620,22 @@ class Database():
         for box in boxes:
             if box.startswith("★★★ "):
                 hero_name = box[4:]
-            if box.startswith("★★ "):
-                hero_name = box[3:]
-            if box.startswith("★ "):
-                hero_name = box[2:]
 
-            # Get hero ID
-            hero_id = self.get_hero_id(hero_name)
+                # Get hero ID
+                hero_id = self.get_hero_id(hero_name)
 
-            # Get inventory ID
-            inventory_id = self.get_inventory_id(guardian_id)
+                # Get inventory ID
+                inventory_id = self.get_inventory_id(guardian_id)
 
-            if not self.is_hero_obtained(guardian_id, hero_id):
-                # Enter hero_id in heroes_acquired table
-                query = (
-                    "INSERT INTO heroes_acquired (hero_id, inventory_id) "
-                    + "VALUES (%s, %s);"
-                )
-                data = [hero_id, inventory_id]
-                self.cursor.execute(query, data)
-                self.connection.commit()
+                if not self.is_hero_obtained(guardian_id, hero_id):
+                    # Enter hero_id in heroes_acquired table
+                    query = (
+                        "INSERT INTO heroes_acquired (hero_id, inventory_id) "
+                        + "VALUES (%s, %s);"
+                    )
+                    data = [hero_id, inventory_id]
+                    self.cursor.execute(query, data)
+                    self.connection.commit()
 
     def store_equipments(self, guardian_id, boxes):
         equip_name = ""
@@ -647,32 +643,23 @@ class Database():
         for box in boxes:
             if box.startswith("★★★★★ [Ex] "):
                 equip_name = box[11:]
-            elif box.startswith("★★★★ [Ex] "):
-                equip_name = box[10:]
-            elif box.startswith("★★★★★ "):
-                equip_name = box[6:]
-            elif box.startswith("★★★★ "):
-                equip_name = box[5:]
-            elif box.startswith("★★★ "):
-                equip_name = box[4:]
-            else:
-                equip_name = box[3:]
 
-            # Get equip ID
-            equip_id = self.get_equip_id(equip_name)
+                # Get equip ID
+                equip_id = self.get_equip_id(equip_name)
 
-            # Get inventory ID
-            inventory_id = self.get_inventory_id(guardian_id)
+                # Get inventory ID
+                inventory_id = self.get_inventory_id(guardian_id)
 
-            if not self.is_equip_obtained(guardian_id, equip_id):
-                # Enter equip_id in equipments_acquired table
-                query = (
-                    "INSERT INTO equipments_acquired (equip_id, inventory_id) "
-                    + "VALUES (%s, %s);"
-                )
-                data = [equip_id, inventory_id]
-                self.cursor.execute(query, data)
-                self.connection.commit()
+                if not self.is_equip_obtained(guardian_id, equip_id):
+                    # Enter equip_id in equipments_acquired table
+                    query = (
+                        "INSERT INTO equipments_acquired "
+                        + "(equip_id, inventory_id) "
+                        + "VALUES (%s, %s);"
+                    )
+                    data = [equip_id, inventory_id]
+                    self.cursor.execute(query, data)
+                    self.connection.commit()
 
     def get_hero_acquired_details(self, inventory_id, hero_id):
         query = (
