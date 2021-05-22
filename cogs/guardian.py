@@ -349,7 +349,7 @@ class Guardian(commands.Cog):
                 icon_url=guardian_avatar,
             )
             if len(inventory[len(inventory) - 1]) == 0:
-                buffer_main[0] = "None"
+                buffer_main.append(["None"])
             else:
                 buffer_second = []
                 total = len(inventory[len(inventory) - 1])
