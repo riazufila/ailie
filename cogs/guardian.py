@@ -434,6 +434,14 @@ class Guardian(commands.Cog):
                     if reaction.emoji == str(emoji_stop):
                         await embed_sent.remove_reaction(str(emoji_stop), user)
                         break
+                except discord.Forbidden:
+                    await ctx.send(
+                        "Please check that I have the permission, "
+                        + "`View Channels`, `Send Messages`, `Embed Links` "
+                        + "`Add Reactions`, `Read Message History`, "
+                        + "and Manage Messages."
+                        )
+                    break
                 except Exception:
                     break
 
