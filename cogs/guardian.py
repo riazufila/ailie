@@ -168,7 +168,6 @@ class Guardian(commands.Cog):
         aliases=["inv"],
     )
     @commands.cooldown(1, 5, commands.BucketType.user)
-    @commands.max_concurrency(1, per=commands.BucketType.user, wait=False)
     async def inventory(
             self, ctx, type, *target):
         # Check if user is initialized first
