@@ -167,6 +167,7 @@ class Guardian(commands.Cog):
         ),
         aliases=["inv"],
     )
+    @commands.max_concurrency(1, per=commands.BucketType.channel, wait=False)
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def inventory(
             self, ctx, type, *target):
