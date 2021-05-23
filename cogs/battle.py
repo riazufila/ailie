@@ -405,7 +405,7 @@ class Battle(commands.Cog):
                     + ((increase/100) * stats[stat] * user_level)
                 )
             elif stat in ["def"]:
-                increase = 2
+                increase = 1.5
                 stats[stat] = round(
                     stats[stat]
                     + ((increase/100) * stats[stat] * hero_level)
