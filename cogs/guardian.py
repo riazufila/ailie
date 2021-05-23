@@ -439,7 +439,7 @@ class Guardian(commands.Cog):
                         "Please check that I have the permission, "
                         + "`View Channels`, `Send Messages`, `Embed Links` "
                         + "`Add Reactions`, `Read Message History`, "
-                        + "and Manage Messages."
+                        + "and `Manage Messages`."
                         )
                     break
                 except Exception:
