@@ -779,18 +779,10 @@ class Guardian(commands.Cog):
         if able_send:
             await ctx.author.send(
                 f"Hello, <@{ctx.author.id}>! "
-                + "Make a team with `a;team set <key> <hero>` and "
-                + "show your current team with `a;team show`. "
-                + "Your max team slots for now is 3. Remember. "
-                + "Making a team with 'main' as the name will allow "
-                + "you to use the `a;train` just as is. If your team's "
-                + "key is not 'main', then, you'll have to specify your "
-                + "team when using `a;train`. For example, if your "
-                + "team's key is `main`. Then, the full command for "
-                + "`train` is `a;train`. However if your team's key "
-                + "is other than main for example, 'one', then your "
-                + "full command would be `a;train one`. The same "
-                + "concept applies to `arena`. You can also `a;help team`.")
+                + "Issue `a;team set <key> <hero;hero;hero;hero>` to set team. "
+                + "Issue `a;team show` to show team set. "
+                + "Issue `a;team delete` to delete a team. "
+            )
 
     @team.command(
         name="set",
@@ -865,12 +857,9 @@ class Guardian(commands.Cog):
         for counter in counter_buffer:
             heroes.pop(counter)
 
-        if len(heroes) > 1:
+        if len(heroes) > 4:
             await ctx.send(
-                "The max amount of heroes in a team now is 1. "
-                + "Yeah I know, weird. How can it be a team with "
-                + "only 1 hero. You're gonna need to wait "
-                + "for an update for that."
+                "The max amount of heroes in a team is 4."
             )
             db_ailie.disconnect()
             return
