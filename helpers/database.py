@@ -1649,6 +1649,20 @@ class Database():
 
         return hero_id[0]
 
+    def get_all_heroes_from_team(self, guardian_id, key):
+        query = (
+            "SELECT team_hero FROM teams "
+            + "WHERE guardian_id = %s AND team_key = %s;"
+        )
+        data = [guardian_id, key]
+        self.cursor.execute(query, data)
+        hero_id = self.cursor.fetchone()
+
+        if isinstance(hero_id, tuple):
+            hero_id = hero_id[0]
+
+        return hero_id
+
     # Disconnect database
     def disconnect(self):
         self.cursor.close()

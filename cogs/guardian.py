@@ -778,10 +778,11 @@ class Guardian(commands.Cog):
 
         if able_send:
             await ctx.author.send(
-                f"Hello, <@{ctx.author.id}>! "
-                + "Issue `a;team set <key> <hero;hero;hero;hero>` to set team. "
-                + "Issue `a;team show` to show team set. "
-                + "Issue `a;team delete` to delete a team. "
+                f"Hello, <@{ctx.author.id}>!"
+                + "\nIssue `a;team set <key> <hero;hero;hero;hero>` "
+                + "to set team."
+                + "\nIssue `a;team show` to show team set."
+                + "\nIssue `a;team delete` to delete a team."
             )
 
     @team.command(

@@ -825,43 +825,54 @@ class Battle(commands.Cog):
             )
             return
 
-        hero = db_ailie.get_first_hero_from_team(challenger_id, key)
-        opponent_hero = db_ailie.get_first_hero_from_team(
+        hero = db_ailie.get_all_heroes_from_team(challenger_id, key)
+        opponent_hero = db_ailie.get_all_heroes_from_team(
             opponent_id, opponent_team)
 
-        hero = db_ailie.get_hero_name_from_id(hero)
-        opponent_hero = db_ailie.get_hero_name_from_id(opponent_hero)
+        hero_buffer = []
+        for h in hero:
+            hero_buffer.append(db_ailie.get_hero_name_from_id(h))
+
+        opponent_hero_buffer = []
+        for oh in opponent_hero:
+            opponent_hero_buffer.append(db_ailie.get_hero_name_from_id(oh))
+
+        hero = hero_buffer[:]
+        opponent_hero = opponent_hero_buffer[:]
 
         # Get users' hero information
-        heroes = []
-        for guardian_info in [
-            [challenger_id, hero],
-            [opponent_id, opponent_hero],
-        ]:
-            hero_information = self.get_hero_information(
-                guardian_info[0], guardian_info[1]
-            )
-            heroes.append(hero_information)
+        heroes = [[], []]
+        for name in hero:
+            hero_information = self.get_hero_information(challenger_id, name)
+            heroes[0].append(hero_information)
+
+        for name in opponent_hero:
+            hero_information = self.get_hero_information(opponent_id, name)
+            heroes[1].append(hero_information)
 
         # Get users' exclusive weapon information
-        equips = []
-        for ewp_info in [
-            [challenger_id, hero],
-            [opponent_id, opponent_hero],
-        ]:
-            equip_information = self.get_equip_information(
-                ewp_info[0], ewp_info[1]
-            )
-            equips.append(equip_information)
+        equips = [[], []]
+        for name in hero:
+            equip_information = self.get_equip_information(challenger_id, name)
+            equips[0].append(equip_information)
+
+        for name in opponent_hero:
+            equip_information = self.get_equip_information(opponent_id, name)
+            equips[1].append(equip_information)
 
         # Set all the other information needed for a proper battle
         # Associate user details with the heroes
-        heroes[0]["guardian_id"] = challenger_id
-        heroes[0]["guardian_name"] = challenger_name
-        heroes[0]["color"] = "🔴"
-        heroes[1]["guardian_id"] = opponent_id
-        heroes[1]["guardian_name"] = opponent_name
-        heroes[1]["color"] = "🔵"
+        for hero in heroes[0]:
+            hero["guardian_id"] = challenger_id
+            hero["guardian_name"] = challenger_name
+            hero["color"] = "🔴"
+
+        for hero in heroes[1]:
+            hero["guardian_id"] = opponent_id
+            hero["guardian_name"] = opponent_name
+            hero["color"] = "🔵"
+
+        print(heroes[0])
 
         # Initialize hero current state, multipliers, and debuffs.
         for hero in heroes:
