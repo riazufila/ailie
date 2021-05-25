@@ -292,7 +292,7 @@ class Battle(commands.Cog):
                 await ctx.send(
                     f"{victim['color']} "
                     + f"**{victim['hero_name']}"
-                    + f"** has died! **{actor['hero_name']}** won!"
+                    + "** has died!"
                 )
                 await asyncio.sleep(2)
 
@@ -375,15 +375,13 @@ class Battle(commands.Cog):
 
     def multiplyHeroBuffs(self, stats, buffs):
         for stat in buffs:
-            if stat.startswith("all"):
-                s = stat[4:]
-            else:
+            if not stat.startswith("all"):
                 s = stat
 
-            if s in ["attack", "def", 'hp']:
-                stats[s] = round(stats[s] + ((buffs[stat]/100) * stats[s]))
-            else:
-                stats[s] = stats[s] + buffs[stat]
+                if s in ["attack", "def", 'hp']:
+                    stats[s] = round(stats[s] + ((buffs[stat]/100) * stats[s]))
+                else:
+                    stats[s] = stats[s] + buffs[stat]
 
         return stats
 
@@ -830,12 +828,30 @@ class Battle(commands.Cog):
             opponent_id, opponent_team)
 
         hero_buffer = []
+        count = 0
         for h in hero:
-            hero_buffer.append(db_ailie.get_hero_name_from_id(h))
+            if h != 0:
+                hero_buffer.append(db_ailie.get_hero_name_from_id(h))
+                count += 1
+
+        if count > 3:
+            await ctx.send(
+                f"<@{challenger_id}>, only a team with "
+                + "maximum 3 heroes is accepted."
+            )
 
         opponent_hero_buffer = []
+        count = 0
         for oh in opponent_hero:
-            opponent_hero_buffer.append(db_ailie.get_hero_name_from_id(oh))
+            if oh != 0:
+                opponent_hero_buffer.append(db_ailie.get_hero_name_from_id(oh))
+                count += 1
+
+        if count > 3:
+            await ctx.send(
+                f"<@{opponent_id}>, only a team with "
+                + "maximum 3 heroes is accepted."
+            )
 
         hero = hero_buffer[:]
         opponent_hero = opponent_hero_buffer[:]
@@ -862,89 +878,152 @@ class Battle(commands.Cog):
 
         # Set all the other information needed for a proper battle
         # Associate user details with the heroes
-        for hero in heroes[0]:
-            hero["guardian_id"] = challenger_id
-            hero["guardian_name"] = challenger_name
-            hero["color"] = "🔴"
-
-        for hero in heroes[1]:
-            hero["guardian_id"] = opponent_id
-            hero["guardian_name"] = opponent_name
-            hero["color"] = "🔵"
-
-        print(heroes[0])
+        for hero in heroes:
+            for h in hero:
+                if heroes.index(hero) == 0:
+                    h["guardian_id"] = challenger_id
+                    h["guardian_name"] = challenger_name
+                    h["color"] = "🔴"
+                else:
+                    h["guardian_id"] = opponent_id
+                    h["guardian_name"] = opponent_name
+                    h["color"] = "🔵"
 
         # Initialize hero current state, multipliers, and debuffs.
         for hero in heroes:
-            hero["current_state"] = self.initCurrentState()
-            hero["multipliers"] = []
-            hero["debuffs"] = []
+            for h in hero:
+                h["current_state"] = self.initCurrentState()
+                h["multipliers"] = []
+                h["debuffs"] = []
 
         # Initialize extra stats
         for hero in heroes:
-            hero["stats"] = self.initExtraStats(hero["stats"])
+            for h in hero:
+                h["stats"] = self.initExtraStats(h["stats"])
 
         # Initialize element stats
         for hero in heroes:
-            hero["stats"] = self.initElementStats(hero["stats"])
+            for h in hero:
+                h["stats"] = self.initElementStats(h["stats"])
 
         # Modify stats depending on hero and user level
         for hero in heroes:
-            db_ailie = Database()
-            user_level = db_ailie.get_user_level(hero["guardian_id"])
-            hero["stats"] = self.multiplyStatsWithLevels(
-                hero["stats"], hero["acquired"]["level"], user_level)
-            db_ailie.disconnect()
+            for h in hero:
+                db_ailie = Database()
+                user_level = db_ailie.get_user_level(h["guardian_id"])
+                h["stats"] = self.multiplyStatsWithLevels(
+                    h["stats"], h["acquired"]["level"], user_level)
+                db_ailie.disconnect()
 
         # Modify weapon stats depending on weapon level
         # Weapon is not affected by user level
         for equip in equips:
-            db_ailie = Database()
-            if len(equip) != 0:
-                equip["stats"] = self.multiplyStatsWithLevels(
-                    equip["stats"], equip["acquired"]["level"], 1)
-            db_ailie.disconnect()
+            for e in equip:
+                db_ailie = Database()
+                if len(e) != 0:
+                    e["stats"] = self.multiplyStatsWithLevels(
+                        e["stats"], e["acquired"]["level"], 1)
+                db_ailie.disconnect()
 
         # Add the stats from weapon to to hero
-        heroes[0]["stats"] = self.addWeaponStatsToHero(
-            equips[0]["stats"], heroes[0]["stats"])
-        heroes[1]["stats"] = self.addWeaponStatsToHero(
-            equips[1]["stats"], heroes[1]["stats"])
-
-        # Add weapon skill and instant triggers to heroes
-        heroes[0]["weapon_skill"] = equips[0]["weapon_skill"]
-        heroes[1]["weapon_skill"] = equips[1]["weapon_skill"]
-
-        heroes[0]["instant_triggers"] = equips[0]["instant_triggers"]
-        heroes[1]["instant_triggers"] = equips[1]["instant_triggers"]
+        # Add weapon skill and instant triggers to heroes as well
+        chal_or_opp = 0
+        for hero in heroes:
+            hero_in_order = 0
+            for h in hero:
+                h["stats"] = self.addWeaponStatsToHero(
+                    equips[chal_or_opp][hero_in_order]["stats"],
+                    h["stats"]
+                )
+                h["weapon_skill"] = \
+                    equips[chal_or_opp][hero_in_order]["weapon_skill"]
+                h["instant_triggers"] = \
+                    equips[chal_or_opp][hero_in_order]["instant_triggers"]
+                hero_in_order += 1
+            chal_or_opp += 1
 
         # Modify stats based on buffs
         for hero in heroes:
-            hero["stats"] = self.multiplyHeroBuffs(hero["stats"], hero["buffs"])
+            for h in hero:
+                h["stats"] = self.multiplyHeroBuffs(h["stats"], h["buffs"])
 
-        heroes[0]["stats"] = self.multiplyHeroBuffs(
-            heroes[0]["stats"], equips[0]["buffs"])
-        heroes[1]["stats"] = self.multiplyHeroBuffs(
-            heroes[1]["stats"], equips[1]["buffs"])
+        chal_or_opp = 0
+        for hero in heroes:
+            hero_in_order = 0
+            for h in hero:
+                h["stats"] = self.multiplyHeroBuffs(
+                    h["stats"],
+                    equips[chal_or_opp][hero_in_order]["buffs"]
+                )
+                hero_in_order += 1
+            chal_or_opp += 1
+
+        # Update stats based on Party Buffs
+        challenger_party_buffs = {}
+        for hero in heroes[0]:
+            for buff in hero["buffs"]:
+                if buff.startswith("all"):
+                    b = buff[4:]
+
+                    if b not in challenger_party_buffs:
+                        challenger_party_buffs[b] = hero["buffs"][buff]
+                    else:
+                        challenger_party_buffs[b] = \
+                            challenger_party_buffs[b] + hero["buffs"][buff]
+
+        opponent_party_buffs = {}
+        for hero in heroes[0]:
+            for buff in hero["buffs"]:
+                if buff.startswith("all"):
+                    b = buff[4:]
+
+                    if b not in opponent_party_buffs:
+                        opponent_party_buffs[b] = hero["buffs"][buff]
+                    else:
+                        opponent_party_buffs[b] = \
+                            opponent_party_buffs[b] + hero["buffs"][buff]
+
+        for hero in heroes[0]:
+            hero["stats"] = \
+                self.multiplyHeroBuffs(hero["stats"], challenger_party_buffs)
+
+        for hero in heroes[1]:
+            hero["stats"] = \
+                self.multiplyHeroBuffs(hero["stats"], opponent_party_buffs)
 
         # Update Max HP to a separate key
         for hero in heroes:
-            hero["max_hp"] = hero["stats"]["hp"]
+            for h in hero:
+                h["max_hp"] = h["stats"]["hp"]
 
         # Get new weapon skill cooldown after stats have been modified
         for hero in heroes:
-            hero["current_state"]["weapon_skill_cd"] = \
-                self.calcWeapSkillCooldown(
-                    hero["current_state"]["weapon_skill_cd"],
-                    hero["stats"]["wsrs"]
-                )
+            for h in hero:
+                h["current_state"]["weapon_skill_cd"] = \
+                    self.calcWeapSkillCooldown(
+                        h["current_state"]["weapon_skill_cd"],
+                        h["stats"]["wsrs"]
+                    )
 
         # Start arena between heroes
         end = False
+        ends_for_real = False
+        round_reset = False
         winner = {}
         loser = {}
         round_num = 1
         left = False
+        chal_hero_order = 0
+        opp_hero_order = 0
+        chal_hero_died = 0
+        opp_hero_died = 0
+
+        # Assign variables for heroes
+        heroes_bench = heroes[:]
+        heroes = []
+        heroes.append(heroes_bench[0][chal_hero_order])
+        heroes.append(heroes_bench[1][opp_hero_order])
+
         while True:
             # Show available moves for each player
             embed = discord.Embed(color=discord.Color.purple())
@@ -1006,13 +1085,12 @@ class Battle(commands.Cog):
                     value=f"{hp}\n\n{moves}"
                 )
 
-            await asyncio.sleep(2)
             await ctx.send(embed=embed)
             await asyncio.sleep(5)
 
             # Increase attack on round 16 and later
             rage = 50
-            if round_num > 15:
+            if round_num > 10:
                 for hero in heroes:
                     hero["stats"]["attack"] = hero["stats"]["attack"] \
                         + ((rage / 100) * hero["stats"]["attack"])
@@ -1468,12 +1546,32 @@ class Battle(commands.Cog):
 
                 # If it ends, then break.
                 if end:
-                    break
+                    if second == 0:
+                        chal_hero_died += 1
+                        chal_hero_order += 1
+                        if chal_hero_died == len(heroes_bench[second]):
+                            ends_for_real = True
+                        else:
+                            heroes[second] = \
+                                heroes_bench[second][chal_hero_order]
+                            round_reset = True
+                    else:
+                        opp_hero_died += 1
+                        opp_hero_order += 1
+                        if opp_hero_died == len(heroes_bench[first]):
+                            ends_for_real = True
+                        else:
+                            heroes[first] = heroes_bench[first][opp_hero_order]
+                            round_reset = True
 
+                    if round_reset:
+                        break
             if not end:
                 # Increase round count
                 round_num = round_num + 1
-            else:
+            elif end and round_reset:
+                round_num = 1
+            elif end and ends_for_real:
                 if winner and loser:
                     trophy_win = 25
                     trophy_lose = -10
