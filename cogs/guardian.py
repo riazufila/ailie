@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import asyncio
 import discord
 from discord.ext import commands
 from helpers.database import Database
@@ -765,30 +766,17 @@ class Guardian(commands.Cog):
             return
         db_ailie.disconnect()
 
-        able_send = True
-        if isinstance(ctx.channel, discord.channel.DMChannel):
-            await ctx.send("Time to explain..")
-        else:
-            try:
-                await ctx.send(
-                    "Sent you a Private Message to get started with "
-                    + f"team, <@{ctx.author.id}>."
-                )
-            except Exception:
-                await ctx.send(
-                    "Can't send a Private Message to your for "
-                    + "`team` management. Do you have it diabled?"
-                )
-                able_send = False
-
-        if able_send:
-            await ctx.author.send(
-                f"Hello, <@{ctx.author.id}>!"
-                + "\nIssue `a;team set <key> <hero;hero;hero;hero>` "
-                + "to set team."
-                + "\nIssue `a;team show` to show team set."
-                + "\nIssue `a;team delete` to delete a team."
-            )
+        msg = await ctx.send(
+            f"Time to explain.. Hey, <@{ctx.author.id}>, "
+            + "you better read properly. *tsk*"
+        )
+        await asyncio.sleep(1)
+        await msg.reply(
+            "Issue `a;team set <key> <hero;hero;hero;hero>` "
+            + "to set team."
+            + "\nIssue `a;team show` to show team set."
+            + "\nIssue `a;team delete` to delete a team."
+        )
 
     @team.command(
         name="set",
@@ -808,7 +796,6 @@ class Guardian(commands.Cog):
             + "in you team. For now, only one hero can be in a team."
         ),
     )
-    @commands.dm_only()
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def team_set(self, ctx, key: str, *heroes):
         # Check if user is initialized first
@@ -835,7 +822,9 @@ class Guardian(commands.Cog):
                 + "One team consists of one to four heroes. "
                 + "Make sure to separate the heroes with `;` "
                 + "For example, "
-                + "`Alef;Idol Captain Eva;Gabriel;Princess`."
+                + "`Alef;Idol Captain Eva;Gabriel;Princess` "
+                + "or just `Alef` if you want only one hero "
+                + "in your team."
             )
             db_ailie.disconnect()
             return
@@ -899,7 +888,13 @@ class Guardian(commands.Cog):
                 buffer.append(0)
 
         db_ailie.set_team(ctx.author.id, key, buffer)
-        await ctx.send("Updated your team!")
+        await ctx.send(
+            f"Updated your team, <@{ctx.author.id}>. Check with `a;team show`!")
+        if not isinstance(ctx.channel, discord.channel.DMChannel):
+            await ctx.send(
+                "Also, you can set your team anonymously by sending me "
+                + f"a Private Message next time, <@{ctx.author.id}>."
+            )
 
     @team.command(
         name="show",
@@ -908,7 +903,6 @@ class Guardian(commands.Cog):
             "View all the teams you made."
         ),
     )
-    @commands.dm_only()
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def team_show(self, ctx):
         # Check if user is initialized first
@@ -943,6 +937,12 @@ class Guardian(commands.Cog):
             embed.add_field(name="Teams", value="None", inline=False)
 
         await ctx.send(embed=embed)
+        if not isinstance(ctx.channel, discord.channel.DMChannel):
+            await ctx.send(
+                "Busted, now the others can see what heroes are in your team. "
+                + "Easy counter on arena. Next time, be smart and send me "
+                + f"a Private Message instead, <@{ctx.author.id}>."
+            )
 
     @team.command(
         name="delete",
@@ -951,7 +951,6 @@ class Guardian(commands.Cog):
             "Delete the teams you made."
         ),
     )
-    @commands.dm_only()
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def team_delete(self, ctx, key: str):
         # Check if user is initialized first
@@ -973,7 +972,9 @@ class Guardian(commands.Cog):
             return
 
         db_ailie.delete_team(ctx.author.id, key)
-        await ctx.send(f"Deleted your team with `{key}` key.")
+        await ctx.send(
+            f"Deleted your team with `{key}` key, <@{ctx.author.id}>."
+        )
 
 
 def setup(bot):
