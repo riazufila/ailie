@@ -14,7 +14,7 @@ class Guardian(commands.Cog):
         # Increase overall stats
         for stat in stats:
             if stat in ["attack"]:
-                increase = 10
+                increase = 20
                 stats[stat] = round(
                     stats[stat]
                     + ((increase/100) * stats[stat] * hero_level)
@@ -28,7 +28,7 @@ class Guardian(commands.Cog):
                     + ((increase/100) * stats[stat] * user_level)
                 )
             elif stat in ["def"]:
-                increase = 1.5
+                increase = 1
                 stats[stat] = round(
                     stats[stat]
                     + ((increase/100) * stats[stat] * hero_level)

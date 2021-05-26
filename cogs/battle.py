@@ -390,7 +390,7 @@ class Battle(commands.Cog):
         # Increase overall stats
         for stat in stats:
             if stat in ["attack"]:
-                increase = 10
+                increase = 20
                 stats[stat] = round(
                     stats[stat]
                     + ((increase/100) * stats[stat] * hero_level)
@@ -404,7 +404,7 @@ class Battle(commands.Cog):
                     + ((increase/100) * stats[stat] * user_level)
                 )
             elif stat in ["def"]:
-                increase = 1.5
+                increase = 1
                 stats[stat] = round(
                     stats[stat]
                     + ((increase/100) * stats[stat] * hero_level)
@@ -560,7 +560,7 @@ class Battle(commands.Cog):
             "buffs": {},
             "weapon_skill": {},
             "triggers": {},
-            "acquired": {"level": {}},
+            "acquired": {"level": {}, "roll": {}},
             "instant_triggers": {}
         }
 
@@ -991,6 +991,7 @@ class Battle(commands.Cog):
 
         # Assign variables for heroes
         heroes_bench = heroes[:]
+        heroes_bench_tmp = heroes[:]
         heroes = []
         heroes.append(heroes_bench[0][chal_hero_order])
         heroes.append(heroes_bench[1][opp_hero_order])
@@ -1044,18 +1045,18 @@ class Battle(commands.Cog):
 
                 # Display the details
                 team = ""
-                for hero in heroes_bench[index]:
+                for hero_tmp in heroes_bench[index]:
                     ind = "⏱️ "
-                    if hero_died - 1 == heroes_bench[index].index(hero):
+                    if hero_died - 1 == heroes_bench[index].index(hero_tmp):
                         ind = "❌ "
 
-                    if heroes_bench[index][hero_order] == hero:
+                    if heroes_bench[index][hero_order] == hero_tmp:
                         ind = "➡️ "
 
-                    if heroes_bench[index].index(hero) == 0:
-                        team = f"{ind}{hero['hero_name']}"
+                    if heroes_bench[index].index(hero_tmp) == 0:
+                        team = f"{ind}{hero_tmp['hero_name']}"
                     else:
-                        team = f"{team}\n{ind}{hero['hero_name']}"
+                        team = f"{team}\n{ind}{hero_tmp['hero_name']}"
 
                 line_consumed = len(heroes_bench[index])
                 while line_consumed < 3:
@@ -1547,27 +1548,26 @@ class Battle(commands.Cog):
                         chal_hero_died += 1
                         chal_hero_order += 1
 
-                        hero_died = chal_hero_died
-                        hero_order = chal_hero_order
+                        second_hero_died = chal_hero_died
+                        second_hero_order = chal_hero_order
+                        first_hero_order = opp_hero_order
                     else:
                         opp_hero_died += 1
                         opp_hero_order += 1
 
-                        hero_died = opp_hero_died
-                        hero_order = opp_hero_order
+                        second_hero_died = opp_hero_died
+                        second_hero_order = opp_hero_order
+                        first_hero_order = chal_hero_order
 
-                    if hero_died == len(heroes_bench[second]):
+                    if second_hero_died == len(heroes_bench[second]):
                         ends_for_real = True
                     else:
                         heroes[second] = \
-                            heroes_bench[second][hero_order]
-                        heroes[first]["current_state"] = self.initCurrentState()
-                        heroes[first]["current_state"]["weapon_skill_cd"] = \
-                            self.calcWeapSkillCooldown(
-                                heroes[first]["current_state"]
-                                ["weapon_skill_cd"],
-                                heroes[first]["stats"]["wsrs"]
-                            )
+                            heroes_bench[second][second_hero_order]
+                        hp_buffer = heroes[first]["stats"]["hp"]
+                        heroes[first] = \
+                            heroes_bench_tmp[first][first_hero_order]
+                        heroes[first]["stats"]["hp"] = hp_buffer
 
                     break
             if not round_reset:
@@ -1617,7 +1617,7 @@ class Battle(commands.Cog):
                     await asyncio.sleep(2)
                     await ctx.send(
                         f"<@{loser['guardian_id']}>, "
-                        + f"losses `{-1 * trophy_lose:,d}` trophies. Boooooo."
+                        + f"losses `{-1 * trophy_lose:,d}` trophies."
                     )
                     await asyncio.sleep(2)
                     break
