@@ -377,8 +377,8 @@ class Guardian(commands.Cog):
             )
             embed.set_footer(
                 text=(
-                    "Those with emoji at the end have "
-                    + "their exclusive weapon and hero obtained."
+                    "Heroes and equipments with emoji at the end have "
+                    + "their exclusive weapon or hero obtained."
                     + "\nPress stop sign before you can open "
                     + "another inventory or wait for timeout."
                     f"\n\n{counter + 1}/{len(buffer_main)}"
@@ -419,8 +419,9 @@ class Guardian(commands.Cog):
 
                         embed.set_footer(
                             text=(
-                                "Those with emoji at the end have "
-                                + "their exclusive weapon and hero obtained."
+                                "Heroes and equipments with "
+                                + "emoji at the end have "
+                                + "their exclusive weapon or hero obtained."
                                 + "\nPress stop sign before you can open "
                                 + "another inventory or wait for timeout."
                                 f"\n\n{counter + 1}/{len(buffer_main)}"
@@ -449,8 +450,9 @@ class Guardian(commands.Cog):
 
                         embed.set_footer(
                             text=(
-                                "Those with emoji at the end have "
-                                + "their exclusive weapon and hero obtained."
+                                "Heroes and equipments with "
+                                + "emoji at the end have "
+                                + "their exclusive weapon or hero obtained."
                                 + "\nPress stop sign before you can open "
                                 + "another inventory or wait for timeout."
                                 f"\n\n{counter + 1}/{len(buffer_main)}"
