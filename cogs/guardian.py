@@ -167,6 +167,7 @@ class Guardian(commands.Cog):
         ),
         aliases=["inv"],
     )
+    @commands.max_concurrency(1, per=commands.BucketType.channel, wait=False)
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def inventory(
             self, ctx, type, *target):
@@ -386,7 +387,7 @@ class Guardian(commands.Cog):
             while True:
                 try:
                     reaction, user = await self.bot.wait_for(
-                        'reaction_add', check=check, timeout=25)
+                        'reaction_add', check=check, timeout=15)
 
                     if reaction.emoji == str(emoji_right):
                         if (len(buffer_main) - 1) != counter:
@@ -438,7 +439,7 @@ class Guardian(commands.Cog):
                         "Please check that I have the permission, "
                         + "`View Channels`, `Send Messages`, `Embed Links` "
                         + "`Add Reactions`, `Read Message History`, "
-                        + "and Manage Messages."
+                        + "and `Manage Messages`."
                         )
                     break
                 except Exception:
@@ -777,19 +778,12 @@ class Guardian(commands.Cog):
 
         if able_send:
             await ctx.author.send(
-                f"Hello, <@{ctx.author.id}>! "
-                + "Make a team with `a;team set <key> <hero>` and "
-                + "show your current team with `a;team show`. "
-                + "Your max team slots for now is 3. Remember. "
-                + "Making a team with 'main' as the name will allow "
-                + "you to use the `a;train` just as is. If your team's "
-                + "key is not 'main', then, you'll have to specify your "
-                + "team when using `a;train`. For example, if your "
-                + "team's key is `main`. Then, the full command for "
-                + "`train` is `a;train`. However if your team's key "
-                + "is other than main for example, 'one', then your "
-                + "full command would be `a;train one`. The same "
-                + "concept applies to `arena`. You can also `a;help team`.")
+                f"Hello, <@{ctx.author.id}>!"
+                + "\nIssue `a;team set <key> <hero;hero;hero;hero>` "
+                + "to set team."
+                + "\nIssue `a;team show` to show team set."
+                + "\nIssue `a;team delete` to delete a team."
+            )
 
     @team.command(
         name="set",
@@ -864,12 +858,9 @@ class Guardian(commands.Cog):
         for counter in counter_buffer:
             heroes.pop(counter)
 
-        if len(heroes) > 1:
+        if len(heroes) > 4 or len(heroes) < 1:
             await ctx.send(
-                "The max amount of heroes in a team now is 1. "
-                + "Yeah I know, weird. How can it be a team with "
-                + "only 1 hero. You're gonna need to wait "
-                + "for an update for that."
+                "A team consists of 1 to 4 heroes."
             )
             db_ailie.disconnect()
             return
