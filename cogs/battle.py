@@ -1428,7 +1428,7 @@ class Battle(commands.Cog):
                             )
                             did_cs = True
 
-                        if did_cs:
+                        if did_cs and not round_reset:
                             heroes[second]["current_state"]["stunned"] = 0
                             await ctx.send(
                                 f"{heroes[second]['color']} "
