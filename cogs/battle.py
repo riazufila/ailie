@@ -1087,8 +1087,9 @@ class Battle(commands.Cog):
                         team = f"{team}\n{ind}{hero['hero_name']}"
 
                 line_consumed = len(heroes_bench[index])
-                if line_consumed < 3:
+                while line_consumed < 3:
                     team = f"{team}\n🚫 No Hero"
+                    line_consumed += 1
 
                 hp_percentage = round(
                     (hero["stats"]["hp"] / hero["max_hp"]) * 100)
