@@ -858,9 +858,9 @@ class Guardian(commands.Cog):
         for counter in counter_buffer:
             heroes.pop(counter)
 
-        if len(heroes) > 4:
+        if len(heroes) > 4 or len(heroes) < 1:
             await ctx.send(
-                "The max amount of heroes in a team is 4."
+                "A team consists of 1 to 4 heroes."
             )
             db_ailie.disconnect()
             return
