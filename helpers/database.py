@@ -1663,6 +1663,29 @@ class Database():
 
         return hero_id
 
+    def get_multiplier_equip(self, equip_id, inventory_id):
+        query = (
+            "SELECT equip_acquired_roll FROM equipments_acquired "
+            + "WHERE equip_id = %s AND inventory_id = %s;"
+        )
+        data = [equip_id, inventory_id]
+        self.cursor.execute(query, data)
+        current_roll = self.cursor.fetchone()
+
+        if isinstance(current_roll, tuple):
+            current_roll = current_roll[0]
+
+        return current_roll
+
+    def update_multiplier_equip(self, inventory_id, equip_id, new_roll):
+        query = (
+            "UPDATE equipments_acquired SET equip_acquired_roll = %s "
+            + "WHERE inventory_id = %s and equip_id = %s;"
+        )
+        data = [new_roll, inventory_id, equip_id]
+        self.cursor.execute(query, data)
+        self.connection.commit()
+
     # Disconnect database
     def disconnect(self):
         self.cursor.close()

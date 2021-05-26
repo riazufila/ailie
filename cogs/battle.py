@@ -701,39 +701,9 @@ class Battle(commands.Cog):
         db_ailie = Database()
         if key == "main":
             if not db_ailie.is_team_exists(ctx.author.id, "main"):
-                try:
-                    await ctx.send(
-                        "You need to set your team. I've sent you a "
-                        + "Private Message. Unless you have a team "
-                        + "with key or name `main`, then you need to "
-                        + "specify your team name with the command "
-                        + "used."
-                    )
-                    await ctx.author.send(
-                        f"Hello, <@{ctx.author.id}>! "
-                        + "Make a team with `a;team set <key> <hero>` and "
-                        + "show your current team with `a;team show`. "
-                        + "Your max team slots for now is 3. Remember. "
-                        + "Making a team with 'main' as the name will allow "
-                        + "you to use the `a;train` just as is. If your team's "
-                        + "key is not 'main', then, you'll have to specify "
-                        + "your team when using `a;train`. For example, if "
-                        + "your team's key is `main`. Then, the full command "
-                        + "for `train` is `a;train`. "
-                        + "However if your team's key "
-                        + "is other than main for example, 'one', then your "
-                        + "full command would be `a;train one`. The same "
-                        + "concept applies to `arena`. "
-                        + "You can also `a;help team`.")
-                except Exception:
-                    await ctx.send(
-                        "You need to set your team. I'm trying to send you a "
-                        + "Private Message, but I think you got it disabled. "
-                        + "Unless you have a team "
-                        + "with key or name `main`, then you need to "
-                        + "specify your team name with the command "
-                        + "used."
-                    )
+                await ctx.send(
+                    "You need to set a team with `a;team`."
+                )
                 db_ailie.disconnect()
                 return
 
