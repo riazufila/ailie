@@ -222,7 +222,7 @@ class Battle(commands.Cog):
             hero["current_state"]["weapon_skill_cd"]
 
     async def attack(self, ctx, actor, victim, move_type, percent_damage):
-        end = False
+        round_reset = False
         winner = {}
         loser = {}
         damage_type = "damage"
@@ -280,7 +280,7 @@ class Battle(commands.Cog):
             await asyncio.sleep(2)
 
             if victim["stats"]["hp"] < 0:
-                end = True
+                round_reset = True
                 winner = {
                     "guardian_id": actor["guardian_id"],
                     "hero_name": actor["hero_name"]
@@ -317,7 +317,7 @@ class Battle(commands.Cog):
                     )
                     await asyncio.sleep(2)
 
-        return victim, end, winner, loser
+        return victim, round_reset, winner, loser
 
     async def heal(self, ctx, hero, buff_percent):
         # Calculate heals
@@ -1006,7 +1006,6 @@ class Battle(commands.Cog):
                     )
 
         # Start arena between heroes
-        end = False
         ends_for_real = False
         winner = {}
         loser = {}
@@ -1254,7 +1253,7 @@ class Battle(commands.Cog):
 
                     # Deal damage
                     heroes[second], \
-                        end, winner, loser = await self.attack(
+                        round_reset, winner, loser = await self.attack(
                             ctx, heroes[first], heroes[second],
                             move_type, percent_damage
                         )
@@ -1317,7 +1316,7 @@ class Battle(commands.Cog):
                         # Deal damage
                         if percent_damage is not None:
                             heroes[second], \
-                                end, winner, loser = await self.attack(
+                                round_reset, winner, loser = await self.attack(
                                 ctx, heroes[first], heroes[second],
                                 move_type, percent_damage
                             )
@@ -1398,7 +1397,7 @@ class Battle(commands.Cog):
                         # Deal damage
                         if percent_damage is not None:
                             heroes[second], \
-                                end, winner, loser = await self.attack(
+                                round_reset, winner, loser = await self.attack(
                                 ctx, heroes[first], heroes[second],
                                 move_type, percent_damage
                             )
@@ -1447,7 +1446,7 @@ class Battle(commands.Cog):
 
                 # Surrender
                 elif choice[1].lower() in ["surrender", "five"]:
-                    end = True
+                    round_reset = True
                     ends_for_real = True
 
                     await ctx.send(
@@ -1470,7 +1469,7 @@ class Battle(commands.Cog):
                 else:
                     pass
 
-                if not end:
+                if not round_reset:
                     cs = "current_state"
 
                     # If enemy is stunned
@@ -1547,9 +1546,7 @@ class Battle(commands.Cog):
                         debuff_count["count"] = debuff_count["count"] - 1
 
                 # If it ends, then break.
-                if end:
-                    round_reset = True
-
+                if round_reset:
                     if second == 0:
                         chal_hero_died += 1
                         chal_hero_order += 1
@@ -1570,12 +1567,12 @@ class Battle(commands.Cog):
                             heroes_bench[second][hero_order]
 
                     break
-            if not end:
+            if not round_reset:
                 # Increase round count
                 round_num = round_num + 1
-            elif end and round_reset and not ends_for_real:
+            elif round_reset and not ends_for_real:
                 round_num = 1
-            elif end and ends_for_real:
+            elif ends_for_real:
                 if winner and loser:
                     trophy_win = 25
                     trophy_lose = -10
