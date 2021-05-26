@@ -181,7 +181,8 @@ class Battle(commands.Cog):
                                     / 100)
                             )
                         else:
-                            if multiplier_debuff == "wsrs":
+                            if multiplier_debuff == "wsrs" and \
+                                    multipliers_debuffs[multiplier_debuff] > 0:
                                 wsrs_check = True
 
                             hero["stats"][multiplier_debuff] = \
@@ -1587,6 +1588,13 @@ class Battle(commands.Cog):
                     else:
                         heroes[second] = \
                             heroes_bench[second][hero_order]
+                        heroes[first]["current_state"] = self.initCurrentState()
+                        heroes[first]["current_state"]["weapon_skill_cd"] = \
+                            self.calcWeapSkillCooldown(
+                                heroes[first]["current_state"]
+                                ["weapon_skill_cd"],
+                                heroes[first]["stats"]["wsrs"]
+                            )
 
                     break
             if not round_reset:
