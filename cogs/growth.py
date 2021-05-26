@@ -2103,6 +2103,14 @@ class Growth(commands.Cog):
             db_ailie.disconnect()
             return
 
+        if not db_ailie.has_item_amount(ctx.author.id, "Option Change Stone"):
+            await ctx.send(
+                "You need `Option Change Stone` to roll new "
+                + "multiplier for your weapon."
+            )
+            db_ailie.disconnect()
+            return
+
         # Variables initialized
         rolls_to_obtain = []
         weight = [5, 10, 20, 30, 20, 7.5, 3, 2, 1.75, 0.75]
@@ -2132,6 +2140,9 @@ class Growth(commands.Cog):
             f"and your new roll is `{rolls}`%. Would you like to confirm "
             + "the new roll or not? `Y` or `N`."
         )
+
+        # Break after use
+        db_ailie.item_break(ctx.author.id, "Option Change Stone")
 
         # Function to confirm roll
         def confirm_roll(message):
