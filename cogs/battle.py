@@ -894,7 +894,8 @@ class Battle(commands.Cog):
                 db_ailie = Database()
                 if len(e) != 0:
                     e["stats"] = self.multiplyStatsWithLevels(
-                        e["stats"], e["acquired"]["level"], 1)
+                        e["stats"], e["acquired"]["level"],
+                        e["acquired"]["roll"])
                 db_ailie.disconnect()
 
         # Add the stats from weapon to to hero

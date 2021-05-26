@@ -689,8 +689,8 @@ class Database():
 
     def get_equip_acquired_details(self, inventory_id, equip_id):
         query = (
-            "SELECT equip_acquired_exp, equip_acquired_limit_break "
-            + "FROM equipments_acquired "
+            "SELECT equip_acquired_exp, equip_acquired_limit_break, "
+            + "equip_acquired_roll FROM equipments_acquired "
             + "WHERE equip_id = %s and inventory_id = %s;"
         )
         data = [equip_id, inventory_id]
@@ -701,13 +701,15 @@ class Database():
         exp = equipments_acquired_stats[0]
         level = math.trunc(exp / 100)
         lb = equipments_acquired_stats[1]
+        roll = equipments_acquired_stats[2]
 
         if equipments_acquired_stats:
             equip_acquired = {
                 "level": level,
                 "exp": exp,
                 "limit_break": lb,
-                "max_level": int((5000 + (5000 * lb)) / 100)
+                "max_level": int((5000 + (5000 * lb)) / 100),
+                "roll": roll
             }
             return equip_acquired
         else:
