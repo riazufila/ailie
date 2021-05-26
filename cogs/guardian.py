@@ -375,7 +375,15 @@ class Guardian(commands.Cog):
                 value=data,
                 inline=False,
             )
-            embed.set_footer(text=f"{counter + 1}/{len(buffer_main)}")
+            embed.set_footer(
+                text=(
+                    "Those with emoji at the end have "
+                    + "their exclusive weapon and hero obtained."
+                    + "\nPress stop sign before you can open "
+                    + "another inventory or wait for timeout."
+                    f"\n\n{counter + 1}/{len(buffer_main)}"
+                )
+            )
             embed_sent = await ctx.send(embed=embed)
             await embed_sent.add_reaction(emoji_left)
             await embed_sent.add_reaction(emoji_right)
@@ -410,7 +418,14 @@ class Guardian(commands.Cog):
                         )
 
                         embed.set_footer(
-                            text=f"{counter + 1}/{len(buffer_main)}")
+                            text=(
+                                "Those with emoji at the end have "
+                                + "their exclusive weapon and hero obtained."
+                                + "\nPress stop sign before you can open "
+                                + "another inventory or wait for timeout."
+                                f"\n\n{counter + 1}/{len(buffer_main)}"
+                            )
+                        )
                         await embed_sent.remove_reaction(str(emoji_right), user)
                         await embed_sent.edit(embed=embed)
 
@@ -433,7 +448,14 @@ class Guardian(commands.Cog):
                         )
 
                         embed.set_footer(
-                            text=f"{counter + 1}/{len(buffer_main)}")
+                            text=(
+                                "Those with emoji at the end have "
+                                + "their exclusive weapon and hero obtained."
+                                + "\nPress stop sign before you can open "
+                                + "another inventory or wait for timeout."
+                                f"\n\n{counter + 1}/{len(buffer_main)}"
+                            )
+                        )
                         await embed_sent.remove_reaction(str(emoji_left), user)
                         await embed_sent.edit(embed=embed)
 
