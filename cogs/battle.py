@@ -1008,7 +1008,6 @@ class Battle(commands.Cog):
         # Start arena between heroes
         end = False
         ends_for_real = False
-        round_reset = False
         winner = {}
         loser = {}
         round_num = 1
@@ -1025,6 +1024,8 @@ class Battle(commands.Cog):
         heroes.append(heroes_bench[1][opp_hero_order])
 
         while True:
+            round_reset = False
+
             # Show available moves for each player
             embed = discord.Embed(color=discord.Color.purple())
             embed.set_author(
@@ -1447,6 +1448,7 @@ class Battle(commands.Cog):
                 # Surrender
                 elif choice[1].lower() in ["surrender", "five"]:
                     end = True
+                    ends_for_real = True
 
                     await ctx.send(
                         f"<@{heroes[first]['guardian_id']}> surrendered!")
@@ -1546,30 +1548,32 @@ class Battle(commands.Cog):
 
                 # If it ends, then break.
                 if end:
+                    round_reset = True
+
                     if second == 0:
                         chal_hero_died += 1
                         chal_hero_order += 1
-                        if chal_hero_died == len(heroes_bench[second]):
-                            ends_for_real = True
-                        else:
-                            heroes[second] = \
-                                heroes_bench[second][chal_hero_order]
-                            round_reset = True
+
+                        hero_died = chal_hero_died
+                        hero_order = chal_hero_order
                     else:
                         opp_hero_died += 1
                         opp_hero_order += 1
-                        if opp_hero_died == len(heroes_bench[first]):
-                            ends_for_real = True
-                        else:
-                            heroes[first] = heroes_bench[first][opp_hero_order]
-                            round_reset = True
 
-                    if round_reset:
-                        break
+                        hero_died = opp_hero_died
+                        hero_order = opp_hero_order
+
+                    if hero_died == len(heroes_bench[second]):
+                        ends_for_real = True
+                    else:
+                        heroes[second] = \
+                            heroes_bench[second][hero_order]
+
+                    break
             if not end:
                 # Increase round count
                 round_num = round_num + 1
-            elif end and round_reset:
+            elif end and round_reset and not ends_for_real:
                 round_num = 1
             elif end and ends_for_real:
                 if winner and loser:
