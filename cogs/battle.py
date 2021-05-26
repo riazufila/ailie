@@ -840,6 +840,7 @@ class Battle(commands.Cog):
                 f"<@{challenger_id}>, only a team with "
                 + "maximum 3 heroes is accepted."
             )
+            return
 
         opponent_hero_buffer = []
         count = 0
