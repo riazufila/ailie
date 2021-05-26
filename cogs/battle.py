@@ -1042,8 +1042,12 @@ class Battle(commands.Cog):
                 index = heroes.index(hero)
                 if index == 0:
                     other_index = 1
+                    hero_died = chal_hero_died
+                    hero_order = chal_hero_order
                 else:
                     other_index = 0
+                    hero_died = opp_hero_died
+                    hero_order = opp_hero_order
 
                 # Get weapon skill cooldown
                 if heroes[index]["current_state"]["weapon_skill_cd"] != 0:
@@ -1065,7 +1069,21 @@ class Battle(commands.Cog):
                 else:
                     cs_cd = "❌"
 
-                # Display the moves
+                # Display the details
+                team = ""
+                for hero in heroes_bench[index]:
+                    ind = "⏱️ "
+                    if hero_died - 1 == heroes_bench[index].index(hero):
+                        ind = "❌ "
+
+                    if heroes_bench[index][hero_order] == hero:
+                        ind = "➡️ "
+
+                    if heroes_bench[index].index(hero) == 0:
+                        team = f"{ind}{hero['hero_name']}"
+                    else:
+                        team = f"{team}\n{ind}{hero['hero_name']}"
+
                 hp_percentage = round(
                     (hero["stats"]["hp"] / hero["max_hp"]) * 100)
                 hp = (
@@ -1082,7 +1100,7 @@ class Battle(commands.Cog):
                 )
                 embed.add_field(
                     name=f"{hero['guardian_name']}'s",
-                    value=f"{hp}\n\n{moves}"
+                    value=f"{team}\n\n{hp}\n\n{moves}"
                 )
 
             await ctx.send(embed=embed)
