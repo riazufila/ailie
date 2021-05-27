@@ -258,7 +258,10 @@ class Battle(commands.Cog):
             "speed"
         ]
 
-        miss = self.is_miss(enemy_speed)
+        if victim["current_state"]["stunned"] != 0:
+            miss = False
+        else:
+            miss = self.is_miss(enemy_speed)
 
         if miss:
             await ctx.send(
