@@ -651,7 +651,7 @@ class Growth(commands.Cog):
         aliases=["ga"]
     )
     @commands.guild_only()
-    @commands.cooldown(1, 20, commands.BucketType.user)
+    @commands.cooldown(1, 15, commands.BucketType.user)
     async def gamble(self, ctx, gems: int):
         # Check if user is initialized first
         db_ailie = Database()
@@ -2170,6 +2170,140 @@ class Growth(commands.Cog):
         except Exception:
             await ctx.send(
                 f"I guess you somehow forgot to reply, <@{ctx.author.id}>."
+            )
+
+    @commands.command(
+        name="exchange",
+        brief="Exchange stats from one to another.",
+        description=(
+            "Exchange the stats from one hero or equipment "
+            + "to another hero or equipment. `type` should "
+            + "either be `hero` or `equip`. `targets` should "
+            + "be the hero or equipment to swap in "
+            + "`target>target` format."
+        ),
+        aliases=["ex"]
+    )
+    @commands.max_concurrency(1, per=commands.BucketType.user, wait=False)
+    @commands.cooldown(1, 5, commands.BucketType.user)
+    async def exchange(self, ctx, type, *targets):
+        # Check if user is initialized first
+        db_ailie = Database()
+        if not db_ailie.is_initialized(ctx.author.id):
+            await ctx.send(
+                "Do `ailie;initialize` or `a;initialize` first before anything!"
+            )
+            db_ailie.disconnect()
+            return
+
+        exists = True
+        obtained = True
+
+        if not targets:
+            await ctx.send(
+                "Please specify hero or equipment to swap."
+            )
+            return
+
+        targets = " ".join(targets)
+        targets = targets.split(">")
+        counter_buffer = []
+
+        # Remove whitespaces
+        for target in targets:
+            if target == "":
+                counter_buffer.append(targets.index(target))
+
+        for counter in counter_buffer:
+            targets.pop(counter)
+
+        if len(targets) != 2:
+            await ctx.send(
+                "Can only exchange stats when two targets are stated. "
+                "`Alef>Vishuvac` or `Liberator>Amarok` for such."
+            )
+            db_ailie.disconnect()
+            return
+
+        buffer = []
+        for target in targets:
+            if type.lower() in ["h", "hero", "heroes"]:
+                full_name = db_ailie.get_hero_full_name(target)
+            else:
+                full_name = db_ailie.get_equip_full_name(target)
+
+            if not full_name:
+                await ctx.send("The target you stated doesn't exist.")
+                db_ailie.disconnect()
+                return
+            else:
+                if type.lower() in ["h", "hero", "heroes"]:
+                    target_id = db_ailie.get_hero_id(full_name)
+                    obtained = \
+                        db_ailie.is_hero_obtained(ctx.author.id, target_id)
+                else:
+                    target_id = db_ailie.get_equip_id(full_name)
+                    obtained = \
+                        db_ailie.is_equip_obtained(ctx.author.id, target_id)
+
+                if not obtained:
+                    await ctx.send(f"You don't own **{full_name}**.")
+                    db_ailie.disconnect()
+                    return
+                buffer.append(full_name)
+
+        # Check duplicate targets
+        if len(set(buffer)) != len(buffer):
+            await ctx.send(
+                "You're trying to exchange stats of the "
+                + "same target? Aren't you a bit crazy?"
+            )
+            db_ailie.disconnect()
+            return
+
+        # Get confirmation
+        await ctx.send(
+                f"<@{ctx.author.id}>, confirm to exchange stats from "
+                + f"**{buffer[0]}** to **{buffer[1]}**. `Y` or `N`?"
+        )
+
+        # Function to confirm request
+        def confirm_request(message):
+            return (
+                message.author.id == ctx.author.id
+                and message.content.upper() in ["YES", "Y", "NO", "N"]
+            )
+
+        # Wait for confirmation
+        try:
+            msg = await self.bot.wait_for(
+                "message", check=confirm_request, timeout=30
+            )
+
+            # Request confirmed
+            if msg.content.upper() in ["YES", "Y"]:
+                inventory_id = db_ailie.get_inventory_id(ctx.author.id)
+                if type.lower() in ["h", "hero", "heroes"]:
+                    db_ailie.exchange_stats_hero(
+                        inventory_id, buffer[0], buffer[1])
+                else:
+                    db_ailie.exchange_stats_equip(
+                        inventory_id, buffer[0], buffer[1]
+                    )
+
+                await ctx.send(
+                        f"Hey, <@{ctx.author.id}>. "
+                        + f"Your **{buffer[0]}**'s stats has been carried "
+                        + f"over to **{buffer[1]}**."
+                )
+            # Change of mind
+            else:
+                await ctx.send(
+                    f"Maybe next time, <@{ctx.author.id}>.."
+                )
+        except Exception:
+            await ctx.send(
+                f"I guess you're away already, <@{ctx.author.id}>."
             )
 
 
