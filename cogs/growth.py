@@ -651,7 +651,7 @@ class Growth(commands.Cog):
         aliases=["ga"]
     )
     @commands.guild_only()
-    @commands.cooldown(1, 15, commands.BucketType.user)
+    @commands.cooldown(1, 10, commands.BucketType.user)
     async def gamble(self, ctx, gems: int):
         # Check if user is initialized first
         db_ailie = Database()
@@ -668,9 +668,10 @@ class Growth(commands.Cog):
             db_ailie.disconnect()
             return
 
-        if gems > 100000:
+        max_gamble_amount = 500000
+        if gems > max_gamble_amount:
             await ctx.send(
-                "Max gambling amount is `100,000` gems. "
+                "Max gambling amount is `{max_gamble_amount}` gems. "
                 + f"Fix your gambling addiction, <@{ctx.author.id}>."
             )
             db_ailie.disconnect()
