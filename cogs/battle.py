@@ -1173,7 +1173,7 @@ class Battle(commands.Cog):
                         + f"<@{quitter_id}>!"
                     )
 
-                    if total_round_num >= 5:
+                    if total_round_num >= 7:
                         winner = {
                             "guardian_id": winner_id,
                             "hero_name": winner_hero
@@ -1459,7 +1459,7 @@ class Battle(commands.Cog):
                         f"<@{heroes[first]['guardian_id']}> surrendered!")
                     await asyncio.sleep(1.5)
 
-                    if total_round_num >= 3:
+                    if total_round_num >= 7:
                         winner = {
                             "guardian_id": heroes[second]["guardian_id"],
                             "hero_name": heroes[second]["hero_name"]
@@ -1590,11 +1590,11 @@ class Battle(commands.Cog):
                 if winner and loser:
                     trophy_win = 25
                     trophy_lose = -10
-                    hero_exp_win = 50
-                    hero_exp_lose = 30
+                    hero_exp_win = 100
+                    hero_exp_lose = 40
                     user_exp_win = 100
                     user_exp_lose = 70
-                    gems = 1000
+                    gems = 5000
 
                     db_ailie = Database()
 
