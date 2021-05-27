@@ -1046,10 +1046,12 @@ class Battle(commands.Cog):
 
                 # Display the details
                 team = ""
+                check_died = 0
                 for hero_tmp in heroes_bench[index]:
                     ind = "⏱️ "
-                    if hero_died - 1 == heroes_bench[index].index(hero_tmp):
+                    if hero_died > check_died:
                         ind = "❌ "
+                        check_died += 1
 
                     if heroes_bench[index][hero_order] == hero_tmp:
                         ind = "➡️ "
@@ -1105,11 +1107,11 @@ class Battle(commands.Cog):
                 + f"<@{heroes[1]['guardian_id']}>, please go ahead and "
                 + "choose your moves.. in.."
             )
-            await asyncio.sleep(1.5)
+            await asyncio.sleep(1)
             await msg.edit(content=msg.content + "\n3..")
-            await asyncio.sleep(1.5)
+            await asyncio.sleep(1)
             await msg.edit(content=msg.content + "\n2..")
-            await asyncio.sleep(1.5)
+            await asyncio.sleep(1)
             await msg.edit(content=msg.content + "\n1!")
 
             players = [heroes[0]["guardian_id"], heroes[1]["guardian_id"]]
