@@ -1688,6 +1688,61 @@ class Database():
         self.cursor.execute(query, data)
         self.connection.commit()
 
+    def exchange_stats_hero(self, inventory_id, from_hero_name, to_hero_name):
+        exchanges = []
+        for hero_name in [from_hero_name, to_hero_name]:
+            hero_id = self.get_hero_id(hero_name)
+            hero_acquired = self.get_hero_acquired_details(
+                inventory_id, hero_id)
+            exchanges.append(
+                [hero_id, hero_acquired["exp"], hero_acquired["limit_break"]])
+
+        buffer = exchanges[0][0]
+        exchanges[0][0] = exchanges[1][0]
+        exchanges[1][0] = buffer
+
+        for exchange in exchanges:
+            query = (
+                "UPDATE heroes_acquired SET hero_acquired_exp = %s, "
+                + "hero_acquired_limit_break = %s WHERE inventory_id = %s "
+                + "and hero_id = %s;"
+            )
+            data = [exchange[1], exchange[2], inventory_id, exchange[0]]
+            self.cursor.execute(query, data)
+            self.connection.commit()
+
+    def exchange_stats_equip(
+            self, inventory_id, from_equip_name, to_equip_name):
+        exchanges = []
+        for equip_name in [from_equip_name, to_equip_name]:
+            equip_id = self.get_equip_id(equip_name)
+            equip_acquired = self.get_equip_acquired_details(
+                inventory_id, equip_id)
+            exchanges.append(
+                [
+                    equip_id, equip_acquired["exp"],
+                    equip_acquired["limit_break"],
+                    equip_acquired["roll"]
+                ]
+            )
+
+        buffer = exchanges[0][0]
+        exchanges[0][0] = exchanges[1][0]
+        exchanges[1][0] = buffer
+
+        for exchange in exchanges:
+            query = (
+                "UPDATE equipments_acquired SET equip_acquired_exp = %s, "
+                + "equip_acquired_limit_break = %s, equip_acquired_roll = %s "
+                + "WHERE inventory_id = %s and equip_id = %s;"
+            )
+            data = [
+                exchange[1], exchange[2], exchange[3],
+                inventory_id, exchange[0]
+            ]
+            self.cursor.execute(query, data)
+            self.connection.commit()
+
     # Disconnect database
     def disconnect(self):
         self.cursor.close()
