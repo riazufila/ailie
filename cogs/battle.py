@@ -105,7 +105,7 @@ class Battle(commands.Cog):
             f"{actor['color']} **{victim['hero_name']}**'s "
             + f"{multi_readable} is buffed!"
         )
-        await asyncio.sleep(1)
+        await asyncio.sleep(1.5)
 
         return victim["stats"], victim["multipliers"]
 
@@ -134,7 +134,7 @@ class Battle(commands.Cog):
             f"{actor['color']} **{victim['hero_name']}**'s "
             + f"{debuff_readable} is debuffed!"
         )
-        await asyncio.sleep(1)
+        await asyncio.sleep(1.5)
 
         return victim["stats"], victim["debuffs"]
 
@@ -160,7 +160,7 @@ class Battle(commands.Cog):
         await ctx.send(
             f"{hero['color']} **{hero['hero_name']}** is cured!"
         )
-        await asyncio.sleep(1)
+        await asyncio.sleep(1.5)
 
         return hero["stats"], hero["debuffs"]
 
@@ -263,7 +263,7 @@ class Battle(commands.Cog):
         if miss:
             await ctx.send(
                 f"{actor['color']} **{actor['hero_name']}** missed.")
-            await asyncio.sleep(1)
+            await asyncio.sleep(1.5)
 
         if not miss:
             if total_damage < 0:
@@ -279,7 +279,7 @@ class Battle(commands.Cog):
                 + f"{move_type} and dealt `{total_damage:,d}` "
                 + f"{damage_type}!"
             )
-            await asyncio.sleep(1)
+            await asyncio.sleep(1.5)
 
             if victim["stats"]["hp"] < 0:
                 round_reset = True
@@ -296,7 +296,7 @@ class Battle(commands.Cog):
                     + f"**{victim['hero_name']}"
                     + "** has died!"
                 )
-                await asyncio.sleep(1)
+                await asyncio.sleep(1.5)
 
             else:
                 await ctx.send(
@@ -306,7 +306,7 @@ class Battle(commands.Cog):
                     + f"`{victim['stats']['hp']}"
                     + f"`/`{victim['max_hp']}` HP left!"
                 )
-                await asyncio.sleep(1)
+                await asyncio.sleep(1.5)
 
                 if move_type == "weapon skill":
                     victim["current_state"]["stunned"] = 3
@@ -317,7 +317,7 @@ class Battle(commands.Cog):
                         + f"**{victim['hero_name']}** "
                         + "for 3 of their turns!"
                     )
-                    await asyncio.sleep(1)
+                    await asyncio.sleep(1.5)
 
         return victim, round_reset, winner, loser
 
@@ -333,12 +333,12 @@ class Battle(commands.Cog):
             f"{hero['color']} `{heal:,d}` HP healed to "
             + f"**{hero['hero_name']}**.\n"
         )
-        await asyncio.sleep(1)
+        await asyncio.sleep(1.5)
         await ctx.send(
             f"{hero['color']} **{hero['hero_name']}** current HP is "
             + f"`{hp_after_heal}`/`{hero['max_hp']}`."
         )
-        await asyncio.sleep(1)
+        await asyncio.sleep(1.5)
 
         return hp_after_heal
 
@@ -984,6 +984,7 @@ class Battle(commands.Cog):
         winner = {}
         loser = {}
         round_num = 1
+        total_round_num = 1
         left = False
         chal_hero_order = 0
         opp_hero_order = 0
@@ -1096,7 +1097,7 @@ class Battle(commands.Cog):
                     "*Every heroes felt the tension and "
                     + f"increased their attack by {rage}%!*"
                 )
-                await asyncio.sleep(1)
+                await asyncio.sleep(1.5)
 
             # Prompt for each player to enter their move
             msg = await ctx.send(
@@ -1104,11 +1105,11 @@ class Battle(commands.Cog):
                 + f"<@{heroes[1]['guardian_id']}>, please go ahead and "
                 + "choose your moves.. in.."
             )
-            await asyncio.sleep(1)
+            await asyncio.sleep(1.5)
             await msg.edit(content=msg.content + "\n3..")
-            await asyncio.sleep(1)
+            await asyncio.sleep(1.5)
             await msg.edit(content=msg.content + "\n2..")
-            await asyncio.sleep(1)
+            await asyncio.sleep(1.5)
             await msg.edit(content=msg.content + "\n1!")
 
             players = [heroes[0]["guardian_id"], heroes[1]["guardian_id"]]
@@ -1129,6 +1130,12 @@ class Battle(commands.Cog):
 
             try:
                 await self.bot.wait_for("message", check=check, timeout=60)
+                for choice in choices:
+                    if choice[1].lower() in ["surrender", "five"]:
+                        left = True
+                        if choices.index(choice) != 0:
+                            popped = choices.pop()
+                            choices.insert(0, popped)
             except Exception as error:
                 if isinstance(error, asyncio.TimeoutError) \
                         and len(choices) == 0:
@@ -1164,7 +1171,7 @@ class Battle(commands.Cog):
                         + f"<@{quitter_id}>!"
                     )
 
-                    if round_num >= 3:
+                    if total_round_num >= 5:
                         winner = {
                             "guardian_id": winner_id,
                             "hero_name": winner_hero
@@ -1199,7 +1206,7 @@ class Battle(commands.Cog):
                 # Indicator of who's move it is
                 if not left:
                     await ctx.send(f"<@{heroes[first]['guardian_id']}>'s turn.")
-                    await asyncio.sleep(1)
+                    await asyncio.sleep(1.5)
 
                 # Move choices available for players
                 # Attack Move
@@ -1327,7 +1334,7 @@ class Battle(commands.Cog):
                             + f"**{heroes[first]['hero_name']}**'s "
                             + "weapon skill is on cooldown!"
                         )
-                        await asyncio.sleep(1)
+                        await asyncio.sleep(1.5)
 
                 # Chain Skill Move
                 elif choice[1].lower() in ["c", "cs", "3"] and \
@@ -1407,14 +1414,14 @@ class Battle(commands.Cog):
                                 + f"**{heroes[second]['hero_name']}** "
                                 + "broke free from stun!"
                             )
-                            await asyncio.sleep(1)
+                            await asyncio.sleep(1.5)
                     else:
                         await ctx.send(
                             f"{heroes[first]['color']} "
                             + f"**{heroes[second]['hero_name']}** "
                             + "is not stunned!"
                         )
-                        await asyncio.sleep(1)
+                        await asyncio.sleep(1.5)
 
                 # Evade Move
                 elif choice[1].lower() in ["e", "4"] and \
@@ -1432,14 +1439,14 @@ class Battle(commands.Cog):
                             + "tries to evade the attack "
                             + "in next turn!"
                         )
-                        await asyncio.sleep(1)
+                        await asyncio.sleep(1.5)
                     else:
                         await ctx.send(
                             f"{heroes[first]['color']} "
                             + f"**{heroes[first]['hero_name']}** "
                             + "can't use evade right now!"
                         )
-                        await asyncio.sleep(1)
+                        await asyncio.sleep(1.5)
 
                 # Surrender
                 elif choice[1].lower() in ["surrender", "five"]:
@@ -1448,9 +1455,9 @@ class Battle(commands.Cog):
 
                     await ctx.send(
                         f"<@{heroes[first]['guardian_id']}> surrendered!")
-                    await asyncio.sleep(1)
+                    await asyncio.sleep(1.5)
 
-                    if round_num >= 3:
+                    if total_round_num >= 3:
                         winner = {
                             "guardian_id": heroes[second]["guardian_id"],
                             "hero_name": heroes[second]["hero_name"]
@@ -1476,7 +1483,7 @@ class Battle(commands.Cog):
                             + f"**{heroes[first]['hero_name']}** "
                             + "is stunned!"
                         )
-                        await asyncio.sleep(1)
+                        await asyncio.sleep(1.5)
 
                     # Update stats after multipliers
                     for hero in heroes:
@@ -1573,8 +1580,10 @@ class Battle(commands.Cog):
             if not round_reset:
                 # Increase round count
                 round_num = round_num + 1
+                total_round_num = total_round_num + 1
             elif round_reset and not ends_for_real:
                 round_num = 1
+                total_round_num = total_round_num + 1
             elif ends_for_real:
                 if winner and loser:
                     trophy_win = 25
@@ -1614,12 +1623,12 @@ class Battle(commands.Cog):
                         f"<@{winner['guardian_id']}>, wins and obtained "
                         + f"`{trophy_win:,d}` trophies and `{gems:,d}` gems."
                     )
-                    await asyncio.sleep(1)
+                    await asyncio.sleep(1.5)
                     await ctx.send(
                         f"<@{loser['guardian_id']}>, "
                         + f"losses `{-1 * trophy_lose:,d}` trophies."
                     )
-                    await asyncio.sleep(1)
+                    await asyncio.sleep(1.5)
                     break
 
 
