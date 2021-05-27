@@ -2229,8 +2229,24 @@ class Growth(commands.Cog):
         for target in targets:
             if type.lower() in ["h", "hero", "heroes"]:
                 full_name = db_ailie.get_hero_full_name(target)
+                if not db_ailie.has_item_amount(
+                        ctx.author.id, "Hero Exchange Scroll"):
+                    await ctx.send(
+                        "You need `Hero Exchange Scroll` to swap heroes' "
+                        + "stats."
+                    )
+                    db_ailie.disconnect()
+                    return
             else:
                 full_name = db_ailie.get_equip_full_name(target)
+                if not db_ailie.has_item_amount(
+                        ctx.author.id, "Equipment Exchange Scroll"):
+                    await ctx.send(
+                        "You need `Equipment Exchange Scroll` to swap "
+                        + "equipments' stats."
+                    )
+                    db_ailie.disconnect()
+                    return
 
             if not full_name:
                 await ctx.send("The target you stated doesn't exist.")
@@ -2286,10 +2302,14 @@ class Growth(commands.Cog):
                 if type.lower() in ["h", "hero", "heroes"]:
                     db_ailie.exchange_stats_hero(
                         inventory_id, buffer[0], buffer[1])
+                    db_ailie.item_break(
+                        ctx.author.id, "Hero Exchange Scroll")
                 else:
                     db_ailie.exchange_stats_equip(
                         inventory_id, buffer[0], buffer[1]
                     )
+                    db_ailie.item_break(
+                        ctx.author.id, "Equipment Exchange Scroll")
 
                 await ctx.send(
                         f"Hey, <@{ctx.author.id}>. "
