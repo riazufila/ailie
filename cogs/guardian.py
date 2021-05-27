@@ -488,6 +488,13 @@ class Guardian(commands.Cog):
                 value=f"`{acquired['exp']:,d}`",
                 inline=False
             )
+            for a in acquired:
+                if a == "roll":
+                    embed.add_field(
+                        name="Roll 🎲",
+                        value=f"`{acquired['roll']:,d}`",
+                        inline=False
+                    )
             embed.add_field(
                 name="Limit Break 🛩️",
                 value=f"`{acquired['limit_break']:,d}`/`9`",
