@@ -689,8 +689,8 @@ class Database():
 
     def get_equip_acquired_details(self, inventory_id, equip_id):
         query = (
-            "SELECT equip_acquired_exp, equip_acquired_limit_break "
-            + "FROM equipments_acquired "
+            "SELECT equip_acquired_exp, equip_acquired_limit_break, "
+            + "equip_acquired_roll FROM equipments_acquired "
             + "WHERE equip_id = %s and inventory_id = %s;"
         )
         data = [equip_id, inventory_id]
@@ -701,13 +701,15 @@ class Database():
         exp = equipments_acquired_stats[0]
         level = math.trunc(exp / 100)
         lb = equipments_acquired_stats[1]
+        roll = equipments_acquired_stats[2]
 
         if equipments_acquired_stats:
             equip_acquired = {
                 "level": level,
                 "exp": exp,
                 "limit_break": lb,
-                "max_level": int((5000 + (5000 * lb)) / 100)
+                "max_level": int((5000 + (5000 * lb)) / 100),
+                "roll": roll
             }
             return equip_acquired
         else:
@@ -1662,6 +1664,29 @@ class Database():
             hero_id = hero_id[0]
 
         return hero_id
+
+    def get_multiplier_equip(self, equip_id, inventory_id):
+        query = (
+            "SELECT equip_acquired_roll FROM equipments_acquired "
+            + "WHERE equip_id = %s AND inventory_id = %s;"
+        )
+        data = [equip_id, inventory_id]
+        self.cursor.execute(query, data)
+        current_roll = self.cursor.fetchone()
+
+        if isinstance(current_roll, tuple):
+            current_roll = current_roll[0]
+
+        return current_roll
+
+    def update_multiplier_equip(self, inventory_id, equip_id, new_roll):
+        query = (
+            "UPDATE equipments_acquired SET equip_acquired_roll = %s "
+            + "WHERE inventory_id = %s and equip_id = %s;"
+        )
+        data = [new_roll, inventory_id, equip_id]
+        self.cursor.execute(query, data)
+        self.connection.commit()
 
     # Disconnect database
     def disconnect(self):

@@ -1598,39 +1598,9 @@ class Growth(commands.Cog):
 
         if key == "main":
             if not db_ailie.is_team_exists(ctx.author.id, "main"):
-                try:
-                    await ctx.send(
-                        "You need to set your team. I've sent you a "
-                        + "Private Message. Unless you have a team "
-                        + "with key or name `main`, then you need to "
-                        + "specify your team name with the command "
-                        + "used."
-                    )
-                    await ctx.author.send(
-                        f"Hello, <@{ctx.author.id}>! "
-                        + "Make a team with `a;team set <key> <hero>` and "
-                        + "show your current team with `a;team show`. "
-                        + "Your max team slots for now is 3. Remember. "
-                        + "Making a team with 'main' as the name will allow "
-                        + "you to use the `a;train` just as is. If your team's "
-                        + "key is not 'main', then, you'll have to specify "
-                        + "your team when using `a;train`. For example, if "
-                        + "your team's key is `main`. Then, the full command "
-                        + "for `train` is `a;train`. "
-                        + "However if your team's key "
-                        + "is other than main for example, 'one', then your "
-                        + "full command would be `a;train one`. The same "
-                        + "concept applies to `arena`. "
-                        + "You can also `a;help team`.")
-                except Exception:
-                    await ctx.send(
-                        "You need to set your team. I'm trying to send you a "
-                        + "Private Message, but I think you got it disabled. "
-                        + "Unless you have a team "
-                        + "with key or name `main`, then you need to "
-                        + "specify your team name with the command "
-                        + "used."
-                    )
+                await ctx.send(
+                    "You need to set a team with `a;team`."
+                )
                 db_ailie.disconnect()
                 return
 
@@ -2082,6 +2052,125 @@ class Growth(commands.Cog):
         embed.set_author(
             name=f"{guardian_name}'s Trophies", icon_url=guardian_avatar)
         await ctx.send(embed=embed)
+
+    @commands.command(
+        name="roll",
+        brief="Roll equipments' multipliers.",
+        description=(
+            "Roll equipments' multipliers with a certain amount of gems."
+        ),
+        aliases=["ro"]
+    )
+    @commands.max_concurrency(1, per=commands.BucketType.user, wait=False)
+    @commands.cooldown(1, 5, commands.BucketType.user)
+    async def roll(self, ctx, *equipment):
+        # Check if user is initialized first
+        db_ailie = Database()
+        if not db_ailie.is_initialized(ctx.author.id):
+            await ctx.send(
+                "Do `ailie;initialize` or `a;initialize` first before anything!"
+            )
+            db_ailie.disconnect()
+            return
+
+        if not equipment:
+            await ctx.send(
+                "You need to specify an equipment to roll multipliers.")
+            db_ailie.disconnect()
+            return
+
+        equipment = " ".join(equipment)
+
+        if len(equipment) < 4:
+            await ctx.send(
+                f"Yo, <@{ctx.author.id}>. "
+                + "At least put 4 characters please?"
+            )
+            db_ailie.disconnect()
+            return
+
+        equip_full_name = db_ailie.get_equip_full_name(equipment)
+
+        if not equip_full_name:
+            await ctx.send("No such equipment exists.")
+            db_ailie.disconnect()
+            return
+
+        equip_id = db_ailie.get_equip_id(equip_full_name)
+
+        if not db_ailie.is_equip_obtained(ctx.author.id, equip_id):
+            await ctx.send(f"You dont have that equipment, <@{ctx.author.id}>!")
+            db_ailie.disconnect()
+            return
+
+        if not db_ailie.has_item_amount(ctx.author.id, "Option Change Stone"):
+            await ctx.send(
+                "You need `Option Change Stone` to roll new "
+                + "multiplier for your weapon."
+            )
+            db_ailie.disconnect()
+            return
+
+        # Variables initialized
+        rolls_to_obtain = []
+        weight = [5, 10, 20, 30, 20, 7.5, 3, 2, 1.75, 0.75]
+        counter = 0
+        min_rolls_to_gain = 0
+        rolls = 0
+        inventory_id = db_ailie.get_inventory_id(ctx.author.id)
+        old_roll = \
+            db_ailie.get_multiplier_equip(equip_id, inventory_id)
+
+        # Fill gems to obtain list with many random increasing numbers
+        while counter < 10:
+            rolls_to_obtain.append(
+                random.randint(min_rolls_to_gain, min_rolls_to_gain + 10))
+            min_rolls_to_gain += 10
+            counter += 1
+
+        # Choose rolls from list with weights
+        rolls_obtained = random.choices(rolls_to_obtain, weight, k=1)
+
+        # Assign gem amount from array to single variable
+        for rolls in rolls_obtained:
+            rolls = rolls
+
+        await ctx.send(
+            f"<@{ctx.author.id}>, your old roll is `{old_roll}`% " +
+            f"and your new roll is `{rolls}`%. Would you like to confirm "
+            + "the new roll or not? `Y` or `N`."
+        )
+
+        # Break after use
+        db_ailie.item_break(ctx.author.id, "Option Change Stone")
+
+        # Function to confirm roll
+        def confirm_roll(message):
+            return (
+                message.author.id == ctx.author.id
+                and message.content.upper() in ["YES", "Y", "NO", "N"]
+            )
+
+        try:
+            msg = await self.bot.wait_for(
+                "message", check=confirm_roll, timeout=30
+            )
+
+            if msg.content.upper() in ["YES", "Y"]:
+                db_ailie.update_multiplier_equip(inventory_id, equip_id, rolls)
+                await ctx.send(
+                    f"Updated your equipment multiplier to `{rolls}`%, "
+                    + f"<@{ctx.author.id}>!"
+                )
+            else:
+                await ctx.send(
+                    f"Alright, <@{ctx.author.id}>. "
+                    + "Keeping your old multiplier roll."
+                )
+        except Exception:
+            await ctx.send(
+                f"I guess you somehow forgot to reply, <@{ctx.author.id}>."
+            )
 
 
 def setup(bot):

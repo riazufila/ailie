@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from copy import deepcopy
 import asyncio
 import random
 import discord
@@ -104,7 +105,7 @@ class Battle(commands.Cog):
             f"{actor['color']} **{victim['hero_name']}**'s "
             + f"{multi_readable} is buffed!"
         )
-        await asyncio.sleep(2)
+        await asyncio.sleep(1.5)
 
         return victim["stats"], victim["multipliers"]
 
@@ -133,7 +134,7 @@ class Battle(commands.Cog):
             f"{actor['color']} **{victim['hero_name']}**'s "
             + f"{debuff_readable} is debuffed!"
         )
-        await asyncio.sleep(2)
+        await asyncio.sleep(1.5)
 
         return victim["stats"], victim["debuffs"]
 
@@ -159,7 +160,7 @@ class Battle(commands.Cog):
         await ctx.send(
             f"{hero['color']} **{hero['hero_name']}** is cured!"
         )
-        await asyncio.sleep(2)
+        await asyncio.sleep(1.5)
 
         return hero["stats"], hero["debuffs"]
 
@@ -257,12 +258,15 @@ class Battle(commands.Cog):
             "speed"
         ]
 
-        miss = self.is_miss(enemy_speed)
+        if victim["current_state"]["stunned"] != 0:
+            miss = False
+        else:
+            miss = self.is_miss(enemy_speed)
 
         if miss:
             await ctx.send(
                 f"{actor['color']} **{actor['hero_name']}** missed.")
-            await asyncio.sleep(2)
+            await asyncio.sleep(1.5)
 
         if not miss:
             if total_damage < 0:
@@ -278,7 +282,7 @@ class Battle(commands.Cog):
                 + f"{move_type} and dealt `{total_damage:,d}` "
                 + f"{damage_type}!"
             )
-            await asyncio.sleep(2)
+            await asyncio.sleep(1.5)
 
             if victim["stats"]["hp"] < 0:
                 round_reset = True
@@ -295,7 +299,7 @@ class Battle(commands.Cog):
                     + f"**{victim['hero_name']}"
                     + "** has died!"
                 )
-                await asyncio.sleep(2)
+                await asyncio.sleep(1.5)
 
             else:
                 await ctx.send(
@@ -305,7 +309,7 @@ class Battle(commands.Cog):
                     + f"`{victim['stats']['hp']}"
                     + f"`/`{victim['max_hp']}` HP left!"
                 )
-                await asyncio.sleep(2)
+                await asyncio.sleep(1.5)
 
                 if move_type == "weapon skill":
                     victim["current_state"]["stunned"] = 3
@@ -316,7 +320,7 @@ class Battle(commands.Cog):
                         + f"**{victim['hero_name']}** "
                         + "for 3 of their turns!"
                     )
-                    await asyncio.sleep(2)
+                    await asyncio.sleep(1.5)
 
         return victim, round_reset, winner, loser
 
@@ -332,12 +336,12 @@ class Battle(commands.Cog):
             f"{hero['color']} `{heal:,d}` HP healed to "
             + f"**{hero['hero_name']}**.\n"
         )
-        await asyncio.sleep(2)
+        await asyncio.sleep(1.5)
         await ctx.send(
             f"{hero['color']} **{hero['hero_name']}** current HP is "
             + f"`{hp_after_heal}`/`{hero['max_hp']}`."
         )
-        await asyncio.sleep(2)
+        await asyncio.sleep(1.5)
 
         return hp_after_heal
 
@@ -390,7 +394,7 @@ class Battle(commands.Cog):
         # Increase overall stats
         for stat in stats:
             if stat in ["attack"]:
-                increase = 10
+                increase = 20
                 stats[stat] = round(
                     stats[stat]
                     + ((increase/100) * stats[stat] * hero_level)
@@ -404,7 +408,7 @@ class Battle(commands.Cog):
                     + ((increase/100) * stats[stat] * user_level)
                 )
             elif stat in ["def"]:
-                increase = 1.5
+                increase = 1
                 stats[stat] = round(
                     stats[stat]
                     + ((increase/100) * stats[stat] * hero_level)
@@ -560,7 +564,7 @@ class Battle(commands.Cog):
             "buffs": {},
             "weapon_skill": {},
             "triggers": {},
-            "acquired": {"level": {}},
+            "acquired": {"level": {}, "roll": {}},
             "instant_triggers": {}
         }
 
@@ -701,39 +705,9 @@ class Battle(commands.Cog):
         db_ailie = Database()
         if key == "main":
             if not db_ailie.is_team_exists(ctx.author.id, "main"):
-                try:
-                    await ctx.send(
-                        "You need to set your team. I've sent you a "
-                        + "Private Message. Unless you have a team "
-                        + "with key or name `main`, then you need to "
-                        + "specify your team name with the command "
-                        + "used."
-                    )
-                    await ctx.author.send(
-                        f"Hello, <@{ctx.author.id}>! "
-                        + "Make a team with `a;team set <key> <hero>` and "
-                        + "show your current team with `a;team show`. "
-                        + "Your max team slots for now is 3. Remember. "
-                        + "Making a team with 'main' as the name will allow "
-                        + "you to use the `a;train` just as is. If your team's "
-                        + "key is not 'main', then, you'll have to specify "
-                        + "your team when using `a;train`. For example, if "
-                        + "your team's key is `main`. Then, the full command "
-                        + "for `train` is `a;train`. "
-                        + "However if your team's key "
-                        + "is other than main for example, 'one', then your "
-                        + "full command would be `a;train one`. The same "
-                        + "concept applies to `arena`. "
-                        + "You can also `a;help team`.")
-                except Exception:
-                    await ctx.send(
-                        "You need to set your team. I'm trying to send you a "
-                        + "Private Message, but I think you got it disabled. "
-                        + "Unless you have a team "
-                        + "with key or name `main`, then you need to "
-                        + "specify your team name with the command "
-                        + "used."
-                    )
+                await ctx.send(
+                    "You need to set a team with `a;team`."
+                )
                 db_ailie.disconnect()
                 return
 
@@ -924,7 +898,8 @@ class Battle(commands.Cog):
                 db_ailie = Database()
                 if len(e) != 0:
                     e["stats"] = self.multiplyStatsWithLevels(
-                        e["stats"], e["acquired"]["level"], 1)
+                        e["stats"], e["acquired"]["level"],
+                        e["acquired"]["roll"])
                 db_ailie.disconnect()
 
         # Add the stats from weapon to to hero
@@ -1012,6 +987,7 @@ class Battle(commands.Cog):
         winner = {}
         loser = {}
         round_num = 1
+        total_round_num = 1
         left = False
         chal_hero_order = 0
         opp_hero_order = 0
@@ -1019,10 +995,10 @@ class Battle(commands.Cog):
         opp_hero_died = 0
 
         # Assign variables for heroes
-        heroes_bench = heroes[:]
+        heroes_bench = deepcopy(heroes)
         heroes = []
-        heroes.append(heroes_bench[0][chal_hero_order])
-        heroes.append(heroes_bench[1][opp_hero_order])
+        heroes.append(deepcopy(heroes_bench[0][chal_hero_order]))
+        heroes.append(deepcopy(heroes_bench[1][opp_hero_order]))
 
         while True:
             round_reset = False
@@ -1073,18 +1049,20 @@ class Battle(commands.Cog):
 
                 # Display the details
                 team = ""
-                for hero in heroes_bench[index]:
+                check_died = 0
+                for hero_tmp in heroes_bench[index]:
                     ind = "⏱️ "
-                    if hero_died - 1 == heroes_bench[index].index(hero):
+                    if hero_died > check_died:
                         ind = "❌ "
+                        check_died += 1
 
-                    if heroes_bench[index][hero_order] == hero:
+                    if heroes_bench[index][hero_order] == hero_tmp:
                         ind = "➡️ "
 
-                    if heroes_bench[index].index(hero) == 0:
-                        team = f"{ind}{hero['hero_name']}"
+                    if heroes_bench[index].index(hero_tmp) == 0:
+                        team = f"{ind}{hero_tmp['hero_name']}"
                     else:
-                        team = f"{team}\n{ind}{hero['hero_name']}"
+                        team = f"{team}\n{ind}{hero_tmp['hero_name']}"
 
                 line_consumed = len(heroes_bench[index])
                 while line_consumed < 3:
@@ -1115,7 +1093,7 @@ class Battle(commands.Cog):
 
             # Increase attack on round 16 and later
             rage = 50
-            if round_num > 10:
+            if round_num > 7:
                 for hero in heroes:
                     hero["stats"]["attack"] = hero["stats"]["attack"] \
                         + ((rage / 100) * hero["stats"]["attack"])
@@ -1124,7 +1102,7 @@ class Battle(commands.Cog):
                     "*Every heroes felt the tension and "
                     + f"increased their attack by {rage}%!*"
                 )
-                await asyncio.sleep(2)
+                await asyncio.sleep(1.5)
 
             # Prompt for each player to enter their move
             msg = await ctx.send(
@@ -1157,6 +1135,12 @@ class Battle(commands.Cog):
 
             try:
                 await self.bot.wait_for("message", check=check, timeout=60)
+                for choice in choices:
+                    if choice[1].lower() in ["surrender", "five"]:
+                        left = True
+                        if choices.index(choice) != 0:
+                            popped = choices.pop()
+                            choices.insert(0, popped)
             except Exception as error:
                 if isinstance(error, asyncio.TimeoutError) \
                         and len(choices) == 0:
@@ -1192,7 +1176,7 @@ class Battle(commands.Cog):
                         + f"<@{quitter_id}>!"
                     )
 
-                    if round_num >= 3:
+                    if total_round_num >= 7:
                         winner = {
                             "guardian_id": winner_id,
                             "hero_name": winner_hero
@@ -1227,7 +1211,7 @@ class Battle(commands.Cog):
                 # Indicator of who's move it is
                 if not left:
                     await ctx.send(f"<@{heroes[first]['guardian_id']}>'s turn.")
-                    await asyncio.sleep(2)
+                    await asyncio.sleep(1.5)
 
                 # Move choices available for players
                 # Attack Move
@@ -1355,7 +1339,7 @@ class Battle(commands.Cog):
                             + f"**{heroes[first]['hero_name']}**'s "
                             + "weapon skill is on cooldown!"
                         )
-                        await asyncio.sleep(2)
+                        await asyncio.sleep(1.5)
 
                 # Chain Skill Move
                 elif choice[1].lower() in ["c", "cs", "3"] and \
@@ -1435,14 +1419,14 @@ class Battle(commands.Cog):
                                 + f"**{heroes[second]['hero_name']}** "
                                 + "broke free from stun!"
                             )
-                            await asyncio.sleep(2)
+                            await asyncio.sleep(1.5)
                     else:
                         await ctx.send(
                             f"{heroes[first]['color']} "
                             + f"**{heroes[second]['hero_name']}** "
                             + "is not stunned!"
                         )
-                        await asyncio.sleep(2)
+                        await asyncio.sleep(1.5)
 
                 # Evade Move
                 elif choice[1].lower() in ["e", "4"] and \
@@ -1460,14 +1444,14 @@ class Battle(commands.Cog):
                             + "tries to evade the attack "
                             + "in next turn!"
                         )
-                        await asyncio.sleep(2)
+                        await asyncio.sleep(1.5)
                     else:
                         await ctx.send(
                             f"{heroes[first]['color']} "
                             + f"**{heroes[first]['hero_name']}** "
                             + "can't use evade right now!"
                         )
-                        await asyncio.sleep(2)
+                        await asyncio.sleep(1.5)
 
                 # Surrender
                 elif choice[1].lower() in ["surrender", "five"]:
@@ -1476,9 +1460,9 @@ class Battle(commands.Cog):
 
                     await ctx.send(
                         f"<@{heroes[first]['guardian_id']}> surrendered!")
-                    await asyncio.sleep(2)
+                    await asyncio.sleep(1.5)
 
-                    if round_num >= 3:
+                    if total_round_num >= 7:
                         winner = {
                             "guardian_id": heroes[second]["guardian_id"],
                             "hero_name": heroes[second]["hero_name"]
@@ -1504,7 +1488,7 @@ class Battle(commands.Cog):
                             + f"**{heroes[first]['hero_name']}** "
                             + "is stunned!"
                         )
-                        await asyncio.sleep(2)
+                        await asyncio.sleep(1.5)
 
                     # Update stats after multipliers
                     for hero in heroes:
@@ -1576,43 +1560,44 @@ class Battle(commands.Cog):
                         chal_hero_died += 1
                         chal_hero_order += 1
 
-                        hero_died = chal_hero_died
-                        hero_order = chal_hero_order
+                        second_hero_died = chal_hero_died
+                        second_hero_order = chal_hero_order
+                        first_hero_order = opp_hero_order
                     else:
                         opp_hero_died += 1
                         opp_hero_order += 1
 
-                        hero_died = opp_hero_died
-                        hero_order = opp_hero_order
+                        second_hero_died = opp_hero_died
+                        second_hero_order = opp_hero_order
+                        first_hero_order = chal_hero_order
 
-                    if hero_died == len(heroes_bench[second]):
+                    if second_hero_died == len(heroes_bench[second]):
                         ends_for_real = True
                     else:
                         heroes[second] = \
-                            heroes_bench[second][hero_order]
-                        heroes[first]["current_state"] = self.initCurrentState()
-                        heroes[first]["current_state"]["weapon_skill_cd"] = \
-                            self.calcWeapSkillCooldown(
-                                heroes[first]["current_state"]
-                                ["weapon_skill_cd"],
-                                heroes[first]["stats"]["wsrs"]
-                            )
+                            heroes_bench[second][second_hero_order]
+                        hp_buffer = heroes[first]["stats"]["hp"]
+                        heroes[first] = \
+                            heroes_bench[first][first_hero_order]
+                        heroes[first]["stats"]["hp"] = hp_buffer
 
                     break
             if not round_reset:
                 # Increase round count
                 round_num = round_num + 1
+                total_round_num = total_round_num + 1
             elif round_reset and not ends_for_real:
                 round_num = 1
+                total_round_num = total_round_num + 1
             elif ends_for_real:
                 if winner and loser:
                     trophy_win = 25
                     trophy_lose = -10
-                    hero_exp_win = 50
-                    hero_exp_lose = 30
+                    hero_exp_win = 100
+                    hero_exp_lose = 40
                     user_exp_win = 100
                     user_exp_lose = 70
-                    gems = 1000
+                    gems = 5000
 
                     db_ailie = Database()
 
@@ -1643,12 +1628,12 @@ class Battle(commands.Cog):
                         f"<@{winner['guardian_id']}>, wins and obtained "
                         + f"`{trophy_win:,d}` trophies and `{gems:,d}` gems."
                     )
-                    await asyncio.sleep(2)
+                    await asyncio.sleep(1.5)
                     await ctx.send(
                         f"<@{loser['guardian_id']}>, "
-                        + f"losses `{-1 * trophy_lose:,d}` trophies. Boooooo."
+                        + f"losses `{-1 * trophy_lose:,d}` trophies."
                     )
-                    await asyncio.sleep(2)
+                    await asyncio.sleep(1.5)
                     break
 
 
