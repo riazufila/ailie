@@ -1602,8 +1602,8 @@ class Battle(commands.Cog):
 
                     db_ailie = Database()
 
-                    db_ailie.did_arena(winner)
-                    db_ailie.did_arena(loser)
+                    db_ailie.did_arena(winner["guardian_id"])
+                    db_ailie.did_arena(loser["guardian_id"])
 
                     db_ailie.update_trophy(winner["guardian_id"], trophy_win)
                     db_ailie.update_trophy(loser["guardian_id"], trophy_lose)
