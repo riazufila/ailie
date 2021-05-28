@@ -13,8 +13,8 @@ class Misc(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.bot.help_command.cog = self
-        self.dbl_token = os.getenv("DBL_CLIENT")
-        self.dblpy = dbl.DBLClient(self.bot, self.dbl_token, autopost=True)
+        self.dbl_token = os.getenv("DBL_TOKEN")
+        self.bot.dblpy = dbl.DBLClient(self.bot, self.dbl_token, autopost=True)
 
     async def notifyOwner(self, ctx, error, agreement=None):
         embed = discord.Embed(color=discord.Color.purple())
