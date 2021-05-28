@@ -470,23 +470,10 @@ class Growth(commands.Cog):
                 )
                 counter += 5
             elif one_or_ten == 10 and mass_summon:
-                if type in ["h", "hero", "heroes"]:
-                    requirement = "★★★ "
-                    if box.startswith(requirement):
-                        if box not in units:
-                            units[box] = 1
-                        else:
-                            units[box] += 1
+                if box not in units:
+                    units[box] = 1
                 else:
-                    requirement = "★★★★★ [Ex]"
-                    another_requirement = "★★★★ [Ex]"
-                    if box.startswith(requirement) \
-                            or box.startswith(another_requirement):
-                        if box not in units:
-                            units[box] = 1
-                        else:
-                            units[box] += 1
-
+                    units[box] += 1
             else:
                 await asyncio.sleep(2)
                 await msg.edit(content=msg.content + f"\n{counter}. {box}")
@@ -497,35 +484,134 @@ class Growth(commands.Cog):
         if not mass_summon:
             msg = await msg.reply(reply)
         else:
-            output = ""
+            emoji_right = "➡️"
+            emoji_left = "⬅️"
+            emoji_stop = "🛑"
             count = 1
-            if units:
-                buffers = list(units)
-                for buffer in buffers:
-                    value = units[buffer]
-                    if count == 1:
-                        output = f"{count}. **{buffer}** - `{value}`"
-                    else:
-                        output = output + f"\n{count}. **{buffer}** - `{value}`"
-                    count += 1
-            else:
-                output = "No Unique Heroes or Exclusive Equipments obtained."
+            output = []
+            tmp_units = sorted(units, reverse=True)
+
+            for buffer in tmp_units:
+                value = units[buffer]
+                output.append(f"{count}. **{buffer}** - `{value}`")
+                count += 1
+
+            units = output[:]
+            buffer_second = []
+            buffer_main = []
+
+            total = len(units)
+            count = 1
+            counter = 0
+
+            for inv in units:
+                if len(buffer_second) != 10:
+                    buffer_second.append(inv)
+                else:
+                    buffer_main.append(buffer_second)
+                    buffer_second = []
+                    buffer_second.append(inv)
+
+                if count == total:
+                    buffer_main.append(buffer_second)
+
+                count += 1
+
+            data = "\n".join(buffer_main[counter])
 
             embed = discord.Embed(
                 color=discord.Color.purple(),
-                description=output
+                description=data
             )
             embed.set_author(name=ctx.me.name, icon_url=ctx.me.avatar_url)
             embed.set_footer(
                 text=(
-                    "Mass summon only displays Unique "
-                    + "Heroes or Exclusive Equipments."
-                    )
+                    "Press stop sign before you can summon "
+                    + "again or wait for timeout."
+                    f"\n\n{counter + 1}/{len(buffer_main)}"
                 )
+            )
+
             msg = await msg.reply(embed=embed)
+
             await asyncio.sleep(2)
-            msg = await msg.reply(
+
+            await msg.reply(
                 f"Mass summon done I guess, <@{ctx.author.id}>?")
+
+            await msg.add_reaction(emoji_left)
+            await msg.add_reaction(emoji_right)
+            await msg.add_reaction(emoji_stop)
+
+            def check(reaction, user):
+                return user == ctx.author \
+                    and str(reaction.emoji) in \
+                    [emoji_right, emoji_left, emoji_stop]
+
+            while True:
+                try:
+                    reaction, user = await self.bot.wait_for(
+                        'reaction_add', check=check, timeout=10)
+
+                    if reaction.emoji == str(emoji_right):
+                        if (len(buffer_main) - 1) != counter:
+                            counter += 1
+
+                        data = "\n".join(buffer_main[counter])
+
+                        embed = discord.Embed(
+                            color=discord.Color.purple(),
+                            description=data
+                        )
+                        embed.set_author(
+                            name=ctx.me.name, icon_url=ctx.me.avatar_url)
+
+                        embed.set_footer(
+                            text=(
+                                "Press stop sign before you can summon "
+                                + "again or wait for timeout."
+                                f"\n\n{counter + 1}/{len(buffer_main)}"
+                            )
+                        )
+                        await msg.remove_reaction(str(emoji_right), user)
+                        await msg.edit(embed=embed)
+
+                    if reaction.emoji == str(emoji_left):
+                        if counter != 0:
+                            counter -= 1
+
+                        data = "\n".join(buffer_main[counter])
+
+                        embed = discord.Embed(
+                            color=discord.Color.purple(),
+                            description=data
+                        )
+                        embed.set_author(
+                            name=ctx.me.name, icon_url=ctx.me.avatar_url)
+
+                        embed.set_footer(
+                            text=(
+                                "Press stop sign before you can summon "
+                                + "again or wait for timeout."
+                                f"\n\n{counter + 1}/{len(buffer_main)}"
+                            )
+                        )
+                        await msg.remove_reaction(str(emoji_left), user)
+                        await msg.edit(embed=embed)
+
+                    if reaction.emoji == str(emoji_stop):
+                        await msg.remove_reaction(str(emoji_stop), user)
+                        break
+                except discord.Forbidden:
+                    await ctx.send(
+                        "Please check that I have the permission, "
+                        + "`View Channels`, `Send Messages`, `Embed Links` "
+                        + "`Add Reactions`, `Read Message History`, "
+                        + "and `Manage Messages`."
+                        )
+                    break
+                except Exception:
+                    break
 
     @commands.command(
         name="race",
