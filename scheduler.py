@@ -13,7 +13,7 @@ if __name__ == "__main__":
 
     sched = BlockingScheduler({"apscheduler.timezone": "UTC"})
 
-    @sched.scheduled_job("cron", day_of_week="fri", hour=8, minute=50)
+    @sched.scheduled_job("cron", day_of_week="fri", hour=8, minute=53)
     def scheduled_job():
         reward = 2700
         query = "UPDATE guardians SET guardian_claim = guardian_claim + %s;"
