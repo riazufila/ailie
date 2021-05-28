@@ -397,7 +397,7 @@ class Guardian(commands.Cog):
             while True:
                 try:
                     reaction, user = await self.bot.wait_for(
-                        'reaction_add', check=check, timeout=15)
+                        'reaction_add', check=check, timeout=10)
 
                     if reaction.emoji == str(emoji_right):
                         if (len(buffer_main) - 1) != counter:
