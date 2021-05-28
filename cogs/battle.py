@@ -1094,10 +1094,12 @@ class Battle(commands.Cog):
 
             # Increase attack on round 16 and later
             rage = 50
-            if round_num > 7:
+            if round_num >= 7:
                 for hero in heroes:
-                    hero["stats"]["attack"] = hero["stats"]["attack"] \
+                    hero["stats"]["attack"] = round(
+                        hero["stats"]["attack"]
                         + ((rage / 100) * hero["stats"]["attack"])
+                    )
 
                 await ctx.send(
                     "*Every heroes felt the tension and "
@@ -1577,9 +1579,11 @@ class Battle(commands.Cog):
                     else:
                         heroes[second] = \
                             heroes_bench[second][second_hero_order]
+                        print(heroes[first])
                         hp_buffer = heroes[first]["stats"]["hp"]
                         heroes[first] = \
                             heroes_bench[first][first_hero_order]
+                        print(heroes[first])
                         heroes[first]["stats"]["hp"] = hp_buffer
 
                     break
