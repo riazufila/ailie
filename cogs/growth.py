@@ -2445,14 +2445,6 @@ class Growth(commands.Cog):
 
         db_ailie.disconnect()
 
-    @commands.is_owner()
-    @commands.command(name="test")
-    async def test(self, ctx):
-        db_ailie = Database()
-        db_ailie.get_arena_rank()
-        await ctx.send("Check your console, Creator.")
-        db_ailie.disconnect()
-
 
 def setup(bot):
     bot.add_cog(Growth(bot))
