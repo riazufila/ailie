@@ -1789,7 +1789,7 @@ class Database():
         self.cursor.execute(query)
         self.connection.commit()
 
-    def get_arena_rank_divisions(self):
+    def get_sorted_rank(self):
         query = (
             "SELECT guardian_trophy, guardian_id FROM guardians "
             + "WHERE guardian_arena = True;"
@@ -1799,7 +1799,11 @@ class Database():
 
         sorted_ranks = sorted(list(ranks), reverse=True)
 
-        count = len(sorted_ranks)
+        return sorted_ranks
+
+    def get_arena_rank_divisions(self):
+        sorted_ranks = self.get_sorted_rank()
+
         rank_divisions = {
             "first": [],
             "second": [],
@@ -1809,6 +1813,7 @@ class Database():
             "top_100_percent": [],
         }
 
+        count = len(sorted_ranks)
         current_count = 1
         for rank in sorted_ranks:
             percentile = (current_count / count) * 100
@@ -1854,6 +1859,27 @@ class Database():
 
             for guardian_id in rank_divisions[rank]:
                 self.update_claim_gems(guardian_id, reward)
+
+    def get_current_guardian_ranking(self, guardian_id):
+        sorted_ranks = self.get_sorted_rank()
+        count = len(sorted_ranks)
+        current_count = 1
+        rank_division = ""
+
+        for rank in sorted_ranks:
+            percentile = (current_count / count) * 100
+
+            if rank[1] == guardian_id:
+                if current_count in [1, 2, 3]:
+                    rank_division = f"`#{current_count}`"
+                else:
+                    rank_division = \
+                        f"`#{current_count} ({round(percentile, 2)}%)`"
+                break
+
+            current_count += 1
+
+        return rank_division
 
     # Disconnect database
     def disconnect(self):

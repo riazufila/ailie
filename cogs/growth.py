@@ -2127,10 +2127,12 @@ class Growth(commands.Cog):
         trophies = db_ailie.get_trophy(guardian_id)
         wins = db_ailie.get_arena_wins(guardian_id)
         losses = db_ailie.get_arena_losses(guardian_id)
+        rank = db_ailie.get_current_guardian_ranking(guardian_id)
         db_ailie.disconnect()
         embed = discord.Embed(
             description=(
                 f"**Trophies**: `{trophies:,d}`"
+                + f"\n**Rank**: {rank}"
                 + f"\n**Wins**: `{wins:,d}`"
                 + f"\n**Losses**: `{losses:,d}`"
             ),
