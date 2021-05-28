@@ -2084,7 +2084,12 @@ class Growth(commands.Cog):
         embed.set_author(name="Ailie", icon_url=ctx.me.avatar_url)
         embed.add_field(
             name=f"Barbarians in {logical_whereabouts}!", value=output)
-        embed.set_footer(text="Arena resets weekly on Monday, 00:00 UTC.")
+        embed.set_footer(
+            text=(
+                "Arena resets weekly on Monday, 00:00 UTC."
+                + "\nYou can claim weekly arena rewards with claim command."
+            )
+        )
 
         db_ailie.disconnect()
 
@@ -2129,6 +2134,10 @@ class Growth(commands.Cog):
         wins = db_ailie.get_arena_wins(guardian_id)
         losses = db_ailie.get_arena_losses(guardian_id)
         rank = db_ailie.get_current_guardian_ranking(guardian_id)
+
+        if not rank:
+            rank = "`No Rank` - *Participate in arena once to get rank.*"
+
         db_ailie.disconnect()
         embed = discord.Embed(
             description=(
@@ -2141,7 +2150,12 @@ class Growth(commands.Cog):
         )
         embed.set_author(
             name=f"{guardian_name}'s Trophies", icon_url=guardian_avatar)
-        embed.set_footer(text="Arena resets weekly on Monday, 00:00 UTC.")
+        embed.set_footer(
+            text=(
+                "Arena resets weekly on Monday, 00:00 UTC."
+                + "\nYou can claim weekly arena rewards with claim command."
+            )
+        )
         await ctx.send(embed=embed)
 
     @commands.command(
