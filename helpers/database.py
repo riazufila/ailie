@@ -1789,6 +1789,20 @@ class Database():
         self.cursor.execute(query)
         self.connection.commit()
 
+    def get_arena_rank(self):
+        query = (
+            "SELECT guardian_trophy, guardian_id, guardian_claim FROM guardians "
+            + "WHERE guardian_arena = True;"
+        )
+        self.cursor.execute(query)
+        ranks = self.cursor.fetchall()
+
+        sorted_ranks = sorted(list(ranks), reverse=True)
+
+        print(sorted_ranks)
+
+        return sorted_ranks
+
     def get_arena_rank_divisions(self):
         query = (
             "SELECT guardian_trophy, guardian_id FROM guardians "
