@@ -847,38 +847,6 @@ class Guardian(commands.Cog):
             f"Deleted your team with `{key}` key, <@{ctx.author.id}>."
         )
 
-    @commands.command(
-        name="claim",
-        brief="Claim rewards from arena.",
-        description=(
-            "Claim the accumulated rewards from arena."
-        ),
-    )
-    @commands.cooldown(1, 5, commands.BucketType.user)
-    async def claim(self, ctx):
-        # Check if user is initialized first
-        db_ailie = Database()
-        if not db_ailie.is_initialized(ctx.author.id):
-            await ctx.send(
-                "Do `ailie;initialize` or `a;initialize` first before anything!"
-            )
-            db_ailie.disconnect()
-            return
-
-        claim_gems = db_ailie.get_claim_gems(ctx.author.id)
-        db_ailie.store_gems(ctx.author.id, claim_gems)
-
-        if claim_gems == 0:
-            await ctx.send(
-                f"You have nothing to claim, <@{ctx.author.id}>."
-            )
-        else:
-            await ctx.send(
-                f"You claimed `{claim_gems:,d}` gems, <@{ctx.author.id}>."
-            )
-
-        db_ailie.disconnect()
-
 
 def setup(bot):
     bot.add_cog(Guardian(bot))

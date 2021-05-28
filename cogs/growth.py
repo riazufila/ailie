@@ -2084,6 +2084,12 @@ class Growth(commands.Cog):
         embed.set_author(name="Ailie", icon_url=ctx.me.avatar_url)
         embed.add_field(
             name=f"Barbarians in {logical_whereabouts}!", value=output)
+        embed.set_footer(
+            text=(
+                "Arena resets weekly on Monday, 00:00 UTC."
+                + "\nYou can claim weekly arena rewards with claim command."
+            )
+        )
 
         db_ailie.disconnect()
 
@@ -2127,10 +2133,16 @@ class Growth(commands.Cog):
         trophies = db_ailie.get_trophy(guardian_id)
         wins = db_ailie.get_arena_wins(guardian_id)
         losses = db_ailie.get_arena_losses(guardian_id)
+        rank = db_ailie.get_current_guardian_ranking(guardian_id)
+
+        if not rank:
+            rank = "`No Rank` - *Participate in arena once to get rank.*"
+
         db_ailie.disconnect()
         embed = discord.Embed(
             description=(
                 f"**Trophies**: `{trophies:,d}`"
+                + f"\n**Rank**: {rank}"
                 + f"\n**Wins**: `{wins:,d}`"
                 + f"\n**Losses**: `{losses:,d}`"
             ),
@@ -2138,6 +2150,12 @@ class Growth(commands.Cog):
         )
         embed.set_author(
             name=f"{guardian_name}'s Trophies", icon_url=guardian_avatar)
+        embed.set_footer(
+            text=(
+                "Arena resets weekly on Monday, 00:00 UTC."
+                + "\nYou can claim weekly arena rewards with claim command."
+            )
+        )
         await ctx.send(embed=embed)
 
     @commands.command(
@@ -2412,6 +2430,38 @@ class Growth(commands.Cog):
             await ctx.send(
                 f"I guess you're away already, <@{ctx.author.id}>."
             )
+
+    @commands.command(
+        name="claim",
+        brief="Claim rewards from arena.",
+        description=(
+            "Claim the accumulated rewards from arena."
+        ),
+    )
+    @commands.cooldown(1, 5, commands.BucketType.user)
+    async def claim(self, ctx):
+        # Check if user is initialized first
+        db_ailie = Database()
+        if not db_ailie.is_initialized(ctx.author.id):
+            await ctx.send(
+                "Do `ailie;initialize` or `a;initialize` first before anything!"
+            )
+            db_ailie.disconnect()
+            return
+
+        claim_gems = db_ailie.get_claim_gems(ctx.author.id)
+        db_ailie.store_gems(ctx.author.id, claim_gems)
+
+        if claim_gems == 0:
+            await ctx.send(
+                f"You have nothing to claim, <@{ctx.author.id}>."
+            )
+        else:
+            await ctx.send(
+                f"You claimed `{claim_gems:,d}` gems, <@{ctx.author.id}>."
+            )
+
+        db_ailie.disconnect()
 
 
 def setup(bot):

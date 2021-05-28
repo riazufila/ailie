@@ -1765,6 +1765,122 @@ class Database():
 
         return guardian_claim_gems
 
+    def update_claim_gems(self, guardian_id, gems):
+        query = (
+            "UPDATE guardians SET guardian_claim = guardian_claim + %s "
+            + "WHERE guardian_id = %s;"
+        )
+        data = [gems, guardian_id]
+        self.cursor.execute(query, data)
+        self.connection.commit()
+
+    def did_arena(self, guardian_id):
+        query = \
+            "UPDATE guardians SET guardian_arena = True WHERE guardian_id = %s;"
+        data = [guardian_id]
+        self.cursor.execute(query, data)
+        self.connection.commit()
+
+    def arena_reset(self):
+        query = (
+            "UPDATE guardians SET guardian_arena = False, "
+            + "guardian_trophy = 0;"
+        )
+        self.cursor.execute(query)
+        self.connection.commit()
+
+    def get_sorted_rank(self):
+        query = (
+            "SELECT guardian_trophy, guardian_id FROM guardians "
+            + "WHERE guardian_arena = True;"
+        )
+        self.cursor.execute(query)
+        ranks = self.cursor.fetchall()
+
+        sorted_ranks = sorted(list(ranks), reverse=True)
+
+        return sorted_ranks
+
+    def get_arena_rank_divisions(self):
+        sorted_ranks = self.get_sorted_rank()
+
+        rank_divisions = {
+            "first": [],
+            "second": [],
+            "third": [],
+            "top_ten": [],
+            "top_50_percent": [],
+            "top_100_percent": [],
+        }
+
+        count = len(sorted_ranks)
+        current_count = 1
+        for rank in sorted_ranks:
+            percentile = (current_count / count) * 100
+
+            if current_count == 1:
+                rank_divisions["first"].append(rank[1])
+            elif current_count == 2:
+                rank_divisions["second"].append(rank[1])
+            elif current_count == 3:
+                rank_divisions["third"].append(rank[1])
+            elif current_count <= 10:
+                rank_divisions["top_ten"].append(rank[1])
+            elif percentile <= 50.0:
+                rank_divisions["top_50_percent"].append(rank[1])
+            else:
+                rank_divisions["top_100_percent"].append(rank[1])
+
+            current_count += 1
+
+        return rank_divisions
+
+    def arena_weekly_rewards(self, rank_divisions):
+        first_reward = 1000000
+        second_reward = 750000
+        third_reward = 500000
+        top_ten_reward = 300000
+        top_50_percent_reward = 100000
+        top_100_percent_reward = 50000
+
+        for rank in rank_divisions:
+            if rank == "first":
+                reward = first_reward
+            elif rank == "second":
+                reward = second_reward
+            elif rank == "third":
+                reward = third_reward
+            elif rank == "top_ten":
+                reward = top_ten_reward
+            elif rank == "top_50_percent":
+                reward = top_50_percent_reward
+            else:
+                reward = top_100_percent_reward
+
+            for guardian_id in rank_divisions[rank]:
+                self.update_claim_gems(guardian_id, reward)
+
+    def get_current_guardian_ranking(self, guardian_id):
+        sorted_ranks = self.get_sorted_rank()
+        count = len(sorted_ranks)
+        current_count = 1
+        rank_division = ""
+
+        for rank in sorted_ranks:
+            percentile = (current_count / count) * 100
+
+            if rank[1] == guardian_id:
+                if current_count in [1, 2, 3]:
+                    rank_division = f"`#{current_count}`"
+                else:
+                    rank_division = \
+                        f"`#{current_count} ({round(percentile, 2)}%)`"
+                break
+
+            current_count += 1
+
+        return rank_division
+
     # Disconnect database
     def disconnect(self):
         self.cursor.close()
