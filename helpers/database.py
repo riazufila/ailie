@@ -1743,6 +1743,28 @@ class Database():
             self.cursor.execute(query, data)
             self.connection.commit()
 
+    def get_claim_gems(self, guardian_id):
+        query = (
+            "SELECT guardian_claim FROM guardians "
+            + "WHERE guardian_id = %s;"
+        )
+        data = [guardian_id]
+        self.cursor.execute(query, data)
+        guardian_claim_gems = self.cursor.fetchone()
+
+        query = (
+            "UPDATE guardians SET guardian_claim = %s "
+            + "WHERE guardian_id = %s;"
+        )
+        data = [0, guardian_id]
+        self.cursor.execute(query, data)
+        self.connection.commit()
+
+        if isinstance(guardian_claim_gems, tuple):
+            guardian_claim_gems = guardian_claim_gems[0]
+
+        return guardian_claim_gems
+
     # Disconnect database
     def disconnect(self):
         self.cursor.close()
