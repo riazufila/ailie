@@ -943,7 +943,7 @@ class Growth(commands.Cog):
                     gems = db_ailie.get_gems(member.id)
                     level = db_ailie.get_user_level(member.id)
                     if gems != 0:
-                        buffer = [gems, str(member), member.id, level]
+                        buffer = [gems, member.id, str(member), level]
                         guardian_with_gems.append(buffer)
         elif scope.lower() in ["global", "all"]:
             await ctx.send(
@@ -957,7 +957,7 @@ class Growth(commands.Cog):
                         gems = db_ailie.get_gems(member.id)
                         level = db_ailie.get_user_level(member.id)
                         if gems != 0:
-                            buffer = [gems, str(member), member.id, level]
+                            buffer = [gems, member.id, str(member), level]
                             if buffer not in guardian_with_gems:
                                 guardian_with_gems.append(buffer)
         else:
@@ -980,14 +980,14 @@ class Growth(commands.Cog):
             if counter == 1:
                 output = output + \
                     f"{counter}. {whales[0]:,d} 💎 - " \
-                    + f"Lvl {whales[3]} `{whales[1]}`"
+                    + f"Lvl {whales[3]} `{whales[2]}`"
             else:
                 output = output \
                         + f"\n{counter}. {whales[0]:,d} 💎 - " \
-                        + f"Lvl {whales[3]} `{whales[1]}`"
+                        + f"Lvl {whales[3]} `{whales[2]}`"
 
             # Get username if any
-            username = db_ailie.get_username(whales[2])
+            username = db_ailie.get_username(whales[1])
             if username is not None:
                 output = output + f" a.k.a. `{username}`"
 
@@ -2030,7 +2030,7 @@ class Growth(commands.Cog):
                     trophy = db_ailie.get_trophy(member.id)
                     level = db_ailie.get_user_level(member.id)
                     if trophy > 0:
-                        buffer = [trophy, str(member), member.id, level]
+                        buffer = [trophy, member.id, str(member), level]
                         guardian_with_trophy.append(buffer)
         elif scope.lower() in ["global", "all"]:
             await ctx.send(
@@ -2044,7 +2044,7 @@ class Growth(commands.Cog):
                         trophy = db_ailie.get_trophy(member.id)
                         level = db_ailie.get_user_level(member.id)
                         if trophy > 0:
-                            buffer = [trophy, str(member), member.id, level]
+                            buffer = [trophy, member.id, str(member), level]
                             if buffer not in guardian_with_trophy:
                                 guardian_with_trophy.append(buffer)
         else:
@@ -2067,14 +2067,14 @@ class Growth(commands.Cog):
             if counter == 1:
                 output = output \
                     + f"{counter}. {barbarian[0]:,d} 🏆 - " \
-                    + f"Lvl {barbarian[3]} `{barbarian[1]}`"
+                    + f"Lvl {barbarian[3]} `{barbarian[2]}`"
             else:
                 output = output + \
                         f"\n{counter}. {barbarian[0]:,d} 🏆 - " \
-                        + f"Lvl {barbarian[3]} `{barbarian[1]}`"
+                        + f"Lvl {barbarian[3]} `{barbarian[2]}`"
 
             # Get username if any
-            username = db_ailie.get_username(barbarian[2])
+            username = db_ailie.get_username(barbarian[1])
             if username is not None:
                 output = output + f" a.k.a. `{username}`"
 
