@@ -757,7 +757,7 @@ class Growth(commands.Cog):
         max_gamble_amount = 500000
         if gems > max_gamble_amount:
             await ctx.send(
-                f"Max gambling amount is `{max_gamble_amount}` gems. "
+                f"Max gambling amount is `{max_gamble_amount:,d}` gems. "
                 + f"Fix your gambling addiction, <@{ctx.author.id}>."
             )
             db_ailie.disconnect()
