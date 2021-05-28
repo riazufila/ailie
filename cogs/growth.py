@@ -2084,6 +2084,7 @@ class Growth(commands.Cog):
         embed.set_author(name="Ailie", icon_url=ctx.me.avatar_url)
         embed.add_field(
             name=f"Barbarians in {logical_whereabouts}!", value=output)
+        embed.set_footer(text="Arena resets weekly on Monday, 00:00 UTC.")
 
         db_ailie.disconnect()
 
@@ -2140,6 +2141,7 @@ class Growth(commands.Cog):
         )
         embed.set_author(
             name=f"{guardian_name}'s Trophies", icon_url=guardian_avatar)
+        embed.set_footer(text="Arena resets weekly on Monday, 00:00 UTC.")
         await ctx.send(embed=embed)
 
     @commands.command(
