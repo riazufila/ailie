@@ -1,24 +1,16 @@
 #!/usr/bin/env python
 
-import psycopg2
-import os
-from dotenv import load_dotenv
+from helpers import Database
 from apscheduler.schedulers.blocking import BlockingScheduler
 
 if __name__ == "__main__":
-    load_dotenv()
-    DATABASE_URL = os.getenv("DATABASE_URL")
-    connection = psycopg2.connect(DATABASE_URL)
-    cursor = connection.cursor()
-
+    db_ailie = Database()
     sched = BlockingScheduler({"apscheduler.timezone": "UTC"})
 
-    @sched.scheduled_job("cron", day_of_week="fri", hour=8, minute=53)
+    @sched.scheduled_job("cron", day_of_week="mon", hour=0)
     def scheduled_job():
-        reward = 2700
-        query = "UPDATE guardians SET guardian_claim = guardian_claim + %s;"
-        data = [reward]
-        cursor.execute(query, data)
-        connection.commit()
+        rank_divisions = db_ailie.get_arena_rank_divisions()
+        db_ailie.arena_weekly_rewards(rank_divisions)
+        db_ailie.arena_reset()
 
     sched.start()

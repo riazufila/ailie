@@ -2413,6 +2413,46 @@ class Growth(commands.Cog):
                 f"I guess you're away already, <@{ctx.author.id}>."
             )
 
+    @commands.command(
+        name="claim",
+        brief="Claim rewards from arena.",
+        description=(
+            "Claim the accumulated rewards from arena."
+        ),
+    )
+    @commands.cooldown(1, 5, commands.BucketType.user)
+    async def claim(self, ctx):
+        # Check if user is initialized first
+        db_ailie = Database()
+        if not db_ailie.is_initialized(ctx.author.id):
+            await ctx.send(
+                "Do `ailie;initialize` or `a;initialize` first before anything!"
+            )
+            db_ailie.disconnect()
+            return
+
+        claim_gems = db_ailie.get_claim_gems(ctx.author.id)
+        db_ailie.store_gems(ctx.author.id, claim_gems)
+
+        if claim_gems == 0:
+            await ctx.send(
+                f"You have nothing to claim, <@{ctx.author.id}>."
+            )
+        else:
+            await ctx.send(
+                f"You claimed `{claim_gems:,d}` gems, <@{ctx.author.id}>."
+            )
+
+        db_ailie.disconnect()
+
+    @commands.is_owner()
+    @commands.command(name="test")
+    async def test(self, ctx):
+        db_ailie = Database()
+        db_ailie.get_arena_rank()
+        await ctx.send("Check your console, Creator.")
+        db_ailie.disconnect()
+
 
 def setup(bot):
     bot.add_cog(Growth(bot))
