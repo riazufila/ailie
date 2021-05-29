@@ -383,6 +383,47 @@ class Misc(commands.Cog):
             + f"My current version is `{version}`!"
         )
 
+    @commands.is_owner()
+    @commands.command(
+        name="punish",
+        brief="Punish someone.",
+        description=(
+            "Punish someone for misbehaving."
+        ),
+    )
+    async def punish(self, ctx, type, mention: discord.Member):
+        # Check if user is initialized first
+        db_ailie = Database()
+        if not db_ailie.is_initialized(ctx.author.id):
+            await ctx.send(
+                "Do `ailie;initialize` or `a;initialize` first before anything!"
+            )
+            db_ailie.disconnect()
+            return
+
+        # Check if receiver is initialized
+        if not db_ailie.is_initialized(mention.id):
+            await ctx.send(f"{mention.mention} haven't initialized yet.")
+            db_ailie.disconnect()
+            return
+
+        if type.lower() == "toxic":
+            negative_gems = -999999999
+            negative_trophies = -999999999
+            db_ailie.store_gems(mention.id, negative_gems)
+            db_ailie.update_trophy(mention.id, negative_trophies)
+            msg = await ctx.send(
+                f"<@{mention.id}> you have been kicked down to the bottom "
+                + "of the toxic pool as that is where you belong to. "
+                + "You must've made my Creator mad or something. "
+                + "Serve you right! "
+            )
+            await asyncio.sleep(1)
+            await msg.reply(
+                f"`{negative_gems:,d}` gems and `{negative_trophies:,d}` "
+                + "trophies for you!"
+            )
+
 
 def setup(bot):
     bot.add_cog(Misc(bot))
