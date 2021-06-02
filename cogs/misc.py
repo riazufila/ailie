@@ -444,8 +444,8 @@ class Misc(commands.Cog):
         reply = [
             f"Go to sleep okay, <@{ctx.author.id}>? ***SMACKS***",
             f"What now, <@{ctx.author.id}>? Sleep? Okay..",
-            "To be honest with you, I don't think I can sleep now, "
-            + f"<@{ctx.author.id}>!",
+            f"To be honest with you, <@{ctx.author.id}>. "
+            + "I don't think I can sle-",
             f"Good night, <@{ctx.author.id}>. *closes eyes*"
         ]
         msg = await ctx.send(random.choice(reply))
