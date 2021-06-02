@@ -424,6 +424,44 @@ class Misc(commands.Cog):
                 + "trophies for you!"
             )
 
+    @commands.command(
+        name="sleep",
+        brief="Sleep.",
+        description="Just sleep.",
+    )
+    @commands.guild_only()
+    @commands.cooldown(1, 5, commands.BucketType.user)
+    async def pourSalt(self, ctx):
+        # Check if user is initialized first
+        db_ailie = Database()
+        if not db_ailie.is_initialized(ctx.author.id):
+            await ctx.send(
+                "Do `ailie;initialize` or `a;initialize` first before anything!"
+            )
+            db_ailie.disconnect()
+            return
+
+        reply = [
+            f"Go to sleep okay, <@{ctx.author.id}>? ***SMACKS***",
+            f"What now, <@{ctx.author.id}>? Sleep? Okay..",
+            "To be honest with you, I don't think I can sleep now, "
+            + f"<@{ctx.author.id}>!",
+            f"*closes eyes* Good night, <@{ctx.author.id}>"
+        ]
+        msg = await ctx.send(random.choice(reply))
+
+        # Bot reacts with salt
+        msg = await msg.reply("Z")
+        await asyncio.sleep(1)
+        await msg.edit(content=f"{msg.content}z")
+        await asyncio.sleep(1)
+        await msg.edit(content=f"{msg.content}z")
+        await asyncio.sleep(1)
+        await msg.edit(content=f"{msg.content}.")
+        await asyncio.sleep(1)
+        await msg.edit(content=f"{msg.content}.")
+        await asyncio.sleep(1)
+
 
 def setup(bot):
     bot.add_cog(Misc(bot))
