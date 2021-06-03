@@ -1579,11 +1579,9 @@ class Battle(commands.Cog):
                     else:
                         heroes[second] = \
                             heroes_bench[second][second_hero_order]
-                        print(heroes[first])
                         hp_buffer = heroes[first]["stats"]["hp"]
                         heroes[first] = \
                             heroes_bench[first][first_hero_order]
-                        print(heroes[first])
                         heroes[first]["stats"]["hp"] = hp_buffer
 
                     break
@@ -1615,13 +1613,37 @@ class Battle(commands.Cog):
                     db_ailie.increase_arena_wins(winner["guardian_id"])
                     db_ailie.increase_arena_losses(loser["guardian_id"])
 
-                    db_ailie.update_hero_exp(
-                        winner["guardian_id"],
-                        winner["hero_name"],
-                        hero_exp_win
-                    )
-                    db_ailie.update_hero_exp(
-                        loser["guardian_id"], loser["hero_name"], hero_exp_lose)
+                    if winner["guardian_id"] == \
+                            heroes_bench[0][0]["guardian_id"]:
+                        for h in heroes_bench[0]:
+                            db_ailie.update_hero_exp(
+                                winner["guardian_id"],
+                                h["hero_name"],
+                                hero_exp_win
+                            )
+                    else:
+                        for h in heroes_bench[1]:
+                            db_ailie.update_hero_exp(
+                                winner["guardian_id"],
+                                h["hero_name"],
+                                hero_exp_win
+                            )
+
+                    if loser["guardian_id"] == \
+                            heroes_bench[0][0]["guardian_id"]:
+                        for h in heroes_bench[0]:
+                            db_ailie.update_hero_exp(
+                                loser["guardian_id"],
+                                h["hero_name"],
+                                hero_exp_lose
+                            )
+                    else:
+                        for h in heroes_bench[1]:
+                            db_ailie.update_hero_exp(
+                                loser["guardian_id"],
+                                h["hero_name"],
+                                hero_exp_lose
+                            )
 
                     db_ailie.store_gems(winner["guardian_id"], gems)
 
