@@ -431,7 +431,7 @@ class Misc(commands.Cog):
     )
     @commands.guild_only()
     @commands.cooldown(1, 5, commands.BucketType.user)
-    async def pourSalt(self, ctx):
+    async def sleep(self, ctx):
         # Check if user is initialized first
         db_ailie = Database()
         if not db_ailie.is_initialized(ctx.author.id):
