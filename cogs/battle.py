@@ -889,7 +889,7 @@ class Battle(commands.Cog):
                 db_ailie = Database()
                 user_level = db_ailie.get_user_level(h["guardian_id"])
                 h["stats"] = self.multiplyStatsWithLevels(
-                    h["stats"], h["acquired"]["level"], user_level)
+                    h["stats"], (h["acquired"]["level"] * 5), user_level)
                 db_ailie.disconnect()
 
         # Modify weapon stats depending on weapon level

@@ -262,7 +262,7 @@ class Guardian(commands.Cog):
                         inventory_id, hero_id
                     )
                     stats = self.statsLevel(
-                        stats, acquired["level"], user_level
+                        stats, (acquired["level"] * 5), user_level
                     )
                     ewp_id = db_ailie.get_exclusive_weapon_id(hero_id)
                     hero_ewp_set = db_ailie.is_equip_obtained(
