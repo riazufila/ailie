@@ -1580,8 +1580,10 @@ class Battle(commands.Cog):
                         heroes[second] = \
                             heroes_bench[second][second_hero_order]
                         hp_buffer = heroes[first]["stats"]["hp"]
+
                         heroes[first] = \
-                            heroes_bench[first][first_hero_order]
+                            deepcopy(heroes_bench[first][first_hero_order])
+
                         heroes[first]["stats"]["hp"] = hp_buffer
 
                     break
