@@ -11,6 +11,7 @@ from helpers.database import Database
 class Growth(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        self.sprint_event = []
 
         # Initialize database for Ailie
         db_ailie = Database()
@@ -667,9 +668,61 @@ class Growth(commands.Cog):
 
         db_ailie.store_gems(ctx.author.id, gems)
         db_ailie.update_user_exp(ctx.author.id, 2)
-        db_ailie.disconnect()
 
         await ctx.send(random.choice(reply))
+
+        if ctx.guild.id in self.sprint_event:
+            return
+
+        do_sprint_event = random.choices([True, False], [15, 85], k=1)[0]
+
+        if do_sprint_event:
+            self.sprint_event.append(ctx.guild.id)
+            await ctx.send(
+                "Time to race! Call everyone! Its.. sprinting event! "
+                + "Whoever typed `sprint` seven times first, wins!"
+            )
+
+            sprinters = {}
+
+            def check(message):
+                if message.channel == ctx.channel and \
+                        message.content.lower() == "sprint":
+                    if message.author.id not in sprinters:
+                        sprinters[message.author.id] = 1
+                    else:
+                        sprinters[message.author.id] += 1
+
+                    if sprinters[message.author.id] == 7:
+                        return True
+                return False
+
+            try:
+                await self.bot.wait_for("message", check=check, timeout=45)
+
+                sprint_win_gems = 5000
+                user_exp = 100
+                for sprinter in sprinters:
+                    if sprinters[sprinter] == 7:
+                        db_ailie.store_gems(sprinter, sprint_win_gems)
+                        db_ailie.update_user_exp(sprinter, user_exp)
+
+                        await ctx.send(
+                            f"The winner is <@{sprinter}>! "
+                            + f"<@{sprinter}> gained `{sprint_win_gems:,d}` "
+                            + f"gems and `{user_exp:,d}` Guardian EXP."
+                        )
+
+                        self.sprint_event.remove(ctx.guild.id)
+            except Exception as error:
+                if isinstance(error, asyncio.TimeoutError):
+                    await ctx.send(
+                        "Timed out! No one reached the finish line.. "
+                        + "*sad noises*"
+                    )
+                    self.sprint_event.remove(ctx.guild.id)
+
+        db_ailie.disconnect()
 
     @commands.command(
         name="pat",
@@ -1723,65 +1776,70 @@ class Growth(commands.Cog):
         elif max_exp_can_gain < 60:
             highest_exp_gain = max_exp_can_gain
 
-        training_typing = [
-            "Must protect Little Princess!",
-            "I hope Future Princess gets nerfed..",
-            "I love it when my Weapon Skill misses.",
-            "Push up, push down, push up, push down.",
-            "I just want to get this over with.",
-            "What should I ask you guys to type?",
-            "Does it feel better when you don't need to type "
-            + "the hero's name?"
-        ]
-
-        # Randomly pick from list
-        training_typing_picked = random.choice(training_typing)
+        # Randomly pick from 1 to 10
+        training_picked = random.randint(1, 10)
 
         await ctx.send(
-            f"Type `{training_typing_picked}` to train your hero. "
-            + "Easy enough?"
+            "Guess the correct number from 1 to 10 to train, "
+            + f"<@{ctx.author.id}>."
         )
 
         # Function to confirm training
         def confirm_training(message):
-            return message.author.id == ctx.author.id
+            return message.author.id == ctx.author.id and \
+                message.content.lower() in \
+                ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]
 
         # Wait for training decision
-        try:
-            msg = await self.bot.wait_for(
-                "message", check=confirm_training, timeout=30
-            )
-
-            exp = random.randint(lowest_exp_gain, highest_exp_gain)
-
-            if msg.content == training_typing_picked:
-                reply = [
-                    f"<@{ctx.author.id}>, you can feel `{exp:,d}` Hero EXP "
-                    + "coursing through your hero.",
-                    "You think you've got the best your hero? "
-                    + "However strong your your hero "
-                    + f"is, <@{ctx.author.id}>, it still won't surpass me. "
-                    + f"You've got `{exp:,d}` Hero EXP though.",
-                    f"<@{ctx.author.id}>, you can feel your hero "
-                    + f"getting stronger right this moment. Gained `{exp:,d}` "
-                    + "Hero EXP!",
-                ]
-                reply = random.choice(reply)
-
-                db_ailie.update_hero_exp(ctx.author.id, hero_full_name, exp)
-
-                await ctx.send(reply)
-            else:
-                await ctx.send(
-                    f"Oops! You typed wrong, <@{ctx.author.id}>. "
-                    + "Make sure everything is the same. "
-                    + "Also, its Caps Lock Sensitive."
+        guess_count = 0
+        while True:
+            try:
+                msg = await self.bot.wait_for(
+                    "message", check=confirm_training, timeout=30
                 )
-        except Exception:
-            await ctx.send(
-                "You're taking too long to type, "
-                + f"<@{ctx.author.id}>. Ain't waiting for you!"
-            )
+                guess_count += 1
+
+                exp = random.randint(lowest_exp_gain, highest_exp_gain)
+
+                if int(msg.content) == training_picked:
+                    if guess_count == 1:
+                        exp = exp * 5
+                    elif guess_count < 3:
+                        exp = exp * 2
+                    else:
+                        pass
+
+                    reply = [
+                        f"<@{ctx.author.id}>, you can feel `{exp:,d}` Hero EXP "
+                        + "coursing through your hero.",
+                        "You think you've got the best your hero? "
+                        + "However strong your your hero "
+                        + f"is, <@{ctx.author.id}>, it still won't surpass me. "
+                        + f"You've got `{exp:,d}` Hero EXP though.",
+                        f"<@{ctx.author.id}>, you can feel your hero "
+                        + "getting stronger right this moment. "
+                        + f"Gained `{exp:,d}` Hero EXP!",
+                    ]
+                    reply = random.choice(reply)
+
+                    db_ailie.update_hero_exp(ctx.author.id, hero_full_name, exp)
+
+                    await ctx.send(f"Correct number picked! {reply}")
+                    break
+                elif int(msg.content) > training_picked:
+                    await ctx.send(f"<@{ctx.author.id}>, a bit lower!")
+                elif int(msg.content) < training_picked:
+                    await ctx.send(f"<@{ctx.author.id}>, a bit higher!")
+                elif guess_count >= 7:
+                    await ctx.send(
+                        f"Oops! Too many wrong guesses, <@{ctx.author.id}>. "
+                        + "No Hero EXP then."
+                    )
+            except Exception:
+                await ctx.send(
+                    "You're taking too long to guess correctly, "
+                    + f"<@{ctx.author.id}>. Ain't waiting for you!"
+                )
 
     # Lists the current pickup banner
     @commands.command(
