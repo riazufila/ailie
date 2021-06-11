@@ -704,6 +704,13 @@ class Growth(commands.Cog):
                 user_exp = 100
                 for sprinter in sprinters:
                     if sprinters[sprinter] == 7:
+                        if not db_ailie.is_initialized(sprinter):
+                            await ctx.send(
+                                f"Sorry, <@{sprinter}>. "
+                                + "You're not initialized. "
+                                + "Therefore, your participation is invalid."
+                            )
+
                         db_ailie.store_gems(sprinter, sprint_win_gems)
                         db_ailie.update_user_exp(sprinter, user_exp)
 
