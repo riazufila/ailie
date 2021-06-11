@@ -1842,11 +1842,13 @@ class Growth(commands.Cog):
                         f"Oops! Too many wrong guesses, <@{ctx.author.id}>. "
                         + "No Hero EXP then."
                     )
+                    break
             except Exception:
                 await ctx.send(
                     "You're taking too long to guess correctly, "
                     + f"<@{ctx.author.id}>. Ain't waiting for you!"
                 )
+                break
 
     # Lists the current pickup banner
     @commands.command(
