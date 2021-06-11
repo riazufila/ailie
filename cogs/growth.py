@@ -667,9 +667,57 @@ class Growth(commands.Cog):
 
         db_ailie.store_gems(ctx.author.id, gems)
         db_ailie.update_user_exp(ctx.author.id, 2)
-        db_ailie.disconnect()
 
         await ctx.send(random.choice(reply))
+
+        sprint_event = random.choices([True, False], [40, 60], k=1)[0]
+
+        if sprint_event:
+            await ctx.send(
+                "Time to race! Call everyone! Its.. sprinting event! "
+                + "Whoever typed `sprint` seven times first, wins!"
+            )
+
+            sprinters = {}
+
+            def check(message):
+                if message.channel == ctx.channel and \
+                        message.content.lower() == "sprint":
+                    if message.author.id not in sprinters:
+                        sprinters[message.author.id] = 1
+                    else:
+                        sprinters[message.author.id] += 1
+
+                    print(sprinters)
+
+                    if sprinters[message.author.id] == 7:
+                        return True
+                return False
+
+            try:
+                await self.bot.wait_for("message", check=check, timeout=45)
+
+                sprint_win_gems = 5000
+                user_exp = 100
+                for sprinter in sprinters:
+                    if sprinters[sprinter] == 7:
+                        db_ailie.store_gems(sprinter, sprint_win_gems)
+                        db_ailie.update_user_exp(sprinter, user_exp)
+
+                        await ctx.send(
+                            f"The winner is <@{sprinter}>! "
+                            + f"<@{sprinter}> gained `{sprint_win_gems:,d}` "
+                            + f"gems and `{user_exp:,d}` Guardian EXP."
+                        )
+            except Exception as error:
+                if isinstance(error, asyncio.TimeoutError):
+                    await ctx.send(
+                        "Timed out! No one reached the finish line.. "
+                        + "*sad noises*"
+                    )
+                    return
+
+        db_ailie.disconnect()
 
     @commands.command(
         name="pat",
