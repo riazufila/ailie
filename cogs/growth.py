@@ -11,7 +11,7 @@ from helpers.database import Database
 class Growth(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.sprint_event = False
+        self.sprint_event = []
 
         # Initialize database for Ailie
         db_ailie = Database()
@@ -671,12 +671,13 @@ class Growth(commands.Cog):
 
         await ctx.send(random.choice(reply))
 
-        if self.sprint_event:
+        if ctx.guild.id in self.sprint_event:
             return
 
-        self.sprint_event = random.choices([True, False], [15, 85], k=1)[0]
+        do_sprint_event = random.choices([True, False], [15, 85], k=1)[0]
 
-        if self.sprint_event:
+        if do_sprint_event:
+            self.sprint_event.append(ctx.guild.id)
             await ctx.send(
                 "Time to race! Call everyone! Its.. sprinting event! "
                 + "Whoever typed `sprint` seven times first, wins!"
@@ -711,14 +712,16 @@ class Growth(commands.Cog):
                             + f"<@{sprinter}> gained `{sprint_win_gems:,d}` "
                             + f"gems and `{user_exp:,d}` Guardian EXP."
                         )
+
+                        self.sprint_event.remove(ctx.guild.id)
             except Exception as error:
                 if isinstance(error, asyncio.TimeoutError):
                     await ctx.send(
                         "Timed out! No one reached the finish line.. "
                         + "*sad noises*"
                     )
+                    self.sprint_event.remove(ctx.guild.id)
 
-        self.sprint_event = False
         db_ailie.disconnect()
 
     @commands.command(
