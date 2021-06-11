@@ -11,6 +11,7 @@ from helpers.database import Database
 class Growth(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        self.sprint_event = False
 
         # Initialize database for Ailie
         db_ailie = Database()
@@ -670,9 +671,12 @@ class Growth(commands.Cog):
 
         await ctx.send(random.choice(reply))
 
-        sprint_event = random.choices([True, False], [40, 60], k=1)[0]
+        if self.sprint_event:
+            return
 
-        if sprint_event:
+        self.sprint_event = random.choices([True, False], [15, 85], k=1)[0]
+
+        if self.sprint_event:
             await ctx.send(
                 "Time to race! Call everyone! Its.. sprinting event! "
                 + "Whoever typed `sprint` seven times first, wins!"
@@ -687,8 +691,6 @@ class Growth(commands.Cog):
                         sprinters[message.author.id] = 1
                     else:
                         sprinters[message.author.id] += 1
-
-                    print(sprinters)
 
                     if sprinters[message.author.id] == 7:
                         return True
@@ -715,8 +717,8 @@ class Growth(commands.Cog):
                         "Timed out! No one reached the finish line.. "
                         + "*sad noises*"
                     )
-                    return
 
+        self.sprint_event = False
         db_ailie.disconnect()
 
     @commands.command(
