@@ -1811,7 +1811,7 @@ class Growth(commands.Cog):
                 if int(msg.content) == training_picked:
                     if guess_count == 1:
                         exp = exp * 5
-                    elif guess_count < 3:
+                    elif guess_count <= 3:
                         exp = exp * 2
                     else:
                         pass
