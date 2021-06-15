@@ -1813,6 +1813,13 @@ class Growth(commands.Cog):
                         exp = exp * 5
                     elif guess_count <= 3:
                         exp = exp * 2
+                    elif guess_count >= 7:
+                        await ctx.send(
+                            "Oops! Too many wrong guesses, "
+                            + f"<@{ctx.author.id}>. "
+                            + "No Hero EXP then."
+                        )
+                        break
                     else:
                         pass
 
@@ -1837,12 +1844,6 @@ class Growth(commands.Cog):
                     await ctx.send(f"<@{ctx.author.id}>, a bit lower!")
                 elif int(msg.content) < training_picked:
                     await ctx.send(f"<@{ctx.author.id}>, a bit higher!")
-                elif guess_count >= 7:
-                    await ctx.send(
-                        f"Oops! Too many wrong guesses, <@{ctx.author.id}>. "
-                        + "No Hero EXP then."
-                    )
-                    break
             except Exception:
                 await ctx.send(
                     "You're taking too long to guess correctly, "
