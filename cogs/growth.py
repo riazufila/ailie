@@ -4,6 +4,8 @@ import asyncio
 import math
 import random
 import discord
+import pytz
+from datetime import datetime
 from discord.ext import commands
 from helpers.database import Database
 
@@ -1384,6 +1386,7 @@ class Growth(commands.Cog):
         counter = 1
         min_gems_to_gain = 1000
         gems = 0
+        msg = None
 
         # Fill gems to obtain list with many random increasing numbers
         while counter < 8:
@@ -1433,7 +1436,7 @@ class Growth(commands.Cog):
 
             if broke:
                 db_ailie.item_break(ctx.author.id, "Princess Amulet")
-                await msg.reply(
+                msg = await msg.reply(
                     "Yeah, I'm serious. Your `Princess Amulet` broke, "
                     + f"<@{ctx.author.id}>. Sad."
                 )
@@ -1450,6 +1453,107 @@ class Growth(commands.Cog):
             db_ailie.store_gems(ctx.author.id, gems)
             db_ailie.update_user_exp(ctx.author.id, 10)
             db_ailie.disconnect()
+        else:
+            manual_wish = random.choices([True, False], [40, 60], k=1)
+
+            if manual_wish:
+                await asyncio.sleep(1)
+                await msg.reply(
+                    f"<@{ctx.author.id}>, I know I've been mean sometimes. "
+                    + "Okay maybe all the time? Not the point! "
+                    + "So, the point is, I'm giving you one wish again. "
+                    + "Just type whatever you want to wish for."
+                )
+
+                # Function confirm wish
+                def confirm_wish(message):
+                    return message.author.id == ctx.author.id
+
+                try:
+                    wish = await self.bot.wait_for(
+                        "message", check=confirm_wish, timeout=30
+                    )
+                except Exception:
+                    await ctx.send(
+                        "You're taking too long to wish, "
+                        + f"<@{ctx.author.id}>. Guess you're good!"
+                    )
+                    return
+
+                await ctx.send(f"<@{ctx.author.id}>, handling your request..")
+                await asyncio.sleep(1)
+
+                wish = wish.content
+                wish_number = 0
+                for w in wish:
+                    buffer = ord(w) - 96
+
+                    if buffer < 0:
+                        negate_sign = -1
+                    else:
+                        negate_sign = 1
+
+                    wish_number = wish_number + (buffer * negate_sign)
+
+                iteration = 0
+                datetime_now = datetime.now(pytz.utc)
+                total_seconds_now = \
+                    int(str(datetime_now.timestamp()).replace(".", ""))
+                rand_number = random.randint(1, 100)
+                user_id = ctx.author.id
+                wish_value_hold = \
+                    wish_number * user_id * total_seconds_now * rand_number
+                wish_value = ""
+
+                while iteration < 5:
+                    pick = random.randint(0, (len(str(wish_value_hold)) - 1))
+                    wish_value += str(wish_value_hold)[pick]
+                    iteration += 1
+
+                wish_value = int(wish_value)
+                wish_gems = 0
+                wish_user_exp = 0
+
+                if wish_value == 0:
+                    wish_gems = 500000
+                    wish_user_exp = 500
+                    await ctx.send(
+                        f"I'm feeling generous, <@{ctx.author.id}>. "
+                        + "`{wish_gems:,d}` gems for you!"
+                    )
+                elif wish_value == 1:
+                    wish_gems = 300000
+                    wish_user_exp = 300
+                    await ctx.send(
+                        f"Your wish is registered, <@{ctx.author.id}>. "
+                        + f"You got `{wish_gems:,d}` gems!"
+                    )
+                elif wish_value == 99999:
+                    wish_gems = 1000000
+                    wish_user_exp = 1000
+                    await ctx.send(
+                        f"WHAT IS THIS WISH?! <@{ctx.author.id}>, "
+                        + f"you got `{wish_gems:,d}` gems!"
+                    )
+                elif wish_value >= 50000:
+                    wish_gems = 5000
+                    wish_user_exp = 50
+                    await ctx.send(
+                        f"I was expecting more, <@{ctx.author.id}>. "
+                        + "But, such an ordinary wish from you? Haha. "
+                        + f"You got `{wish_gems:,d}` gems though."
+                    )
+                else:
+                    wish_gems = 3000
+                    wish_user_exp = 30
+                    await ctx.send(
+                        f"You wished, <@{ctx.author.id}>. "
+                        + "Your wish is pretty basic though. "
+                        + f"I guess `{wish_gems:,d}` gems is enough."
+                    )
+
+                db_ailie.store_gems(ctx.author.id, wish_gems)
+                db_ailie.update_user_exp(ctx.author.id, wish_user_exp)
 
     @commands.command(
         name="limitbreak",
