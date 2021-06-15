@@ -1826,7 +1826,7 @@ class Growth(commands.Cog):
                     reply = [
                         f"<@{ctx.author.id}>, you can feel `{exp:,d}` Hero EXP "
                         + "coursing through your hero.",
-                        "You think you've got the best your hero? "
+                        "You think you've got the best hero? "
                         + "However strong your your hero "
                         + f"is, <@{ctx.author.id}>, it still won't surpass me. "
                         + f"You've got `{exp:,d}` Hero EXP though.",
