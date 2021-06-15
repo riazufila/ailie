@@ -1808,18 +1808,18 @@ class Growth(commands.Cog):
 
                 exp = random.randint(lowest_exp_gain, highest_exp_gain)
 
-                if int(msg.content) == training_picked:
+                if guess_count >= 7:
+                    await ctx.send(
+                        "Oops! Too many wrong guesses, "
+                        + f"<@{ctx.author.id}>. "
+                        + "No Hero EXP then."
+                    )
+                    break
+                elif int(msg.content) == training_picked:
                     if guess_count == 1:
                         exp = exp * 5
                     elif guess_count <= 3:
                         exp = exp * 2
-                    elif guess_count >= 7:
-                        await ctx.send(
-                            "Oops! Too many wrong guesses, "
-                            + f"<@{ctx.author.id}>. "
-                            + "No Hero EXP then."
-                        )
-                        break
                     else:
                         pass
 
