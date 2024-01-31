@@ -1,5 +1,3 @@
-### Development of Ailie has been discontinued.
-
 # Ailie
 
 Discord bot inspired by Guardian Tales.
